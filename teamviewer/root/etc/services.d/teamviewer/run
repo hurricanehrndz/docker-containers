@@ -1,0 +1,6 @@
+#!/usr/bin/with-contenv bash
+# vim:set ft=sh sw=2 sts=2 st=2 et:
+
+s6-svwait -t 1000 -u /var/run/s6/services/teamviewerd
+
+s6-setuidgid ${APP_USER} /opt/teamviewer/tv_bin/TeamViewer

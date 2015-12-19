@@ -1,0 +1,5 @@
+#!/bin/bash
+APP_NAME="teamviewer"
+
+echo "Uninstalling ${APP_NAME}..."
+rm -rf /target/${APP_NAME}

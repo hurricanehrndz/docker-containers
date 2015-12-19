@@ -1,0 +1,2 @@
+/opt/teamviewer/logfiles true nobody,32768:32768 0766 0777
+/opt/teamviewer/config true nobody,32768:32768 0777 0777
