@@ -8,14 +8,14 @@ domain socket in order to create its graphical window on the host's X11 server.
 
 ## Installation:
 This container can be installed from either the [Docker
-Hub](http://hub.docker.com) or by cloning this project to your host and running
+Hub](http://hub.docker.com/hurricane/teamviewer) or by cloning this project to your host and running
 `make`. For most users installing from the hub will be sufficient.
 
 This container is deployed with a wrapper script that makes running the docker
 image very simple. Simply chose one of the installation methods below to get
 started.
 
-### Installing from [Docker Hub](http://hub.docker.com):
+### Installing from [Docker Hub](http://hub.docker.com/hurricane/teamviewer):
 ```
 docker run -it --rm \
     -v /usr/local/bin:/target \
@@ -67,12 +67,12 @@ have exited TeamViewer. These environment variables are as follows:
 * system tray icon gets rendered on desktop as a large blue window  using  [i3 wm](https://i3wm.org).
   It is recommended to add the following three lines to you i3 config in order to
   stop the tray icon from being rendered at all.
-  ```
-    for_window [instance="TeamViewer.exe"] floating enable
-    for_window [class="TeamViewer"] floating enable
-    for_window [instance="Qt-subapplication" title="TeamViewer"] move scratchpad
-  ```
-Feel free to report additional [issues](../../issues/new).
+```
+for_window [instance="TeamViewer.exe"] floating enable
+for_window [class="TeamViewer"] floating enable
+for_window [instance="Qt-subapplication" title="TeamViewer"] move scratchpad
+```
+Feel free to report additional [issues](../../../issues/new).
 
 ## Contributing
 
