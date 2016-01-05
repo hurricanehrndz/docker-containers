@@ -1,0 +1,696 @@
+#!/bin/bash
+
+# ----------------------------------------------------------------------
+# maildir-notmuch-sync
+#
+# a script to sync up maildir folders (and thus gmail labels)
+# and notmuch tags
+#
+# Ethan Schoonover / es@ethanschoonover / @ethanschoonover
+# ----------------------------------------------------------------------
+
+# ----------------------------------------------------------------------
+# Usage:
+# ----------------------------------------------------------------------
+#
+#     maildir-notmuch-sync [--dry-run] /path/to/maildir/account/root
+#
+# Designed to be called from offlineimap's post/pre sync hooks in the
+# account configuration section of .offlineimaprc
+#
+# The argument passed to maildir-notmuch-sync should be the same as the
+# localfolders value for the local respository setup.
+#
+# For example, if your local repository localfolders looks like this
+# in your .offlineimaprc:
+#
+#     [Repository personal-local]
+#
+#     localfolders       = ~/var/mail/accounts/personal
+#
+#
+# then the presynchook and postsynchook would look like this (assuming
+# that maildir-notmuch-sync is in your path; if not, use the full path
+# to the script):
+#
+#     [Account personal]
+#
+#     localrepository = personal-local
+#     remoterepository = personal-remote
+#     presynchook  = maildir-notmuch-sync "~/var/mail/accounts/personal"
+#     postsynchook = maildir-notmuch-sync "~/var/mail/accounts/personal"
+#
+# This allows the script to use short tags for multiple accounts without
+# getting confused about what tag goes where.
+
+# ----------------------------------------------------------------------
+# Dry-run
+# ----------------------------------------------------------------------
+#
+# Call the script directly from the command line with the intial
+# argument "--dry-run" to test the result:
+#
+#     maildir-notmuch-sync "--dry-run" "~/var/mail/accounts/personal"
+#
+# Dry-run mode will echo a summary of changes and any deletions, copies
+# but will NOT make any changes
+
+
+# ----------------------------------------------------------------------
+# Values - CHANGE THESE
+# ----------------------------------------------------------------------
+
+# Maildir Information
+# ----------------------------------
+
+INBOX="INBOX"       # (mutt's spool dir)  - both the tag and folder
+SENT="sent"         # (mutt's record dir) - both the tag and folder
+ARCHIVE="archive"   # (mutt's mbox/received) - both the tag and folder
+TRASH="trash"       # trash maildir, gmail requires for real deletion
+
+# Note that the tag/folder values (INBOX/SENT/etc) must match
+# your local maildir names, after any nametrans by offlineimap. For
+# example, my own "All Mail" is translated by offlineimap to "archive"
+# (lowercase) and thus my ARCHIVE value is "archive".
+#
+# Again, please note that these ARE case sensitive values and must
+# match your local maildir as offlineimap creates it.
+
+
+# Notmuch Tag Information
+# ----------------------------------
+
+# if multiple new.tags in notmuch, identify transient tag here
+# this tag is only used as a temporary tag during script run
+NEW_TAG="new"
+
+# the tag notmuch uses to keep track of unread status
+# also used by mutt-kz (be careful! assigning this in mutt-kz
+# and then removing an unread tag really does mark mail as read,
+# possibly in bulk!)
+UNREAD_TAG="unread"
+
+# if true, convert "new" tag to "unread" at end of script run
+# otherwise new tag is simple removed
+MAKE_NEW_UNREAD=false
+
+# convert infix slashes to dashes in tags,
+# e.g. "clients/bob" becomes "clients-bob"
+SLASHES_TO_DASHES=false
+
+# shorter, trimmed tags; see description below
+TRIM_ACCOUNT_PREFIX_IN_TAGS=true
+
+# TRIM_ACCOUNT_PREFIX_IN_TAGS (above)
+#
+# Example: I have two gmail accounts I'm syncing with offlineimap:
+# work & personal. The local account respository paths are:
+#
+# /home/me/mail/personal
+# /home/me/mail/work
+#
+# I index them both in a single notmuch db that is rooted on the
+# following path:
+#
+# /home/me/mail
+#
+# This allows notmuch to index all my mail in one pass.
+# Notmuch indexes mail so that I can search for folder:/personal/INBOX
+# (the search without leading slash is almost identical folder:personal/INBOX)
+#
+# You can then choose here to tag your mails in one of two formats:
+#
+# UNTRIMMED tag: personal/INBOX
+# TRIMMED tag:   INBOX
+#
+# set TRIM_ACCOUNT_PREFIX_IN_TAG=true for the trimmed style
+#
+# Note that this will not result in a namespace collision since the
+# script is being called from offlineimap and passed the path to the
+# account root.
+#
+# The difference between the account root and the notmuch root (as
+# set in your notmuch config) determines the account prefix value.
+
+
+# ----------------------------------------------------------------------
+# Script settings
+# ----------------------------------------------------------------------
+
+set -o errexit
+set -o nounset
+
+# check for special run mode
+# --dry-run (-d)
+# --help    (-h)
+
+case ${1:-} in
+    *-h*) echo "usage: mail-index [--dry-run]"; exit; ;;
+    *-d*) RUNCMD=echo; DRYRUN=true; DRYRUN_MSG="- DRYRUN (no changes will be made)"; shift; ;;
+    *)    RUNCMD=eval; DRYRUN=false ;;
+esac
+
+
+# ----------------------------------------------------------------------
+# Notmuch config checks
+# ----------------------------------------------------------------------
+
+# check if there is an existing notmuch configuration and assign
+# the value of new.tags to a variable
+# ----------------------------------
+if ! notmuch config list &>/dev/null; then
+cat <<EOF
+------------------------------------
+Missing notmuch config file.
+
+Please configure notmuch and run 'notmuch new' once prior to running
+$(basename $0). See notes in this script for recommendations on notmuch
+configuration values.
+------------------------------------
+EOF
+    exit 1;
+else # get the current notmuch new.tags value
+    NM_NEW_TAGS="$(notmuch config list | grep 'new.tags' | cut -f2 -d'=')"
+fi
+
+
+# confirm that the "new.tags" value in notmuch is not empty
+# ----------------------------------
+if [[ -z "$NM_NEW_TAGS" ]]; then
+cat <<-EOF
+------------------------------------
+The "new.tags" value in your notmuch config is set to an empty value.
+Please add a new.tags value by running:
+
+    notmuch config set new.tags new
+
+or edit the [new] section of your ~/.notmuch-config file and add:
+
+    tags=new
+
+or your desired set of new tags.
+------------------------------------
+EOF
+exit 1; fi
+
+
+# confirm that the "new.tags" value in notmuch is singlular, or request
+# that the user set a manual value here in the script
+# ----------------------------------
+if [[ "$NM_NEW_TAGS" != "${NM_NEW_TAGS#*;}" ]] && \
+   [[ "$NM_NEW_TAGS" == "${NM_NEW_TAGS#*${NEW_TAG:-}*}" ]];
+then
+cat <<-EOF
+------------------------------------
+You have multiple "new.tags" values specified in your notmuch config.
+This is fine as long as it's intentional. However this script requires
+one "transient" new tag (e.g. "new") that will be used during the script
+execution, and removed at the end of the script run in order to identify
+truly new messages.
+
+Please identify this tag in the GLOBAL VARIABLES section of this script
+($0) by adding/uncommenting a value such as:
+
+    NEW_TAG=new
+
+If you did not intend to set multiple tags in your notmuch config, please
+correct it by running:
+
+    notmuch config set new.tags new
+
+or editing the [new] section of your ~/.notmuch-config file and
+adding
+
+    tags=new
+
+or your desired set of new tags.
+------------------------------------
+EOF
+exit 1;
+elif [[ "$NM_NEW_TAGS" == "${NM_NEW_TAGS#*;}" ]] && \
+     [[ "$NM_NEW_TAGS" != "${NEW_TAG}" ]]; then
+cat <<-EOF
+------------------------------------
+You have the notmuch config value "new.tags" set to a value that does
+not correspond to the value for \$NEW_TAG in this script.
+
+    Your notmuch new.tags == $NM_NEW_TAGS
+    This script's NEW_TAG == $NEW_TAG
+
+This tag will be used as a transient indicator during script processing.
+Please set it to a matching value such as "new" for both the notmuch
+config and NEW_TAG in this script.
+
+Note that you may use multiple tags in your notmuch new.tags value that
+are separated by ; as long as at least one of them matches the value for
+NEW_TAG in this script.
+------------------------------------
+EOF
+exit 1; fi
+
+
+# ----------------------------------------------------------------------
+# Warning:
+# ----------------------------------------------------------------------
+#
+# Requires a specific offlineimap, notmuch, and mutt-kz setup
+# anything else will probably not work and will likely mess
+# up your email something fierce; you've been warned.
+
+# ----------------------------------------------------------------------
+# notmuch config notes:
+# ----------------------------------------------------------------------
+#
+# Turn off maildir flag syncing for now. the problematic
+# issues there are unread tag -> unread status, and
+# deletions, which we prefer to happen on a directory-by-
+# directory basis for now (e.g. deleting from one maildir
+# - the equivalent to removing a gmail label - doesn't
+# delete from *all* maildirs).
+#
+# Also, .notmuch-config's [new] tags settings should be "new"
+# (or similar, and make sure it matches $NEW_TAG in this script)
+#
+# You can do these via the command line:
+#
+#     notmuch config set maildir.synchronize_flags false
+#     notmuch config set new.tags new
+#
+# or in ~/.notmuch-config manually
+
+# TODO: fix maildir flag sync so that it works here as well and can
+# be used, specifically for unread status, which is useful
+
+# ----------------------------------------------------------------------
+# offlineimap setup:
+# ----------------------------------------------------------------------
+#
+# You'll most likely want to run this via offlineimap's postsynchook.
+# Another option would be inotify/systemd monitoring of your maildir
+# root directory for changes.
+#
+# This script is designed to sync pretty much your entire IMAP folder
+# structure from gmail, including "All Mail".
+
+# ----------------------------------------------------------------------
+# Use with Mutt-kz
+# ----------------------------------------------------------------------
+#
+# Using mutt-kz virtual folders, you'll want to use a keybinding such
+# as this to quickly archive any mail the way Gmail archives (which is
+# to say, it removes the Inbox label):
+#
+#     macro e index,pager ""
+#
+# Normally I work with the virtual folders, almost exclusively, in
+# mutt-kz. However, if you wish to also manually delete and move mails
+# from the non-virtual (normal mutt) folders, you'll have to create
+# macros that add a tag prior to these functions so that this script
+# doesn't revert those changes automatically.
+#
+#     macro d index,pager ""
+#     macro s index,pager ""
+
+# TODO: check to see what mutt menus currently have delete/save support
+# and thus existing key bindings
+
+# TODO: mutt-kz trash macro that adds trash (probably removes INBOX) and quasi-deletes
+
+
+# ----------------------------------------------------------------------
+# Notmuch database path
+# ----------------------------------------------------------------------
+# the directories contained by this path are scanned for mail, so
+# we use this to locate and identify maildir folders
+
+# Source from existing notmuch config
+NOTMUCH_ROOT="$(notmuch config list | grep 'database.path' | cut -f2 -d'=')"
+
+# Normalize path by trimming trailing slash, if any, and then adding trailing slash
+NOTMUCH_ROOT="${NOTMUCH_ROOT%/}"
+
+
+# ----------------------------------------------------------------------
+# Account maildir root path
+# ----------------------------------------------------------------------
+# passed as a command line argument
+
+# Normalize path by trimming trailing slash, if any
+# (use eval in case user quoted a path with ~ in it, though they shouldn't have)
+eval "MAILDIR_ACCOUNT_ROOT=${1%/}"
+# Used for mbsync
+ACCOUNT_NAME=${MAILDIR_ACCOUNT_ROOT#$NOTMUCH_ROOT/}
+
+
+# ----------------------------------------------------------------------
+# MAILBOXES:
+# ----------------------------------------------------------------------
+# get list of mailboxes using the mboxes file output by offlineimap
+# other strategies to create this list include a directory listing,
+# possibly recursive, of the root maildir
+
+#MAILBOXES="$(sed 's/[^"]*"+\([^"]*\)"/\1\n/g' ~/var/mail/mailboxes)"
+
+# example of a recursive find (incomplete):
+# TODO: maybe make this the primary method and create pairings?
+# find $MAILDIR -name "cur" -type d -exec dirname '{}' \; | sed "s/^$MAILDIR\///" | sort
+
+MAILBOXES_FULL_PATHS="$(echo "$(find $MAILDIR_ACCOUNT_ROOT -name "cur" -type d -exec dirname '{}' \;)" | sort;)"
+ # | sed "s/^$MAILDIR\///" | sort
+
+
+# ----------------------------------------------------------------------
+# Helper Functions
+# ----------------------------------------------------------------------
+
+Notmuch_Tag_From_Full_Path ()
+{
+# TODO: update examples here to be full paths
+# This take a path such as: /work/INBOX
+# and converts it to a tag: work-INBOX or INBOX
+#
+# A nested maildir such as: /work/clients/bob
+# is converted to a tag:    work/clients/bob
+#
+# If the TRIM_ACCOUNT_PREFIX_IN_TAGS variable is set to true, then
+# a nested maildir such as: /work/clients/bob
+# is converted to a tag:    clients/bob
+#
+# If SLASHES_TO_DASHES is true, infix slashes will be converted to
+# dashes, e.g. "client/bob" becomes "client-bob"
+
+case $TRIM_ACCOUNT_PREFIX_IN_TAGS in
+    true|TRUE|yes|YES|y|Y) local TRIMMER="$MAILDIR_ACCOUNT_ROOT" ;;
+    *)                     local TRIMMER="$NOTMUCH_ROOT"         ;;
+esac
+
+case $SLASHES_TO_DASHES in
+    true|TRUE|yes|YES|y|Y) echo "${1#$TRIMMER/}" | sed "s+/+-+g" ;;
+    *)                     echo "${1#$TRIMMER/}"                 ;;
+esac
+
+}
+
+Notmuch_Folder_From_Full_Path ()
+{
+# Takes argument:
+#
+#     /home/username/mail/work/INBOX
+#
+# and uses notmuch root path to trim and return, for example:
+#
+#     /work/INBOX
+#
+# which is the full form searchable from notmuch using a query such as:
+#
+#     notmuch search folder:/work/INBOX
+
+    echo "${1#$NOTMUCH_ROOT/}"
+
+}
+
+Maildir_Account_Folder_From_Full_Path ()
+{
+# Takes argument:
+#
+#     /home/username/mail/work/INBOX
+#
+# and uses maildir account root path to trim and return, for example:
+#
+#     /INBOX
+#
+# which is the full form searchable from notmuch using a query such as:
+#
+#     notmuch search folder:/work/INBOX
+
+    echo "${1#$MAILDIR_ACCOUNT_ROOT}"
+
+}
+
+# ----------------------------------------------------------------------
+# PRE Notmuch DB Sync Functions
+# ----------------------------------------------------------------------
+# executed prior to 'notmuch new'
+
+Notmuch_State_To_Maildir__Move_To_Maildir ()
+{
+# Scenario:
+#
+# NOTMUCH STATE (per message):
+# Number of Notmuch Tags > Number of Notmuch Folders
+#
+# MAILDIR STATE:
+# No change from previous state.
+#
+# Tags have been added to a message in a virtual folder (in the notmuch db).
+# The number of folders associated with a message has not been changed in
+# the notmuch db. This indicates that we need to copy the message to a
+# new maildir. After the next 'notmuch new' db update, the tags/folders
+# should thus be at parity again.
+
+    local THIS_MAILDIR_FULL_PATH="$1"
+    local THIS_NOTMUCH_FOLDER="$(Notmuch_Folder_From_Full_Path $THIS_MAILDIR_FULL_PATH)"
+    local THIS_NOTMUCH_TAG="$(Notmuch_Tag_From_Full_Path $THIS_MAILDIR_FULL_PATH)"
+    local THESE_MESSAGE_IDS_TO_COPY="$(\
+        notmuch search --output=messages\
+        tag:"$THIS_NOTMUCH_TAG" \
+        AND tag:"$ARCHIVE" \
+        NOT folder:"$THIS_NOTMUCH_FOLDER" \
+        NOT folder:"$TRASH" \
+        NOT tag:"$NEW_TAG")"
+
+    # We are running this function prior to the remove function below
+    # but there is still the edge case wherein the user has manually
+    # deleted a mail message in mutt (better to do all this with tags
+    # and virtual folders, but let's accommodate). So we should either
+    # prioritize the archive folder or cycle through the list of paths
+    # till we find one that is usable.
+
+    for THIS_MESSAGE_ID in $THESE_MESSAGE_IDS_TO_COPY; do
+
+        local THIS_MESSAGE_ALL_SOURCE_PATHS="$(notmuch search --output=files "$THIS_MESSAGE_ID")"
+
+        local FOUND=false
+
+        while read line; do
+
+            local THIS_MESSAGE_SOURCE_PATH="$line"
+
+            if [[ -e "$THIS_MESSAGE_SOURCE_PATH" ]]; then
+                FOUND=true
+                break
+            fi
+
+        done <<< "$THIS_MESSAGE_ALL_SOURCE_PATHS"
+
+        if $FOUND; then
+
+            if $RUNCMD "cp \"$THIS_MESSAGE_SOURCE_PATH\" \"$THIS_MAILDIR_FULL_PATH/cur\""; then
+                echo -n "Copied message with new tag to"
+                echo " $(Maildir_Account_Folder_From_Full_Path "$THIS_MAILDIR_FULL_PATH")"
+            else
+                echo -e "\nWARNING: Failed to copy mail file (unknown error):"
+                echo -e "SOURCE:  \"$THIS_MESSAGE_SOURCE_PATH\"\nDESTINATION\"$THIS_MAILDIR_FULL_PATH/cur\"\n"
+            fi
+
+        else
+
+            echo -e "\nWARNING: Failed to copy mail file (no valid source paths!):"
+            echo "ID: $THIS_MESSAGE_ID"
+            echo "NOTMUCH FOLDER: $THIS_NOTMUCH_FOLDER"
+            echo -e "DESTINATION MAILDIR: $THIS_MAILDIR_FULL_PATH\n"
+        fi
+
+    done
+
+}
+
+Notmuch_State_To_Maildir__Remove_From_Maildir ()
+{
+# Scenario:
+#
+# NOTMUCH STATE (per message):
+# Number of Notmuch Tags < Number of Notmuch Folders
+#
+# MAILDIR STATE:
+# No change from previous state.
+#
+# Tags have been removed from a message in a virtual folder (and thus
+# in the notmuch db). The number of folders associated with a message
+# has of course not yet changed. We need to remove the messages from
+# maildir folders from which it has been untagged.
+#
+# Note that the search below uses the $ARCHIVE folder/tag value
+# as a check that the messages have been previously indexed and processed
+# by this script.
+
+    local THIS_MAILDIR_FULL_PATH="$1"
+    local THIS_NOTMUCH_FOLDER="$(Notmuch_Folder_From_Full_Path $THIS_MAILDIR_FULL_PATH)"
+    local THIS_NOTMUCH_TAG="$(Notmuch_Tag_From_Full_Path $THIS_MAILDIR_FULL_PATH)"
+    local THESE_MESSAGE_IDS_TO_REMOVE="$(\
+        notmuch search --output=messages\
+        folder:"$THIS_NOTMUCH_FOLDER" \
+        AND tag:"$ARCHIVE" \
+        NOT tag:"$THIS_NOTMUCH_TAG" \
+        NOT tag:"$NEW_TAG")"
+
+    for THIS_MESSAGE_ID in $THESE_MESSAGE_IDS_TO_REMOVE; do
+
+        local THIS_MESSAGE_PATH="$(notmuch search --output=files "$THIS_MESSAGE_ID" | \
+            grep -e "^$THIS_MAILDIR_FULL_PATH")"
+
+        if [[ -e "$THIS_MESSAGE_PATH" ]]; then
+
+            if $RUNCMD "rm \"$THIS_MESSAGE_PATH\""; then
+                echo -n "Removed untagged message from"
+                echo " $(Maildir_Account_Folder_From_Full_Path "$THIS_MAILDIR_FULL_PATH")"
+            else
+                echo -e "\nWARNING: Failed to remove mail file (unknown error):"
+                echo "ID:$THIS_MESSAGE_ID"
+                echo "FOLDER:$THIS_NOTMUCH_FOLDER"
+                echo -e "MESSAGE PATH:$THIS_MESSAGE_PATH\n"
+            fi
+
+        else
+
+            echo -e "\nWARNING: Unable to remove missing mail file:"
+            echo "ID:$THIS_MESSAGE_ID"
+            echo "FOLDER:$THIS_NOTMUCH_FOLDER"
+            echo -e "MESSAGE PATH:$THIS_MESSAGE_PATH\n"
+        fi
+
+    done
+
+}
+
+# ----------------------------------------------------------------------
+# SYNC Notmuch DB Sync Functions
+# ----------------------------------------------------------------------
+
+Notmuch_Update ()
+{
+    $RUNCMD "notmuch new";
+}
+
+# ----------------------------------------------------------------------
+# POST Notmuch DB Sync Functions
+# ----------------------------------------------------------------------
+# executed after 'notmuch new' (otherwise the notmuch state looks the
+# same as the states above)
+
+Maildir_State_To_Notmuch__Add_Tags_To_Notmuch ()
+{
+# Scenario:
+#
+# NOTMUCH STATE (per message):
+# Number of Notmuch Tags < Number of Notmuch Folders
+#
+# MAILDIR STATE:
+# Message in a new folder (either via CLI/mutt copy, move or incoming sync)
+#
+# A message is in a "physical" maildir directory but does not have a
+# corresponding notmuch tag. For example:
+#
+#     ~/mail/INBOX/message123 should have a tag "INBOX"
+#
+# We process all mails in each maildir directory (mailbox) and add tags
+# as required.
+
+    local THIS_MAILDIR_FULL_PATH="$1"
+    local THIS_NOTMUCH_FOLDER="$(Notmuch_Folder_From_Full_Path $THIS_MAILDIR_FULL_PATH)"
+    local THIS_NOTMUCH_TAG="$(Notmuch_Tag_From_Full_Path $THIS_MAILDIR_FULL_PATH)"
+    local THIS_NOTMUCH_QUERY="folder:\"$THIS_NOTMUCH_FOLDER\" NOT tag:\"$THIS_NOTMUCH_TAG\""
+    local THIS_COUNT="$(notmuch count $THIS_NOTMUCH_QUERY)"
+
+    $DRYRUN || notmuch tag +"$THIS_NOTMUCH_TAG" -- $THIS_NOTMUCH_QUERY
+    [[ $THIS_COUNT > 0 ]] && echo "Tagged $THIS_COUNT messages with \"$THIS_NOTMUCH_TAG\"" || true
+
+}
+
+Maildir_State_To_Notmuch__Remove_Tags_From_Notmuch ()
+{
+# Scenario:
+#
+# NOTMUCH STATE (per message):
+# Number of Notmuch Tags > Number of Notmuch Folders
+#
+# MAILDIR STATE:
+# Message removed from folder, either via rm, mutt delete, or offlineimap sync
+#
+# A message has been removed from a maildir directory. Notmuch is aware of
+# this (this should only be checked/run after a 'notmuch new' update).
+# However, we still have the "old" tag on the message.
+#
+# We skip the trash since we might want to restore those in future?
+
+    local THIS_MAILDIR_FULL_PATH="$1"
+    local THIS_NOTMUCH_FOLDER="$(Notmuch_Folder_From_Full_Path $THIS_MAILDIR_FULL_PATH)"
+    local THIS_NOTMUCH_TAG="$(Notmuch_Tag_From_Full_Path $THIS_MAILDIR_FULL_PATH)"
+    local THIS_NOTMUCH_QUERY="tag:\"$THIS_NOTMUCH_TAG\" \
+                              NOT folder:\"$THIS_NOTMUCH_FOLDER\" \
+                              NOT folder:\"$TRASH\""
+    local THIS_COUNT="$(notmuch count $THIS_NOTMUCH_QUERY)"
+
+    $DRYRUN || notmuch tag -"$THIS_NOTMUCH_TAG" -- $THIS_NOTMUCH_QUERY
+    [[ $THIS_COUNT > 0 ]] && echo "Untagged $THIS_COUNT messages, removed \"$THIS_NOTMUCH_TAG\"" || true
+
+}
+
+# ----------------------------------------------------------------------
+# CLEANUP Functions
+# ----------------------------------------------------------------------
+
+Notmuch_Cleanup ()
+{
+
+    # anything in sent mail should have the unread flag removed
+    $RUNCMD "notmuch tag -\"$UNREAD_TAG\" -- folder:\"$SENT\""
+
+    # remove "$NEW_TAG" tags, optionally converting to "$UNREAD_TAG"
+    case $MAKE_NEW_UNREAD in
+        true|TRUE|yes|YES|y|Y)
+            $RUNCMD "notmuch tag -\"$NEW_TAG\" +\"$UNREAD_TAG\" -- tag:\"$NEW_TAG\"" ;;
+        *)  $RUNCMD "notmuch tag -\"$NEW_TAG\" -- tag:\"$NEW_TAG\"" ;;
+    esac
+
+}
+
+
+# ----------------------------------------------------------------------
+# ----------------------------------------------------------------------
+# MAIN
+# ----------------------------------------------------------------------
+# ----------------------------------------------------------------------
+
+echo -e "\n----------------------------------------------------------------------"
+echo "$(basename $0) start ${DRYRUN_MSG:-}"
+echo "----------------------------------------------------------------------"
+echo "NOTMUCH ROOT: $NOTMUCH_ROOT"
+echo "ACCOUNT ROOT: $MAILDIR_ACCOUNT_ROOT"
+echo "ACCOUNT NMAE: $ACCOUNT_NAME"
+
+# Review the notmuch database state and sync up any changes first
+# (e.g. any retagged messages that need refiling)
+
+for MAILBOX_FULL_PATH in $MAILBOXES_FULL_PATHS; do
+    Notmuch_State_To_Maildir__Move_To_Maildir $MAILBOX_FULL_PATH
+    Notmuch_State_To_Maildir__Remove_From_Maildir $MAILBOX_FULL_PATH
+done
+
+# Update the notmuch database to reflect the changes we just made,
+# if any (so it can find the new messages)
+
+# TODO: ideally, would we want to sync offlineimap right before this?
+# thus splitting the script into pre and post sync modes?
+
+Notmuch_Update
+
+for MAILBOX_FULL_PATH in $MAILBOXES_FULL_PATHS; do
+    Maildir_State_To_Notmuch__Add_Tags_To_Notmuch $MAILBOX_FULL_PATH
+    Maildir_State_To_Notmuch__Remove_Tags_From_Notmuch $MAILBOX_FULL_PATH
+done
+
+Notmuch_Cleanup
+
+echo -e "maildir-notmuch-sync complete ----------------------------------------\n"
+

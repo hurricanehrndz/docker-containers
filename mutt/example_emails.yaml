@@ -1,0 +1,9 @@
+- domain.tld:
+    name: Firstname Lastname
+    user: firstname@domain.tld
+    pass: LastName
+    smtp: smtp.gmail.com
+    imap: imap.gmail.com
+    signature: |
+        Kind Regards,
+        Firstname Lastname

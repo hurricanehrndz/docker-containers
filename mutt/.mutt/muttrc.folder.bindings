@@ -1,0 +1,14 @@
+# Gmail-style keyboard shortcuts
+macro index,pager Gi "<change-vfolder>notmuch://?query=folder:$my_active_account/INBOX<enter>" "Go to Inbox"
+macro index,pager Ga "<change-vfolder>notmuch://?query=folder:$my_active_account/archive<enter>" "Go to All Mail"
+macro index,pager Gd "<change-vfolder>notmuch://?query=folder:$my_active_account/drafts<enter>" "Go to Drafts"
+macro index,pager Gs "<change-vfolder>notmuch://?query=folder:$my_active_account/sent<enter>" "Go to Sent Mail"
+
+# keyboard shortchts to move messages
+macro index,pager a "<save-message>=$my_active_account/archive<enter><enter>" "Archive"
+macro index,pager d "<save-message>=$my_active_account/trash<enter><enter>" "Trash"
+macro index,pager u "<save-message>=$my_active_account/INBOX<enter><enter>" "Move to Inbox"
+macro index,pager ! "<save-message>=$my_active_account/spam<enter><enter>" "Report spam"
+macro index,pager + "<save-message>=$my_active_account/important<enter><enter>" "Mark as Important"
+macro index,pager * "<save-message>=$my_active_account/flagged<enter><enter>" "Star Message"
+

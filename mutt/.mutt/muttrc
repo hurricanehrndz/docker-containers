@@ -1,0 +1,163 @@
+# ------------------------------------------------------------------------------
+# Paths
+# ------------------------------------------------------------------------------
+set folder           = ~/.mail/               # mailbox location
+set alias_file       = ~/.mutt/alias         # where to store aliases
+set mailcap_path     = ~/.mutt/mailcap       # entries for filetypes
+set tmpdir           = ~/.mutt/temp          # where to keep temp files
+
+# ------------------------------------------------------------------------------
+# Basic options
+# ------------------------------------------------------------------------------
+set mbox_type = Maildir # folder format
+set timeout = 3         # seconds to wait after last key pressed to check mail
+set mail_check = 0      # how often (in seconds) mutt should look for new mail
+unset move              # dont confirm on moving messages from spool to mbox
+unset mark_old          # dont make distinction between old and new, unread will always be new
+set beep_new            # beep whenever new message arrives
+set pipe_decode         # mutt will attempt to decode message before piping
+set thorough_search     # headers and attachments are decoded beofre searching
+
+# ------------------------------------------------------------------------------
+# Sidebar config
+# ------------------------------------------------------------------------------
+source ~/.mutt/muttrc.sidebar
+
+# ------------------------------------------------------------------------------
+# Header Options
+# ------------------------------------------------------------------------------
+ignore *                                      # ignore all headers
+unignore from to cc date subject reply-to     # headers to be shown
+unignore user-agent posted-to contnet-type
+unignore x-
+ignore "Authentication-Results:"
+ignore "DomainKey-Signature:"
+ignore "DKIM-Signature:"
+ignore "X-Recieved:"
+ignore "X-TUID:"
+ignore "X-Notifications:"
+ignore "X-Account-Notification-Type:"
+unhdr_order *                                 # some distros order things by default
+hdr_order from: to: cc: date: subject:        # and in this order
+
+# ------------------------------------------------------------------------------
+# Index Generic View Options
+# ------------------------------------------------------------------------------
+set sort = threads                                                  # like gmail (conversation view)
+set sort_aux = reverse-last-date-received                           # like gmail
+set uncollapse_jump                                                 # don't collapse on an unread message
+set sort_re                                                         # thread based on regex
+set resolve = no                                                    # stay on current message, don't take me to other messages
+set auto_tag = yes                                                  # functions affecting one message will be applied to all tagged
+
+# ------------------------------------------------------------------------------
+# Index Generic Key Bindings
+# ------------------------------------------------------------------------------
+bind index gg       first-entry
+bind index G        last-entry
+
+bind index R        group-reply
+bind index <tab>    sync-mailbox
+bind index <space>  collapse-thread
+
+# Ctrl-R to mark all as read
+macro index \Cr "T~U<enter><tag-prefix><clear-flag>N<untag-pattern>.<enter>" "mark all messages as read"
+
+# Saner copy/move dialogs
+macro index C "<copy-message>?<toggle-mailboxes>" "copy a message to a mailbox"
+macro index M "<save-message>?<toggle-mailboxes>" "move a message to a mailbox"
+
+# ------------------------------------------------------------------------------
+# Pager View Options
+# ------------------------------------------------------------------------------
+set pager_index_lines = 10               # number of index lines to show
+set pager_context = 3                    # number of context lines to show from previous page
+set pager_stop                           # don't go to next message automatically
+set menu_scroll                          # scroll in menus
+set tilde                                # show tildes like in vim
+set smart_wrap                           # long lines wrapped at a word boundary
+unset markers                            # no ugly plus signs
+alternative_order text/plain text/html * # preferred view order
+auto_view text/html                      # automatically view html files in pager
+
+
+# ------------------------------------------------------------------------------
+# Pager Generic Key Bindings
+# ------------------------------------------------------------------------------
+bind pager k  previous-line
+bind pager j  next-line
+bind pager gg top
+bind pager G  bottom
+
+bind pager R  group-reply
+
+# View attachments properly.
+bind attach <return> view-mailcap
+
+# ------------------------------------------------------------------------------
+# Compose View Options
+# ------------------------------------------------------------------------------
+set envelope_from                    # which from?
+set sig_dashes                       # dashes before sig
+set edit_headers                     # show headers when composing
+set fast_reply                       # skip to compose when replying
+set askcc                            # ask for CC:
+set fcc_attach                       # save attachments with the body
+unset mime_forward                   # forward attachments as part of body
+set forward_format = "Fwd: %s"       # format of subject when forwarding
+set forward_decode                   # decode when forwarding
+set reply_to                         # reply to Reply to: field
+set reverse_name                     # reply as whomever it was to
+set include                          # include message in replies
+set forward_quote                    # include message in forwards
+
+# ------------------------------------------------------------------------------
+# Writing Options
+# ------------------------------------------------------------------------------
+set editor         = "vim +:silent+?^$ +:noh" # use vim and skip to last blank line
+set ispell         = "aspell -e -c"           # use aspell as ispell
+#set query_command  = "goobook query '%s'"     # address query via goobook helper
+bind editor <Tab> complete-query
+bind editor ^T complete
+bind editor <space> noop
+
+# ------------------------------------------------------------------------------
+# GPG Options
+# ------------------------------------------------------------------------------
+source /usr/share/doc/mutt-kz/samples/gpg.rc # source default gpg options
+set pgp_use_gpg_agent = yes                  # use gpg-agent by default
+set pgp_timeout = 3600                       # number of secondes to keep passphrase in memory
+set pgp_auto_decode = yes                    # traditional pgp support
+set pgp_autosign = no                        # dont auto sign all outgoing messages
+set pgp_replyencrypt = yes                   # auto encrypt replies to encrypted mail
+set pgp_replysign = yes                      # auto sign replies to signed mail
+set pgp_replysignencrypted = yes             # auto sign & encrypt to signed and encrypted mail
+
+# ------------------------------------------------------------------------------
+# Color Options
+# ------------------------------------------------------------------------------
+source ~/.mutt/muttrc.dark.16
+
+# ------------------------------------------------------------------------------
+# notmuch Options
+# ------------------------------------------------------------------------------
+source ~/.mutt/muttrc.kz
+
+# ------------------------------------------------------------------------------
+# formats and regexps and mail directories
+# ------------------------------------------------------------------------------
+source ~/.mutt/muttrc.formats
+
+# ------------------------------------------------------------------------------
+# hooks
+# ------------------------------------------------------------------------------
+# general folder hooks
+#set uncollapse_new=yes
+folder-hook . 'push <collapse-all>'    # collapse threads on folder entry
+
+# source the formats config file regularly to make sure that the relative dates
+# get updated from time to time. there is probably a better way.
+folder-hook  . "source ~/.mutt/muttrc.formats"
+message-hook . "source ~/.mutt/muttrc.formats"
+
+# account specific folder hooks
