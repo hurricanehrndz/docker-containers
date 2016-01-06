@@ -41,10 +41,13 @@ RUN zypper addrepo http://download.opensuse.org/repositories/home:hurricaneherna
 	systemd \
 	systemd-presets-branding-openSUSE \
 	systemd-sysvinit \
-	udev
-#RUN update-ca-certificates \
+	udev \
+ && cd /usr/lib/locale \
+ && ls | grep -ve "en_CA*\|en_US*" | xargs rm -rf \
+ && cd /usr/share/locale \
+ &&  find -name '*.mo' | grep -ve "en_US*" | xargs rm
 # && git clone https://github.com/hurricanehrndz/vim /var/cache/.vim \
 # && git clone https://github.com/altercation/vim-colors-solarized /var/cache/.vim/bundle/vim-colors-solarized \
 # && git clone https://github.com/dbeniamine/vim-mail.git /var/cache/.vim/bundle/vim-mail
 #
-#ENV LC_LANG="en_CA.UTF-8" PINENTRY_BINARY="/usr/bin/pinentry-curses"
+ENV LANG="en_CA.UTF-8" PINENTRY_BINARY="/usr/bin/pinentry-curses"
