@@ -45,9 +45,9 @@ RUN zypper addrepo http://download.opensuse.org/repositories/home:hurricaneherna
  && cd /usr/lib/locale \
  && ls | grep -ve "en_CA*\|en_US*" | xargs rm -rf \
  && cd /usr/share/locale \
- &&  find -name '*.mo' | grep -ve "en_US*" | xargs rm
-# && git clone https://github.com/hurricanehrndz/vim /var/cache/.vim \
-# && git clone https://github.com/altercation/vim-colors-solarized /var/cache/.vim/bundle/vim-colors-solarized \
-# && git clone https://github.com/dbeniamine/vim-mail.git /var/cache/.vim/bundle/vim-mail
-#
+ &&  find -name '*.mo' | grep -ve "en_US*" | xargs rm \
+ && git clone --depth 1 https://github.com/hurricanehrndz/vim /var/cache/.vim \
+ && git clone https://github.com/dbeniamine/vim-mail.git /var/cache/.vim/bundle/vim-mail \
+ && git clone --depth 1 https://github.com/altercation/vim-colors-solarized /var/cache/.vim/bundle/vim-colors-solarized
+
 ENV LANG="en_CA.UTF-8" PINENTRY_BINARY="/usr/bin/pinentry-curses"
