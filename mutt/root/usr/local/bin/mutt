@@ -1,0 +1,15 @@
+#!/bin/bash
+
+USER_UID=${USER_UID:-1000}
+USER_GID=${USER_GID:-1000}
+
+APP_USER=${APP_USER:-appuser}
+
+# Invoke GnuPG-Agent the first time we login.
+s6-applyuidgid -u $USER_UID -g $USER_GID export GPG_AGENT_INFO=${GPG_AGENT_INFO} \
+  && GPG_TTY=$(tty) \
+  && export GPG_TTY \
+  && echo " " | gpg --no-tty --use-agent -q -r ${GPGKEY} -ae | gpg --no-tty --use-agent -q \
+  && echo "Setting up mutt with secrets." \
+  && python /usr/lib/muttbot/muttbot.py -c /home/${APP_USER}/.muttinfo \
+  && bash

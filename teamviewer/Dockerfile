@@ -2,30 +2,30 @@ FROM opensuse:tumbleweed
 
 RUN zypper ref \
  && zypper --non-interactive in fontconfig-32bit \
-    libICE6-32bit \
-    libSM6-32bit \
-    libX11-6-32bit \
-    libXau6-32bit \
-    libXdamage1-32bit \
-    libXext6-32bit \
-    libXfixes3-32bit \
-    libXinerama1-32bit \
-    libXrandr2-32bit \
-    libXrender1-32bit \
-    libXtst6-32bit \
-    libbz2-1-32bit \
-    libexpat1-32bit \
-    libfreetype6-32bit \
-    libjpeg62-32bit \
-    libpng12-0-32bit \
-    libpng16-16-32bit \
-    libuuid1-32bit \
-    libxcb1-32bit \
+	libICE6-32bit \
+	libSM6-32bit \
+	libX11-6-32bit \
+	libXau6-32bit \
+	libXdamage1-32bit \
+	libXext6-32bit \
+	libXfixes3-32bit \
+	libXinerama1-32bit \
+	libXrandr2-32bit \
+	libXrender1-32bit \
+	libXtst6-32bit \
+	libbz2-1-32bit \
+	libexpat1-32bit \
+	libfreetype6-32bit \
+	libjpeg62-32bit \
+	libpng12-0-32bit \
+	libpng16-16-32bit \
+	libuuid1-32bit \
+	libxcb1-32bit \
 	libasound2-32bit \
 	libdbus-1-3-32bit \
 	libgcc_s1-32bit \
 	sudo \
-    curl \
+	curl \
 	tar \
 	xz \
  && zypper cc --all \

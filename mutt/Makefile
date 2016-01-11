@@ -2,48 +2,47 @@ all: build
 
 XSOCK=/tmp/.X11-unix
 XAUTH=/tmp/.docker.xauth
+APP_NAME="mutt"
 
 ENV_VARS= \
-	--env="USER_UID=$(shell id -u)" \
-	--env="USER_GID=$(shell id -g)" \
-    --env="DISPLAY" \
-    --env="XAUTHORITY=${XAUTH}"
+	--env="APP_REPO_UID=$(shell id -u)" \
+	--env="APP_REPO_GID=$(shell id -g)" \
+	--env="DISPLAY" \
+	--env="XAUTHORITY=${XAUTH}" \
+	--env="APP_REPO=${APP_REPO}" \
+	--env="APP_USER=${USER}"
 
 VOLUMES = \
     --volume=${XSOCK}:${XSOCK} \
     --volume=${XAUTH}:${XAUTH}
 
-ENV_INSTL_USER=\
-	--env="MUTT_USER=${USER}" \
-	--env="MUTT_REPO=${USER}"
-
 help:
 	@echo ""
 	@echo "-- Help Menu"
 	@echo ""
-	@echo "   1. make build            - build the mutt image"
-	@echo "   2. make install          - install mutt wrapper"
-	@echo "   3. make mutt             - launch mutt"
+	@echo "   1. make build            - build the ${APP_NAME} image"
+	@echo "   2. make install          - install ${APP_NAME} wrappers"
+	@echo "   3. make ${APP_NAME}      - launch ${APP_NAME}"
 	@echo "   4. make bash             - bash login"
 	@echo ""
 
 clean:
-	@docker rm -f `docker ps -a | grep "${USER}/mutt" | awk '{print $$1}'` > /dev/null 2>&1 || exit 0
-	@docker rmi `docker images  | grep "${USER}/mutt" | awk '{print $$3}'` > /dev/null 2>&1 || exit 0
+	@docker rm -f `docker ps -a | grep "${APP_REPO}/${APP_NAME}" | awk '{print $$1}'` > /dev/null 2>&1 || exit 0
+	@docker rmi `docker images  | grep "${APP_REPO}/${APP_NAME}" | awk '{print $$3}'` > /dev/null 2>&1 || exit 0
 
 build:
-	@docker build --rm=true --tag=${USER}/mutt .
+	@docker build --rm=true --tag=${APP_REPO}/${APP_NAME} .
 
-install uninstall: build
+instl uninstl: build
 	@docker run -it --rm \
 		--volume=/usr/local/bin:/target \
-		${ENV_INSTL_USER} \
-		${USER}/mutt:latest $@
+		${ENV_VARS} \
+		${APP_REPO}/${APP_NAME}:latest $@
 
-mutt bash:
+${APP_NAME} bash:
 	@touch ${XAUTH}
-	@xauth nlist :0 | sed -e 's/^..../ffff/' | xauth -f ${XAUTH} nmerge -
-	docker run -it --rm \
+	@auth nlist :0 | sed -e 's/^..../ffff/' | xauth -f ${XAUTH} nmerge -
+	@docker run -it --rm \
 		${ENV_VARS} \
 		${VOLUMES} \
-		${USER}/mutt:latest $@
+		${APP_REPO}/${APP_NAME}:latest bash

@@ -103,6 +103,7 @@ prepare_docker_volume_parameters() {
 prog=$(basename $0)
 exec=$(which $prog)
 if [[ ${prog} == "mutt" ]]; then
+  prog=/bin/mutt
   [ "${1}" == "bash" ] && \
     prog=bash && \
     shift

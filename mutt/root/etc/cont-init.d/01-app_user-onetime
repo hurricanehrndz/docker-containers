@@ -24,6 +24,23 @@ if getent passwd ${USER_UID} > /dev/null; then
 fi
 
 # create user with USER_UID
+# create user with USER_UID
 if ! getent passwd ${APP_USER} > /dev/null; then
   useradd \
+    --home-dir /home/${APP_USER} \
+    --create-home \
+    --shell /bin/bash \
+    --uid ${USER_UID} \
+    --gid ${USER_GID} \
+    --comment 'Container application user.' ${APP_USER} > /dev/null 2>&1
 fi
+
+# add vim, mutt config to APP_USER home
+mv /var/cache/mutt_config /home/${APP_USER}/.mutt
+mv /var/cache/.vim /home/${APP_USER}/
+mkdir -p /home/${APP_USER}/.mutt/temp
+
+# fix configs permissions
+chown -R ${USER_UID}:${USER_GID} \
+/home/${APP_USER}/.mutt \
+/home/${APP_USER}/.vim

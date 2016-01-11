@@ -1,6 +1,7 @@
 # mutt-kz
 FROM opensuse:tumbleweed
 MAINTAINER Carlos Hernandez <carlos@techbyte.ca>
+ENV APP_NAME="mutt" LANG="en_CA.UTF-8" PINENTRY_BINARY="/usr/bin/pinentry-curses" s6_overlay_version="1.17.1.1"
 
 RUN zypper addrepo http://download.opensuse.org/repositories/home:hurricanehernandez/openSUSE_Tumbleweed/home:hurricanehernandez.repo \
  && zypper addrepo http://download.opensuse.org/repositories/server:mail/openSUSE_Tumbleweed/server:mail.repo \
@@ -26,6 +27,8 @@ RUN zypper addrepo http://download.opensuse.org/repositories/home:hurricaneherna
 	libslang2 \
 	libssl37 \
 	libtokyocabinet9 \
+	curl \
+	tar \
 	home_hurricanehernandez:mutt-kz \
  && zypper cc --all \
  && rm -rf /var/cache/zypp* \
@@ -42,6 +45,9 @@ RUN zypper addrepo http://download.opensuse.org/repositories/home:hurricaneherna
 	systemd-presets-branding-openSUSE \
 	systemd-sysvinit \
 	udev \
+ && curl -sL https://github.com/just-containers/s6-overlay/releases/download/v${s6_overlay_version}/s6-overlay-amd64.tar.gz -o /tmp/s6-overlay-amd64.tar.gz \
+ && tar zxf /tmp/s6-overlay-amd64.tar.gz -C / \
+ && rm -rf /tmp/* \
  && cd /usr/lib/locale \
  && ls | grep -ve "en_CA*\|en_US*" | xargs rm -rf \
  && cd /usr/share/locale \
@@ -50,4 +56,5 @@ RUN zypper addrepo http://download.opensuse.org/repositories/home:hurricaneherna
  && git clone --depth 1 https://github.com/dbeniamine/vim-mail /var/cache/.vim/bundle/vim-mail \
  && git clone --depth 1 https://github.com/altercation/vim-colors-solarized /var/cache/.vim/bundle/vim-colors-solarized
 
-ENV LANG="en_CA.UTF-8" PINENTRY_BINARY="/usr/bin/pinentry-curses"
+COPY root /
+ENTRYPOINT ["/init"]
