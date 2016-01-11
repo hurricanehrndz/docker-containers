@@ -3,6 +3,7 @@ all: build
 XSOCK=/tmp/.X11-unix
 XAUTH=/tmp/.docker.xauth
 APP_NAME="mutt"
+APP_REPO=${USER}
 
 ENV_VARS= \
 	--env="APP_REPO_UID=$(shell id -u)" \
