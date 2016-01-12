@@ -35,11 +35,13 @@ if ! getent passwd ${APP_USER} > /dev/null; then
 fi
 
 # add vim, mutt config to APP_USER home
-mv /var/cache/mutt_config /home/${APP_USER}/.mutt
+cp -R /var/cache/mutt_config/* /home/${APP_USER}/.mutt
 mv /var/cache/.vim /home/${APP_USER}/
 mkdir -p /home/${APP_USER}/.mutt/temp
-echo "extra-socket /home/${APP_USER}/.gnupg/S.gpg-agent-extra" > /home/${APP_USER}/.gnupg/gpg-agent.conf
 
 # fix configs permissions
+chown ${USER_UID}:${USER_GID} /home/${APP_USER}
 chown -R ${USER_UID}:${USER_GID} \
-/home/${APP_USER}
+  /home/${APP_USER}/.mutt \
+  /home/${APP_USER}/.vim \
+  /home/${APP_USER}/.gnupg
