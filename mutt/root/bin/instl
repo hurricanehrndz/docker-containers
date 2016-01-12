@@ -4,12 +4,13 @@ APP_USER=${APP_USER:-appuser}
 
 echo "Installing ${APP_NAME}..."
 install -m 0755 /var/cache/scripts/${APP_NAME} /target/
+if [ -n "${APP_REPO}" ]; then
+  echo "Updating image repo to ${APP_REPO}..."
+  sed -i -e s%"-hurricane"%"-${APP_REPO}"%1 /target/${APP_NAME}
+fi
+
 if [ "${APP_USER}" != "appuser" ] && [ -n "${APP_USER}" ]; then
   echo "Updating user to ${APP_USER}..."
   sed -i -e s%"-appuser"%"-${APP_USER}"%1 /target/${APP_NAME}
 fi
 
-if [ -n "${APP_REPO}" ]; then
-  echo "Updating image repo to ${APP_REPO}..."
-  sed -i -e s%"-hurricanehrndz"%"-${APP_REPO}"%1 /target/${APP_NAME}
-fi

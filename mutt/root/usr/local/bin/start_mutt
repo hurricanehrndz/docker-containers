@@ -1,0 +1,8 @@
+#!/bin/bash
+
+GPG_TTY=$(tty)
+export GPG_TTY=$(tty)
+echo " " | gpg --no-tty --use-agent -q -r ${GPGKEY} -ae | gpg --no-tty --use-agent -q
+echo "Setting up mutt with secrets."
+python /usr/lib/muttbot/muttbot.py -c /usr/lib/muttbot/revealmuttsecrets
+bash
