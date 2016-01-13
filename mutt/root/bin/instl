@@ -13,4 +13,3 @@ if [ "${APP_USER}" != "appuser" ] && [ -n "${APP_USER}" ]; then
   echo "Updating user to ${APP_USER}..."
   sed -i -e s%"-appuser"%"-${APP_USER}"%1 /target/${APP_NAME}
 fi
-

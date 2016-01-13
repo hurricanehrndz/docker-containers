@@ -1,21 +1,11 @@
 all: build
 
-XSOCK=/tmp/.X11-unix
-XAUTH=/tmp/.docker.xauth
 APP_NAME="mutt"
 APP_REPO=${USER}
 
 ENV_VARS= \
-	--env="APP_REPO_UID=$(shell id -u)" \
-	--env="APP_REPO_GID=$(shell id -g)" \
-	--env="DISPLAY" \
-	--env="XAUTHORITY=${XAUTH}" \
 	--env="APP_REPO=${APP_REPO}" \
 	--env="APP_USER=${USER}"
-
-VOLUMES = \
-    --volume=${XSOCK}:${XSOCK} \
-    --volume=${XAUTH}:${XAUTH}
 
 help:
 	@echo ""
@@ -46,4 +36,4 @@ ${APP_NAME} bash:
 	@docker run -it --rm \
 		${ENV_VARS} \
 		${VOLUMES} \
-		${APP_REPO}/${APP_NAME}:latest bash
+		${APP_REPO}/${APP_NAME}:latest $@
