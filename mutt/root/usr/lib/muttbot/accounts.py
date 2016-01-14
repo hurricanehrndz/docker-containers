@@ -34,9 +34,9 @@ class AccountsSetuper(object):
             mbsync_writer.write('Host ' + account_info['imap'] + '\n')
             mbsync_writer.write('User ' + account_info['user'] + '\n')
             mbsync_writer.write('Pass ' + account_info['pass'] + '\n')
-            mbsync_writer.write('UseIMAPS yes \n')
-            mbsync_writer.write('RequireSSL yes \n')
-            mbsync_writer.write('CertificateFile /etc/ssl/certs/ca-certificates.crt\n')
+            mbsync_writer.write('SSLType IMAPS\n')
+            mbsync_writer.write('AuthMechs LOGIN\n')
+            mbsync_writer.write('CertificateFile /var/lib/ca-certificates/ca-bundle.pem\n')
             mbsync_writer.write('\n')
             mbsync_writer.write('IMAPStore ' + account_name + '-remote\n')
             mbsync_writer.write('Account ' + account_name + '\n')
@@ -135,7 +135,7 @@ class AccountsSetuper(object):
             msmtprc.write('user ' + account_info['user'] + '\n')
             msmtprc.write('password ' + account_info['pass'] + '\n')
             msmtprc.write('tls on\n')
-            msmtprc.write('tls_trust_file /etc/ssl/certs/ca-certificates.crt\n')
+            msmtprc.write('tls_trust_file /var/lib/ca-certificates/ca-bundle.pem\n')
             msmtprc.write('\n')
             msmtprc.close()
 
@@ -160,10 +160,6 @@ class AccountsSetuper(object):
         with open(kz_muttrc, "w") as kz:
             for line in lines:
                 kz.write(re.sub(r'/home/user_name/.mail',mail_dir, line))
-
-
-
-
         return success
 
 class SetupError(Exception):

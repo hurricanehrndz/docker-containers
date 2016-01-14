@@ -124,7 +124,7 @@ bind editor <space> noop
 # ------------------------------------------------------------------------------
 # GPG Options
 # ------------------------------------------------------------------------------
-source /usr/share/doc/mutt-kz/samples/gpg.rc # source default gpg options
+#source /usr/share/doc/mutt-kz/samples/gpg.rc # source default gpg options
 set pgp_use_gpg_agent = yes                  # use gpg-agent by default
 set pgp_timeout = 3600                       # number of secondes to keep passphrase in memory
 set pgp_auto_decode = yes                    # traditional pgp support

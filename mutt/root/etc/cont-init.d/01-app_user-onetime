@@ -34,14 +34,24 @@ if ! getent passwd ${APP_USER} > /dev/null; then
     --comment 'Container application user.' ${APP_USER} > /dev/null 2>&1
 fi
 
-# add vim, mutt config to APP_USER home
-cp -R /var/cache/mutt_config/* /home/${APP_USER}/.mutt
+# mutt config
+if [ -d /home/${APP_USER}/.mutt ]; then
+  mkdir -p /home/${APP_USER}/.mutt/temp
+  cp -R /var/cache/mutt_config/* /home/${APP_USER}/.mutt
+  chown -R ${USER_UID}:${USER_GID} \
+  /home/${APP_USER}/.mutt
+fi
+
+# gnupg config
+if [ -d /home/${APP_USER}/.gnupg ]; then
+  chown -R ${USER_UID}:${USER_GID} \
+  /home/${APP_USER}/.gnupg
+fi
+
+# vim config
 mv /var/cache/.vim /home/${APP_USER}/
-mkdir -p /home/${APP_USER}/.mutt/temp
+chown -R ${USER_UID}:${USER_GID} \
+  /home/${APP_USER}/.vim
 
 # fix configs permissions
 chown ${USER_UID}:${USER_GID} /home/${APP_USER}
-chown -R ${USER_UID}:${USER_GID} \
-  /home/${APP_USER}/.mutt \
-  /home/${APP_USER}/.vim \
-  /home/${APP_USER}/.gnupg
