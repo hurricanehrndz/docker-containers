@@ -4,7 +4,7 @@ current_dir := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 VOLUMES = \
 		  --volume=$(current_dir):/data
 
-VERSION=4.4-rc8
+VERSION=4.4
 
 ENV_VARS = \
 		   --env="VERSION=${VERSION}"
@@ -15,6 +15,10 @@ ENV_VARS += \
 else
 ENV_VARS += \
 			--env="PKGVERSION=${VERSION}-1"
+endif
+
+ifndef AUFS_BUILD
+AUFS_BUILD = "false"
 endif
 
 help:
