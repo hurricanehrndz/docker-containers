@@ -28,7 +28,7 @@ if [[ "$VERSION" == *-rc* ]] && [ "${VERSION:0:1}" == "4" ]; then
  MAJOR_MINOR_VERSION="4.x-rcN"
 fi
 
-if [ "$AUFS_BUILD" -eq "true" ]; then
+if [[ "$AUFS_BUILD" -eq "true" ]]; then
   # get the aufs standalone source
   aufsdir=/usr/src/aufs4-standalone
   if [[ -d $aufsdir ]]; then
@@ -52,6 +52,7 @@ if [ "$AUFS_BUILD" -eq "true" ]; then
   echo "CONFIG_AUFS_FS=y" >> .config
 fi
 
+make oldconfig
 nice -19 make -j$JOBS KDEB_PKGVERSION=$PKGVERSION INSTALL_MOD_STRIP=1 deb-pkg
 cp .config /data/config
 cp /usr/src/*.deb /data/

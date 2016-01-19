@@ -18,7 +18,7 @@ ENV_VARS += \
 endif
 
 ifndef AUFS_BUILD
-AUFS_BUILD = "false"
+AUFS_BUILD = "true"
 endif
 
 help:

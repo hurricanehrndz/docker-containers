@@ -1,13 +1,40 @@
-FROM hurricane/jessie
+FROM opensuse:tumbleweed
+MAINTAINER Carlos Hernandez <carlos@techbyte.ca>
+ENV LANG="en_CA.UTF-8" s6_overlay_version="1.17.1.1" app_name="template"
 
-RUN apt-get update \
- && apt-get install -y --no-install-recommends \
-	rdesktop \
-	libgssapi-krb5-2 \
- && update-locale LANG=C.UTF-8 LC_MESSAGES=POSIX \
- && rm -rf /var/list/apt/lists/*
-COPY scripts/ /var/cache/rdesktop/
-COPY entrypoint.sh /sbin/entrypoint.sh
-RUN chmod 755 /sbin/entrypoint.sh
+RUN zypper --gpg-auto-import-keys ref \
+ && zypper --non-interactive up \
+ && zypper --non-interactive in --no-recommends \
+	curl \
+	tar \
+	glibc-locale \
+	timezone \
+  && curl -skL https://github.com/just-containers/s6-overlay/releases/download/v${s6_overlay_version}/s6-overlay-amd64.tar.gz -o /tmp/s6-overlay-amd64.tar.gz \
+  && tar xf /tmp/s6-overlay-amd64.tar.gz -C / \
+  && cd /usr/lib/locale \
+  && ls | grep -ve "en_CA*\|en_US*" | xargs rm -rf \
+  && cd /usr/share/locale \
+  &&  find -name '*.mo' | grep -ve "en_US*" | xargs rm \
+  && rpm -e --nodeps --allmatches --noscripts \
+	tar \
+	curl \
+	`rpm -qa | grep dbus-1` \
+	`rpm -qa | grep pinentry` \
+	`rpm -qa | grep openSUSE-release` \
+	`rpm -qa | grep perl` \
+	`rpm -qa | grep kmod` \
+	`rpm -qa | grep kbd` \
+	`rpm -qa | grep cryptsetup` \
+	`rpm -qa | grep mapper` \
+	`rpm -qa | grep pinentry` \
+	`rpm -qa | grep qrencode` \
+	`rpm -qa | grep cpio` \
+	`rpm -qa | grep pigz` \
+  && zypper cc --all \
+  && rm -rf /usr/lib64/gconv/* \
+  && rm -rf /usr/share/{man,doc,info,gnome/help} \
+  && rm -rf /var/cache/zypp* \
+  && rm -rf /var/log/*
 
-ENTRYPOINT ["/sbin/entrypoint.sh"]
+COPY root /
+ENTRYPOINT ["/init"]
