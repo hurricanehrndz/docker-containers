@@ -41,16 +41,16 @@ clean:
 build:
 	@docker build --rm=true --tag=${APP_REPO}/${IMG_NAME}:${TAG_NAME} .
 
-instl uninstl: build
+instl uninstl: clean build
 	@docker run -it --rm \
 		--volume=/usr/local/bin:/target \
+		${VOLUMES} \
 		${ENV_VARS} \
 		${APP_REPO}/${APP_NAME}:${TAG_NAME} $@
 
-${APP_NAME} bash: clean build
-	@touch ${XAUTH}
-	@auth nlist :0 | sed -e 's/^..../ffff/' | xauth -f ${XAUTH} nmerge -
+service: build
 	@docker run -it --rm \
-		${ENV_VARS} \
+		--volume=/etc/systemd/system:/target \
 		${VOLUMES} \
-		${APP_REPO}/${APP_NAME}:${TAG_NAME} $@
+		${ENV_VARS} \
+		${APP_REPO}/${APP_NAME}:${TAG_NAME} instl service
