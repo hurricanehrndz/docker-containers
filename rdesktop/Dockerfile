@@ -1,6 +1,6 @@
 FROM opensuse:tumbleweed
 MAINTAINER Carlos Hernandez <carlos@techbyte.ca>
-ENV LANG="en_CA.UTF-8" s6_overlay_version="1.17.1.1" app_name="template"
+ENV LANG="en_CA.UTF-8" s6_overlay_version="1.17.1.1" APP_NAME="rdesktop" IMG_NAME="rdesktop" TAG_NAME="latest" S6_LOGGING="1"
 
 RUN zypper --gpg-auto-import-keys ref \
  && zypper --non-interactive up \
@@ -9,6 +9,7 @@ RUN zypper --gpg-auto-import-keys ref \
 	tar \
 	glibc-locale \
 	timezone \
+	rdesktop \
   && curl -skL https://github.com/just-containers/s6-overlay/releases/download/v${s6_overlay_version}/s6-overlay-amd64.tar.gz -o /tmp/s6-overlay-amd64.tar.gz \
   && tar xf /tmp/s6-overlay-amd64.tar.gz -C / \
   && cd /usr/lib/locale \

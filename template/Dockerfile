@@ -1,6 +1,6 @@
 FROM opensuse:tumbleweed
 MAINTAINER Carlos Hernandez <carlos@techbyte.ca>
-ENV LANG="en_CA.UTF-8" s6_overlay_version="1.17.1.1" app_name="template"
+ENV LANG="en_CA.UTF-8" s6_overlay_version="1.17.1.1" APP_NAME="template" IMG_NAME="template" TAG_NAME="latest"
 
 RUN zypper --gpg-auto-import-keys ref \
  && zypper --non-interactive up \
@@ -16,22 +16,23 @@ RUN zypper --gpg-auto-import-keys ref \
   && cd /usr/share/locale \
   &&  find -name '*.mo' | grep -ve "en_US*" | xargs rm \
   && rpm -e --nodeps --allmatches --noscripts \
-	aaa_base \
-	dbus-1 \
-	dracut \
-	kbd \
-	kmod \
-	ncurses-utils \
-	pkg-config \
-	sg3_utils \
-	systemd \
-	systemd-presets-branding-openSUSE \
-	systemd-sysvinit \
 	tar \
 	curl \
-	git-core \
-	udev \
+	`rpm -qa | grep dbus-1` \
+	`rpm -qa | grep pinentry` \
+	`rpm -qa | grep openSUSE-release` \
+	`rpm -qa | grep perl` \
+	`rpm -qa | grep kmod` \
+	`rpm -qa | grep kbd` \
+	`rpm -qa | grep cryptsetup` \
+	`rpm -qa | grep mapper` \
+	`rpm -qa | grep pinentry` \
+	`rpm -qa | grep qrencode` \
+	`rpm -qa | grep cpio` \
+	`rpm -qa | grep pigz` \
   && zypper cc --all \
+  && rm -rf /usr/lib64/gconv/* \
+  && rm -rf /usr/share/{man,doc,info,gnome/help} \
   && rm -rf /var/cache/zypp* \
   && rm -rf /var/log/*
 

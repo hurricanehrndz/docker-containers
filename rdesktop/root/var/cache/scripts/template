@@ -7,8 +7,10 @@ APP_NAME="APP_NAME"
 APP_USER=${APP_USER:-$USER}
 APP_REPO=${APP_REPO:-hurricane}
 APP_CONFIG=${APP_CONFIG:-"/home/${APP_USER}/.${APP_NAME}"}
+XSOCK=/tmp/.X11-unix
+XAUTH=/tmp/.docker.xauth
 
-( id -Gn | grep -q docker ) || SUDO=sudo
+( id -Gn | grep -q docker ) || [ $EUID == 0 ] || SUDO=sudo
 
 if [ ${APP_USER} != "appuser" ]; then
   APP_UID=$(getent passwd $APP_USER | awk -F":" '{print $3}')
@@ -16,6 +18,10 @@ if [ ${APP_USER} != "appuser" ]; then
 else
   APP_UID=$(id -u)
   APP_GID=$(id -g)
+fi
+
+if [ ${APP_USER} == "nobody" ]; then
+  APP_USER="appuser"
 fi
 
 list_options() {
@@ -44,12 +50,18 @@ cleanup_stopped_instances() {
 prepare_docker_env_parameters() {
   ENV_VARS+=" --env=APP_UID=${APP_UID}"
   ENV_VARS+=" --env=APP_GID=${APP_GID}"
+  ENV_VARS+=" --env=TZ=$(cat /etc/timezone)"
   ENV_VARS+=" --env=APP_USER=${APP_USER}"
   if [ -f /etc/timezone ]; then
     ENV_VARS+=" --env=TZ=$(cat /etc/timezone)"
   else
     [ ! -z "${TIMEZONE}" ] && ENV_VARS+=" --env=TZ=${TIMEZONE}"
   fi
+}
+
+prepare_docker_env_display_parameters() {
+  ENV_VARS+=" --env=DISPLAY"
+  ENV_VARS+=" --env=XAUTHORITY=${XAUTH}"
 }
 
 prepare_docker_volume_parameters() {
@@ -59,6 +71,14 @@ prepare_docker_volume_parameters() {
   chown -R ${APP_UID}:${APP_GID} ${APP_CONFIG}
   # prepare local filesystems
   VOLUMES+=" --volume=${APP_CONFIG}:/config"
+}
+
+prepare_docker_volume_display_parameters() {
+  touch ${XAUTH}
+  xauth nlist :0 | sed -e 's/^..../ffff/' | xauth -f ${XAUTH} nmerge -
+
+  VOLUMES+=" --volume=${XSOCK}:${XSOCK}"
+  VOLUMES+=" --volume=${XAUTH}:${XAUTH}"
 }
 
 prog=$(basename $0)
@@ -71,21 +91,24 @@ fi
 
 cleanup_stopped_instances
 prepare_docker_env_parameters
-prepare_docker_volume_parameters
+prepare_docker_env_display_parameters
+#prepare_docker_volume_parameters
+prepare_docker_volume_display_parameters
 
 echo "Starting ${prog}..."
 if [ "${prog}" != "${APP_NAME}" ]; then
   ${SUDO} docker run -it \
+    --rm \
     --net=host \
     ${ENV_VARS} \
     ${VOLUMES} \
     --name=${APP_NAME} \
     ${APP_REPO}/${IMG_NAME}:${TAG_NAME} ${prog} $@
 else
-  ${SUDO} docker run -i \
+  ${SUDO} docker run -d \
     --net=host \
     ${ENV_VARS} \
     ${VOLUMES} \
     --name=${APP_NAME} \
-    ${APP_REPO}/${IMG_NAME}:${TAG_NAME} >/dev/null
+    ${APP_REPO}/${IMG_NAME}:${TAG_NAME} ${APP_NAME} $@ > /dev/null
 fi
