@@ -1,18 +1,24 @@
 all: build
 
+APP_NAME="teamviewer"
+IMG_NAME="teamviewer"
+TAG_NAME="latest"
 XSOCK=/tmp/.X11-unix
 XAUTH=/tmp/.docker.xauth
-APP_NAME="teamviewer"
+
+ifndef APP_REPO
 APP_REPO=${USER}
+endif
 
 ENV_VARS= \
-	--env="APP_REPO_UID=$(shell id -u)" \
-	--env="APP_REPO_GID=$(shell id -g)" \
+    --env="APP_REPO=${APP_REPO}" \
+    --env="APP_USER=${USER}" \
+	--env="APP_UID=$(shell id -u)" \
+	--env="APP_GID=$(shell id -g)" \
+    --env="IMG_NAME=${IMG_NAME}" \
+    --env="TAG_NAME=${TAG_NAME}" \
 	--env="DISPLAY" \
-	--env="XAUTHORITY=${XAUTH}" \
-	--env="APP_REPO=${APP_REPO}" \
-	--env="APP_USER=${USER}"
-
+	--env="XAUTHORITY=${XAUTH}"
 
 VOLUMES= \
 	--volume=${XSOCK}:${XSOCK} \
@@ -29,30 +35,15 @@ help:
 	@echo ""
 
 clean:
-	@docker rm -f `docker ps -a | grep "${APP_REPO}/${APP_NAME}" | awk '{print $$1}'` > /dev/null 2>&1 || exit 0
-	@docker rmi `docker images  | grep "${APP_REPO}/${APP_NAME}" | awk '{print $$3}'` > /dev/null 2>&1 || exit 0
+	@docker rm -f `docker ps -a | grep "${APP_REPO}/${IMG_NAME}" | awk '{print $$1}'` > /dev/null 2>&1 || exit 0
+	@docker rmi `docker images  | grep -e "${APP_REPO}/${IMG_NAME}.*${TAG_NAME}" | awk '{print $$3}'` > /dev/null 2>&1 || exit 0
 
 build:
-	@docker build --rm=true --tag=${APP_REPO}/${APP_NAME} .
+	@docker build --rm=true --tag=${APP_REPO}/${IMG_NAME}:${TAG_NAME} .
 
 instl uninstl: build
 	@docker run -it --rm \
 		--volume=/usr/local/bin:/target \
-		${ENV_VARS} \
-		${APP_REPO}/${APP_NAME}:latest $@
-
-${APP_NAME}:
-	@touch ${XAUTH}
-	@auth nlist :0 | sed -e 's/^..../ffff/' | xauth -f ${XAUTH} nmerge -
-	@docker run -it --rm \
-		${ENV_VARS} \
 		${VOLUMES} \
-		${APP_REPO}/${APP_NAME}:latest
-
-bash:
-	@touch ${XAUTH}
-	@auth nlist :0 | sed -e 's/^..../ffff/' | xauth -f ${XAUTH} nmerge -
-	@docker run -it --rm \
 		${ENV_VARS} \
-		${VOLUMES} \
-		${APP_REPO}/${APP_NAME}:latest bash
+		${APP_REPO}/${APP_NAME}:${TAG_NAME} $@

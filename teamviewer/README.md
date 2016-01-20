@@ -8,14 +8,14 @@ domain socket in order to create its graphical window on the host's X11 server.
 
 ## Installation:
 This container can be installed from either the [Docker
-Hub](http://hub.docker.com/hurricane/teamviewer) or by cloning this project to your host and running
+Hub](http://hub.docker.com/r/hurricane/teamviewer) or by cloning this project to your host and running
 `make`. For most users installing from the hub will be sufficient.
 
 This container is deployed with a wrapper script that makes running the docker
 image very simple. Simply chose one of the installation methods below to get
 started.
 
-### Installing from [Docker Hub](http://hub.docker.com/hurricane/teamviewer):
+### Installing from [Docker Hub](http://hub.docker.com/r/hurricane/teamviewer):
 ```
 docker run -it --rm \
     -v /usr/local/bin:/target \
@@ -40,6 +40,9 @@ teamviewer
 You can of course also run this container manually by executing a command like in
 the example below:
 ```
+XAUTH=/tmp/.docker.xauth
+touch ${XAUTH}
+xauth nlist :0 | sed -e 's/^..../ffff/' | xauth -f ${XAUTH} nmerge -
 docker run -d -e DISPLAY \
     -e XAUTHORITY=${XAUTHORITY} \
     -v /tmp/.X11-unix:/tmp/.X11-unix \
@@ -57,11 +60,11 @@ that the appropriate environment variables get passed onto the container.
 Additionally, it ensures that the container gets automatically stopped once you
 have exited TeamViewer. These environment variables are as follows:
 * `TZ`         - for timezone.
-* `USER_UID`   - UID of the user executing the wrapper script
-* `USER_GID`   - GID of the user executing the wrapper script
+* `APP_UID`    - UID of the user executing the wrapper script
+* `APP_GID`    - GID of the user executing the wrapper script
 * `APP_USER`   - username of the user executing the wrapper script
 * `DISPLAY`    - X11 display server name
-* `XAUTHORITY` - authority file providing credentials to access X11 server
+* `XAUTH`      - authority file providing credentials to access X11 server
 
 ### Known Issues:
 * system tray icon gets rendered on desktop as a large blue window  using  [i3 wm](https://i3wm.org).
@@ -84,6 +87,7 @@ Feel free to report additional [issues](../../../issues/new).
 
 ## History
 * 2015-12-18 - TeamViewer 11, initial release.
+* 2016-01-20 - TeamViewer 11, update to new docker templates.
 
 ## License
 Code released under the [MIT license](./LICENSE).

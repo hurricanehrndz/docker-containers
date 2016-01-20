@@ -1,16 +1,47 @@
 #!/bin/bash
 
-APP_NAME="teamviewer"
 APP_USER=${APP_USER:-appuser}
 
+install_app() {
 echo "Installing ${APP_NAME}..."
-install -m 0755 /var/cache/scripts/${APP_NAME} /target/
+install -m 0755 /var/cache/scripts/template /target/${APP_NAME}
 if [ -n "${APP_REPO}" ]; then
   echo "Updating image repo to ${APP_REPO}..."
-  sed -i -e s%"-hurricane*"%"-${APP_REPO}"%1 /target/${APP_NAME}
+  sed -i -e s%"-hurricane"%"-${APP_REPO}"%1 /target/${APP_NAME}
 fi
 
 if [ "${APP_USER}" != "appuser" ] && [ -n "${APP_USER}" ]; then
   echo "Updating user to ${APP_USER}..."
-  sed -i -e s%"-appuser"%"-${APP_USER}"%1 /target/${APP_NAME}
+  sed -i -e s%"\(APP_USER=\)\${APP_USER:-\$USER}"%"\1${APP_USER}"%1 /target/${APP_NAME}
+fi
+
+if [ -n "${APP_CONFIG}" ]; then
+  echo "Updating data directory to ${APP_CONFIG}..."
+  sed -i -e s%"\(APP_CONFIG=\).*"%"\1\"${APP_CONFIG}\""%1 /target/${APP_NAME}
+fi
+
+sed -i -e s%"=\"IMG_NAME\""%"=\"${IMG_NAME}\""%1 /target/${APP_NAME}
+sed -i -e s%"=\"TAG_NAME\""%"=\"${TAG_NAME}\""%1 /target/${APP_NAME}
+sed -i -e s%"=\"APP_NAME\""%"=\"${APP_NAME}\""%1 /target/${APP_NAME}
+}
+
+install_service() {
+  echo "Installing ${APP_NAME} Service..."
+  install -m 0755 /var/cache/systemd/template.service /target/${APP_NAME}.service
+  sed -i -e s%":TAG_NAME"%":${TAG_NAME}"%1 /target/${APP_NAME}.service
+  sed -i -e s%"/IMG_NAME"%"/${IMG_NAME}"%1 /target/${APP_NAME}.service
+  sed -i -e s%"APP_NAME"%"${APP_NAME}"%1 /target/${APP_NAME}.service
+  sed -i -e s%"APP_REPO"%"${APP_REPO}"%1 /target/${APP_NAME}.service
+  echo "Please run: sudo systemctl daemon-reload"
+  echo "To start run: sudo systemctl start ${APP_NAME}"
+}
+
+if [ -z "$1" ]; then
+  install_app
+else
+  if [[ "$1" -eq "service" ]]; then
+    if [ -f /var/cache/systemd/template.service ]; then
+      install_service
+    fi
+  fi
 fi
