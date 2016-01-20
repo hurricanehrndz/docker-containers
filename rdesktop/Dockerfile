@@ -1,6 +1,6 @@
 FROM opensuse:tumbleweed
 MAINTAINER Carlos Hernandez <carlos@techbyte.ca>
-ENV LANG="en_CA.UTF-8" s6_overlay_version="1.17.1.1" APP_NAME="rdesktop" IMG_NAME="rdesktop" TAG_NAME="latest" S6_LOGGING="1"
+ENV LANG="en_US.UTF-8" s6_overlay_version="1.17.1.1" APP_NAME="rdesktop" IMG_NAME="rdesktop" TAG_NAME="latest" S6_LOGGING="1"
 
 RUN zypper --gpg-auto-import-keys ref \
  && zypper --non-interactive up \
@@ -32,7 +32,6 @@ RUN zypper --gpg-auto-import-keys ref \
 	`rpm -qa | grep cpio` \
 	`rpm -qa | grep pigz` \
   && zypper cc --all \
-  && rm -rf /usr/lib64/gconv/* \
   && rm -rf /usr/share/{man,doc,info,gnome/help} \
   && rm -rf /var/cache/zypp* \
   && rm -rf /var/log/*

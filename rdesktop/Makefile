@@ -47,10 +47,3 @@ instl uninstl: clean build
 		${VOLUMES} \
 		${ENV_VARS} \
 		${APP_REPO}/${APP_NAME}:${TAG_NAME} $@
-
-service: build
-	@docker run -it --rm \
-		--volume=/etc/systemd/system:/target \
-		${VOLUMES} \
-		${ENV_VARS} \
-		${APP_REPO}/${APP_NAME}:${TAG_NAME} instl service
