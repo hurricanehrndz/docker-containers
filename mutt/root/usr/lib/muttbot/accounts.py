@@ -44,6 +44,7 @@ class AccountsSetuper(object):
             mbsync_writer.write('MaildirStore ' + account_name + '-local\n')
             mbsync_writer.write('Path ~/.mail/' + account_name + '/\n')
             mbsync_writer.write('Inbox ~/.mail/' + account_name + '/INBOX\n')
+            mbsync_writer.write('Flatten .\n')
             mbsync_writer.write('\n')
             mbsync_writer.write('\n')
 

@@ -143,13 +143,27 @@ set -o nounset
 # check for special run mode
 # --dry-run (-d)
 # --help    (-h)
+# --account-tag (-t)
 
-case ${1:-} in
-    *-h*) echo "usage: mail-index [--dry-run]"; exit; ;;
-    *-d*) RUNCMD=echo; DRYRUN=true; DRYRUN_MSG="- DRYRUN (no changes will be made)"; shift; ;;
-    *)    RUNCMD=eval; DRYRUN=false ;;
-esac
-
+while [[ $# > 0 ]]; do
+  opt="$1"
+  case $opt in
+    -h|--help)
+      echo "usage: $(basename $0) [--dry-run] [--acount-tag account_tag]"; exit;
+      ;;
+    -d|--dry-run)
+      RUNCMD=echo; DRYRUN=true; DRYRUN_MSG="- DRYRUN (no changes will be made)";
+      ;;
+    -t|--account-tag)
+      ACCOUNT_TAG="$2"
+      shift
+      ;;
+    *)
+      RUNCMD=eval; DRYRUN=false; LAST_ARG="$opt";
+      ;;
+  esac
+shift
+done
 
 # ----------------------------------------------------------------------
 # Notmuch config checks
@@ -337,7 +351,7 @@ NOTMUCH_ROOT="${NOTMUCH_ROOT%/}"
 
 # Normalize path by trimming trailing slash, if any
 # (use eval in case user quoted a path with ~ in it, though they shouldn't have)
-eval "MAILDIR_ACCOUNT_ROOT=${1%/}"
+eval "MAILDIR_ACCOUNT_ROOT=${LAST_ARG%/}"
 # Used for mbsync
 ACCOUNT_NAME=${MAILDIR_ACCOUNT_ROOT#$NOTMUCH_ROOT/}
 
@@ -451,6 +465,7 @@ Notmuch_State_To_Maildir__Move_To_Maildir ()
     local THIS_MAILDIR_FULL_PATH="$1"
     local THIS_NOTMUCH_FOLDER="$(Notmuch_Folder_From_Full_Path $THIS_MAILDIR_FULL_PATH)"
     local THIS_NOTMUCH_TAG="$(Notmuch_Tag_From_Full_Path $THIS_MAILDIR_FULL_PATH)"
+    # search for messages TAGGED to THIS_NOMUCH_FOLDER, but not residing in THIS_NOTMUCH_FOLDER
     local THESE_MESSAGE_IDS_TO_COPY="$(\
         notmuch search --output=messages\
         tag:"$THIS_NOTMUCH_TAG" \
@@ -510,7 +525,7 @@ Notmuch_State_To_Maildir__Remove_From_Maildir ()
 # Scenario:
 #
 # NOTMUCH STATE (per message):
-# Number of Notmuch Tags < Number of Notmuch Folders
+# Number of Notmuch Tags - 1 < Number of Notmuch Folders
 #
 # MAILDIR STATE:
 # No change from previous state.
@@ -583,7 +598,7 @@ Maildir_State_To_Notmuch__Add_Tags_To_Notmuch ()
 # Scenario:
 #
 # NOTMUCH STATE (per message):
-# Number of Notmuch Tags < Number of Notmuch Folders
+# Number of Notmuch Tags + 1 < Number of Notmuch Folders
 #
 # MAILDIR STATE:
 # Message in a new folder (either via CLI/mutt copy, move or incoming sync)
@@ -612,7 +627,7 @@ Maildir_State_To_Notmuch__Remove_Tags_From_Notmuch ()
 # Scenario:
 #
 # NOTMUCH STATE (per message):
-# Number of Notmuch Tags > Number of Notmuch Folders
+# Number of Notmuch Tags + 1 > Number of Notmuch Folders
 #
 # MAILDIR STATE:
 # Message removed from folder, either via rm, mutt delete, or offlineimap sync
@@ -671,6 +686,8 @@ echo "ACCOUNT NMAE: $ACCOUNT_NAME"
 
 # Review the notmuch database state and sync up any changes first
 # (e.g. any retagged messages that need refiling)
+
+# TODO: HH: review from here on.
 
 for MAILBOX_FULL_PATH in $MAILBOXES_FULL_PATHS; do
     Notmuch_State_To_Maildir__Move_To_Maildir $MAILBOX_FULL_PATH

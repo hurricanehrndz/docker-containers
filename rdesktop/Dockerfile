@@ -34,6 +34,7 @@ RUN zypper --gpg-auto-import-keys ref \
   && zypper cc --all \
   && rm -rf /usr/share/{man,doc,info,gnome/help} \
   && rm -rf /var/cache/zypp* \
+  && rm -rf /tmp/* \
   && rm -rf /var/log/*
 
 COPY root /
