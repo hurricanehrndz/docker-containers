@@ -16,7 +16,7 @@ account_virtual_boxes() {
 		notmuch_tag=${MAILBOX_FULL_PATH#$MAILDIR_ACCOUNT_ROOT/}
 		# don not add vritual boxes for the default tags
 		if [[ ! " ${default_tags[@]} " =~ " ${notmuch_tag} " ]]; then
-			result+="\"  ${notmuch_tag}\"                \"notmuch://?query=folder:${2}/${notmuch_tag}\" "
+			result+="\"  ${notmuch_tag}\"                \"notmuch://?query=tag:${2} and tag:${notmuch_tag}\" "
 		fi
 	done
 }
@@ -24,10 +24,10 @@ account_virtual_boxes() {
 for account_full_path in ~/.mail/*; do
 	account_name=$(basename $account_full_path)
 	mailbox_name="$(pad_string ${account_name})"
-	result+="\"${mailbox_name}\"                \"notmuch://?query=folder:${mailbox_name}\" "
+	result+="\"${mailbox_name}\"                \"notmuch://?query=tag:${account_name}\" "
 	# add virtual boxes for the default tags
 	for tag in "${default_tags[@]}"; do
-		result+="\"  ${tag}\"                \"notmuch://?query=folder:${account_name}/${tag}\" "
+		result+="\"  ${tag}\"                \"notmuch://?query=tag:${account_name} and tag:${tag}\" "
 	done
 
 	account_virtual_boxes ~/.mail/${account_name}/ $account_name

@@ -11,6 +11,8 @@ RUN zypper addrepo http://download.opensuse.org/repositories/home:hurricaneherna
 	w3m \
 	w3m-inline-image \
 	vim \
+	vim-data \
+	aspell \
 	python \
 	python-base \
 	python-PyYAML \

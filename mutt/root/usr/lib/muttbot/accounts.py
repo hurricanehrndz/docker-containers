@@ -94,7 +94,7 @@ class AccountsSetuper(object):
             f.write('set header_cache = ~/.mutt/cache/' + account_name +'/headers\n')
             f.write('set message_cachedir = ~/.mutt/cache/' + account_name +'/bodies\n')
             f.write('set certificate_file = ~/.mutt/cache/' + account_name +'/certificates\n')
-            f.write('set my_active_account = ' + account_name + '\n')
+            f.write('set account_tag = ' + account_name + '\n')
             f.write('source ~/.mutt/muttrc.folder.bindings\n')
             f.close
 
@@ -121,7 +121,7 @@ class AccountsSetuper(object):
             else:
                 other_emails += account_info['user'] + ';'
 
-            f.write('folder-hook "' +  account_name + '/*" "source ~/.mutt/' + account_name + '"\n')
+            f.write('folder-hook tag:"' +  account_name + '" "source ~/.mutt/' + account_name + '"\n')
             f.close
 
 
