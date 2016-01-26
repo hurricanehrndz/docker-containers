@@ -94,6 +94,7 @@ class AccountsSetuper(object):
             f.write('set header_cache = ~/.mutt/cache/' + account_name +'/headers\n')
             f.write('set message_cachedir = ~/.mutt/cache/' + account_name +'/bodies\n')
             f.write('set certificate_file = ~/.mutt/cache/' + account_name +'/certificates\n')
+            f.write('set nm_hidden_tags = "unread,drafts,flagged,INBOX,archive,important,' + account_name +'"\n')
             f.write('set my_account_tag = ' + account_name + '\n')
             f.write('source ~/.mutt/muttrc.folder.bindings\n')
             f.close
