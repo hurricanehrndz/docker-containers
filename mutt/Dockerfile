@@ -10,7 +10,7 @@ RUN zypper addrepo http://download.opensuse.org/repositories/home:hurricaneherna
 	git-core \
 	w3m \
 	w3m-inline-image \
-	vim \
+	vim-enhanced \
 	vim-data \
 	aspell \
 	python \

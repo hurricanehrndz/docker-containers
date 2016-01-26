@@ -10,18 +10,18 @@ set nm_hidden_tags = "unread,draft,flagged,passed,replied,attachment"
 macro index \\\\ "<vfolder-from-query>"              # looks up a hand made query, press two \\ while in index view
 
 # Tags -------------------------------------------
-#tag-transforms  "inbox"   "☕"  \
-#                "unread"  "✉"  \
-#                "replied" "↪"  \
-#                "from-me" "↻"  \
-#                "*"       "★"  \
-#                "deleted" "DEL" \
-#                "invites" "CAL"
-#
-#tag-formats   "inbox"     "GI" \
-#              "unread"    "GU" \
-#              "replied"   "GR" \
-#              "from-me"   "GS" \
-#              "*"         "Gs" \
-#              "deleted"   "GD" \
-#              "invites"   "Gi"
+tag-transforms  "inbox"   "☕"  \
+                "unread"  "✉"  \
+                "replied" "↪"  \
+                "from-me" "↻"  \
+                "*"       "★"  \
+                "deleted" "DEL" \
+                "invites" "CAL"
+
+tag-formats   "inbox"     "GI" \
+              "unread"    "GU" \
+              "replied"   "GR" \
+              "from-me"   "GS" \
+              "*"         "Gs" \
+              "deleted"   "GD" \
+              "invites"   "Gi"
