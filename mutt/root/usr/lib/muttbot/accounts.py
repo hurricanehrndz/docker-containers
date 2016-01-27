@@ -88,6 +88,7 @@ class AccountsSetuper(object):
             f.write('set postponed = "+' + account_name + '/drafts"\n')
             f.write('set signature = ' + account_name + '.sig\n')
             f.write('set pgp_sign_as = ' + str(account_info['gpg']) + '\n')
+            f.write('my_hdr OpenPGP: id=' + str(account_info['gpg'])[2:] + ' \n')
             f.write('set sendmail = "/usr/bin/msmtp -a ' + account_name +  '"\n')
             f.write('set sendmail_wait = -1\n')
             f.write('unset record\n')

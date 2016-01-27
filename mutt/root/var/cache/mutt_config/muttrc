@@ -124,14 +124,12 @@ bind editor <space> noop
 # ------------------------------------------------------------------------------
 # GPG Options
 # ------------------------------------------------------------------------------
-#source /usr/share/doc/mutt-kz/samples/gpg.rc # source default gpg options
-set pgp_use_gpg_agent = yes                  # use gpg-agent by default
-set pgp_timeout = 3600                       # number of secondes to keep passphrase in memory
-set pgp_auto_decode = yes                    # traditional pgp support
-set pgp_autosign = no                        # dont auto sign all outgoing messages
-set pgp_replyencrypt = yes                   # auto encrypt replies to encrypted mail
-set pgp_replysign = yes                      # auto sign replies to signed mail
-set pgp_replysignencrypted = yes             # auto sign & encrypt to signed and encrypted mail
+set crypt_use_gpgme = yes          # Use the gpgme code for S/MIME and PGP
+set crypt_autosign = yes           # Enable automatic signing of all emails
+set crypt_verify_sig = yes         # verify all sigs upon opening messages
+set crypt_replysign = yes          # auto encrypt replies to encrypted mail
+set crypt_replyencrypt = yes       # auto sign replies to signed mail
+set crypt_replysignencrypted = yes # auto sign & encrypt to signed and encrypted mail
 
 # ------------------------------------------------------------------------------
 # Color Options
