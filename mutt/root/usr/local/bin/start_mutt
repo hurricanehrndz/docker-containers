@@ -5,4 +5,9 @@ export GPG_TTY=$(tty)
 echo " " | gpg2 -q -r ${GPGKEY} -ae | gpg2 -q
 echo "Setting up mutt with secrets."
 python /usr/lib/muttbot/muttbot.py -c /usr/lib/muttbot/revealmuttsecrets
+
+if [ ! -e "/home/$APP_USER/.mail/.notmuch" ]; then
+  notmuch new
+fi
+
 bash

@@ -1,4 +1,5 @@
 import os
+import stat
 import re
 from messenger import Messenger
 
@@ -22,11 +23,16 @@ class AccountsSetuper(object):
         mbsync_writer.write('Expunge Both\n')
         mbsync_writer.close()
 
+        syncmail = os.path.join(home_dir, 'syncmail.sh')
+        syncmail_writer = open(syncmail, 'w')
+        syncmail_writer.write('#!/bin/bash\n')
+
         # set up mbsyncrc
         for email_account in email_accounts:
             account_info = email_account.values()[0]
             account_name = email_account.keys()[0]
             accounts += ',' + account_name
+            syncmail_writer.write('/usr/lib/mutt/maildir_notmuch_sync ' + os.path.join(mail_dir, account_name) + '\n')
             print 'Setting up ' + account_name
             # setup account for mbsync
             mbsync_writer = open(mbsync_config, 'a')
@@ -156,6 +162,10 @@ class AccountsSetuper(object):
         notmuch_writer.write('synchronize_flags=true\n')
         notmuch_writer.close()
 
+        syncmail_writer.close()
+        st = os.stat(syncmail)
+        os.chmod(syncmail, st.st_mode | stats.S_IEXEC)
+
         # edit kz.muttrc
         kz_muttrc =  os.path.join(home_dir, '.mutt/muttrc.kz')
         with open(kz_muttrc, "r") as kz:
@@ -164,6 +174,7 @@ class AccountsSetuper(object):
             for line in lines:
                 kz.write(re.sub(r'/home/user_name/.mail',mail_dir, line))
         return success
+
 
 class SetupError(Exception):
     pass

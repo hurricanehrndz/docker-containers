@@ -445,7 +445,7 @@ Notmuch_State_To_Maildir__Create_Maildir ()
       [[ "$THIS_NOTMUCH_TAG" != "$ACCOUNT_NAME" ]] && \
         [[ "$THIS_NOTMUCH_TAG" != "new" ]] && \
         [[ "$THIS_NOTMUCH_TAG" != "unread" ]] && \
-        mkdir -p $THIS_MAILDIR_FULL_PATH/$THIS_NOTMUCH_TAG/{cur,new,tmp}
+        $RUNCMD "mkdir -p $THIS_MAILDIR_FULL_PATH/$THIS_NOTMUCH_TAG/{cur,new,tmp}" || true
     fi
   done
 }
@@ -469,7 +469,6 @@ Notmuch_State_To_Maildir__Move_To_Maildir ()
   local THIS_MAILDIR_FULL_PATH="$1"
   local THIS_NOTMUCH_FOLDER="$(Notmuch_Folder_From_Full_Path $THIS_MAILDIR_FULL_PATH)"
   local THIS_NOTMUCH_TAG="$(Notmuch_Tag_From_Full_Path $THIS_MAILDIR_FULL_PATH)"
-  # search for messages TAGGED to THIS_NOMUCH_FOLDER, but not residing in THIS_NOTMUCH_FOLDER
   local THESE_MESSAGE_IDS_TO_COPY="$(\
     notmuch search --output=messages\
     tag:"$THIS_NOTMUCH_TAG" \
@@ -497,7 +496,9 @@ Notmuch_State_To_Maildir__Move_To_Maildir ()
       fi
     done <<< "$THIS_MESSAGE_ALL_SOURCE_PATHS"
     if $FOUND; then
-      if $RUNCMD "cp \"$THIS_MESSAGE_SOURCE_PATH\" \"$THIS_MAILDIR_FULL_PATH/cur\""; then
+      MESSAGE_FILENAME=$(basename $THIS_MESSAGE_SOURCE_PATH)
+      DEST_FILENAME=$(echo $MESSAGE_FILENAME  | sed -e s%",U=.*:"%",U=:"%)
+      if $RUNCMD "cp \"$THIS_MESSAGE_SOURCE_PATH\" \"$THIS_MAILDIR_FULL_PATH/cur/$DEST_FILENAME\""; then
         echo -n "Copied message with new tag to"
         echo " $(Maildir_Account_Folder_From_Full_Path "$THIS_MAILDIR_FULL_PATH")"
       else
@@ -673,8 +674,9 @@ echo "ACCOUNT ROOT: $MAILDIR_ACCOUNT_ROOT"
 echo "ACCOUNT NAME: $ACCOUNT_NAME"
 
 
-if [ -e "$NOTMUCH_ROOT/.notmuch" ]; then
+if [ ! -e "$NOTMUCH_ROOT/.notmuch" ]; then
   # create notmuch database if it does not exist
+  echo "Creating notmuch database."
   Notmuch_Update
 fi
 
@@ -695,14 +697,16 @@ for MAILBOX_FULL_PATH in $MAILBOXES_FULL_PATHS; do
 done
 
 # Sync maildir account with online
-#$RUNCMD "mbsync ${ACCOUNT_NAME}-group"
+$RUNCMD "mbsync ${ACCOUNT_NAME}-group"
 
 # Update the notmuch database to reflect the changes we just made,
 # if any (so it can find the new messages)
 Notmuch_Update
+
 for MAILBOX_FULL_PATH in $MAILBOXES_FULL_PATHS; do
   Maildir_State_To_Notmuch__Add_Tags_To_Notmuch $MAILBOX_FULL_PATH
   Maildir_State_To_Notmuch__Remove_Tags_From_Notmuch $MAILBOX_FULL_PATH
 done
 
+$RUNCMD "mbsync ${ACCOUNT_NAME}-group"
 Notmuch_Cleanup

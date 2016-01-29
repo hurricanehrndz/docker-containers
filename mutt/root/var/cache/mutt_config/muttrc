@@ -10,7 +10,7 @@ set tmpdir           = ~/.mutt/temp          # where to keep temp files
 # Basic options
 # ------------------------------------------------------------------------------
 set mbox_type = Maildir # folder format
-set timeout = 3         # seconds to wait after last key pressed to check mail
+set timeout = 60        # seconds to wait after last key pressed to check mail
 set mail_check = 0      # how often (in seconds) mutt should look for new mail
 unset move              # dont confirm on moving messages from spool to mbox
 unset mark_old          # dont make distinction between old and new, unread will always be new
@@ -114,8 +114,7 @@ set forward_quote                    # include message in forwards
 # ------------------------------------------------------------------------------
 # Writing Options
 # ------------------------------------------------------------------------------
-set editor         = "vim +:silent+?^$ +:noh" # use vim and skip to last blank line
-set ispell         = "aspell -e -c"           # use aspell as ispell
+set editor         = "vim \"+:silent+?^$\" \"+:noh\" \"+:set spell spelllang=en_us\"" # use vim and skip to last blank line
 bind editor <Tab> complete-query
 bind editor ^T complete
 bind editor <space> noop
@@ -149,6 +148,9 @@ source ~/.mutt/muttrc.formats
 # ------------------------------------------------------------------------------
 # hooks
 # ------------------------------------------------------------------------------
+# timeouthook
+timeouthook . "exec sync-mailbox \
+               exec shell-escape ~/syncmail.sh"
 # general folder hooks
 #set uncollapse_new=yes
 folder-hook . 'push <collapse-all>'    # collapse threads on folder entry
