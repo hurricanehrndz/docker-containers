@@ -86,7 +86,7 @@ class AccountsSetuper(object):
             # Write mutt acount file that will be source
             muttacc_file= os.path.join(mutt_dir, account_name)
             f = open(muttacc_file, 'w')
-            f.write('set from = "' + account_info['user'] + '"\n')
+            f.write('set from = "' + account_info['email'] + '"\n')
             f.write('set realname = "' + account_info['name'] + '"\n')
             f.write('set spoolfile = "+' + account_name + '/INBOX"\n')
             f.write('set mbox = "+' + account_name + '/archive"\n')
@@ -126,7 +126,7 @@ class AccountsSetuper(object):
             if email_account == email_accounts[0]:
                 f.write('source ~/.mutt/' + account_name + '"\n')
             else:
-                other_emails += account_info['user'] + ';'
+                other_emails += account_info['email'] + ';'
 
             f.write('folder-hook tag:"' +  account_name + '" "source ~/.mutt/' + account_name + '"\n')
             f.close
@@ -139,7 +139,7 @@ class AccountsSetuper(object):
             msmtprc.write('host ' + account_info['smtp'] + '\n')
             msmtprc.write('protocol smtp\n')
             msmtprc.write('auth on\n')
-            msmtprc.write('from ' + account_info['user'] + '\n')
+            msmtprc.write('from ' + account_info['email'] + '\n')
             msmtprc.write('user ' + account_info['user'] + '\n')
             msmtprc.write('password ' + account_info['pass'] + '\n')
             msmtprc.write('tls on\n')
@@ -155,7 +155,7 @@ class AccountsSetuper(object):
         notmuch_writer.write('tags=new;\n')
         notmuch_writer.write('[user]\n')
         notmuch_writer.write('name=' + email_accounts[0].values()[0]['name'] + '\n')
-        notmuch_writer.write('primary_email=' + email_accounts[0].values()[0]['user'] + '\n')
+        notmuch_writer.write('primary_email=' + email_accounts[0].values()[0]['email'] + '\n')
         notmuch_writer.write('other_email=' + other_emails + '\n')
         notmuch_writer.write('[maildir]\n')
         notmuch_writer.write('synchronize_flags=true\n')

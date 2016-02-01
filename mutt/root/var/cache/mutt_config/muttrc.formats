@@ -17,5 +17,5 @@ set index_format   = `/usr/lib/mutt/mutt-index-gen.sh`
 # ------------------------------------------------------------------------------
 # Mail Directories
 # ------------------------------------------------------------------------------
-mailboxes `/usr/lib/mutt/mailboxes.sh`
 virtual-mailboxes `/usr/lib/mutt/virtual-boxes.sh`
+mailboxes `/usr/lib/mutt/mailboxes.sh`
