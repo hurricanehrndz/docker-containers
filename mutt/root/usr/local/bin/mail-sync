@@ -1,0 +1,34 @@
+#!/bin/bash
+
+sync_lock="/home/$APP_USER/.sync_lock"
+logfile="/home/$APP_USER/mail-sync.log"
+
+if [ -f $sync_lock ]; then
+  exit 0
+else
+  touch $sync_lock  > /dev/null 2>&1
+fi
+
+# rotate logfile
+if [ -f $logfile ]; then
+  logsize=$(stat -c%s $logfile)
+else
+  logsize=0
+fi
+if (($logsize > 10000000)) ; then
+  [ -f $logfile.1 ] && rm -f $logfile.1 > /dev/null 2>&1
+  mv $logfile $logfile.1 > /dev/null 2>&1
+fi
+
+if [ -n "$SILENT" ]; then
+  output="2>&1 > $logfile"
+fi
+
+while read sync_cmd
+do
+  eval "$sync_cmd $output"
+done < "/home/$APP_USER/sync_cmds"
+
+if [ -f $sync_lock ]; then
+  rm -f $sync_lock > /dev/null 2>&1
+fi

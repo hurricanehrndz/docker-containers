@@ -24,7 +24,7 @@ account_virtual_boxes() {
 for account_full_path in ~/.mail/*; do
 	account_name=$(basename $account_full_path)
 	mailbox_name="$(pad_string ${account_name})"
-	result+="\"${mailbox_name}\"                \"notmuch://?query=tag:${account_name}\" "
+	result+="\"${mailbox_name}\"                \"notmuch://?query=tag:${account_name} and tag:INBOX not tag:trash\" "
 	# add virtual boxes for the default tags
 	for tag in "${default_tags[@]}"; do
 		result+="\"  ${tag}\"                \"notmuch://?query=tag:${account_name} and tag:${tag}\" "

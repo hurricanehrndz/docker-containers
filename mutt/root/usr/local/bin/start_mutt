@@ -8,6 +8,9 @@ python /usr/lib/muttbot/muttbot.py -c /usr/lib/muttbot/revealmuttsecrets
 
 if [ ! -e "/home/$APP_USER/.mail/.notmuch" ]; then
   notmuch new
+  # assuming mail has to get synced for the first time
+  echo "Performing initial sync."
+  mail-sync
 fi
 
-bash
+/usr/bin/mutt

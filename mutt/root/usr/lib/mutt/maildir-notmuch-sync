@@ -697,7 +697,7 @@ for MAILBOX_FULL_PATH in $MAILBOXES_FULL_PATHS; do
 done
 
 # Sync maildir account with online
-$RUNCMD "mbsync ${ACCOUNT_NAME}-group"
+$RUNCMD "mbsync -V ${ACCOUNT_NAME}-group"
 
 # Update the notmuch database to reflect the changes we just made,
 # if any (so it can find the new messages)
