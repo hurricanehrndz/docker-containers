@@ -148,8 +148,6 @@ source ~/.mutt/muttrc.formats
 # ------------------------------------------------------------------------------
 # hooks
 # ------------------------------------------------------------------------------
-# timeouthook
-timeout-hook . "exec sync-mailbox; exec `SILENT="true" mail-sync &`"
 # general folder hooks
 #set uncollapse_new=yes
 folder-hook . 'push <collapse-all>'    # collapse threads on folder entry

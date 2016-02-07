@@ -703,10 +703,15 @@ $RUNCMD "mbsync -V ${ACCOUNT_NAME}-group"
 # if any (so it can find the new messages)
 Notmuch_Update
 
+# get a list of all mailboxes
+MAILBOXES_FULL_PATHS="$(echo "$(find $MAILDIR_ACCOUNT_ROOT -name "cur" -type d -exec dirname '{}' \;)" | sort;)"
 for MAILBOX_FULL_PATH in $MAILBOXES_FULL_PATHS; do
   Maildir_State_To_Notmuch__Add_Tags_To_Notmuch $MAILBOX_FULL_PATH
   Maildir_State_To_Notmuch__Remove_Tags_From_Notmuch $MAILBOX_FULL_PATH
 done
 
-$RUNCMD "mbsync ${ACCOUNT_NAME}-group"
 Notmuch_Cleanup
+
+if [ -f /home/$APP_USER/.sync_lock ]; then
+  rm -rf /home/$APP_USER/.sync_lock > /dev/null 2>&1
+fi
