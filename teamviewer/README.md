@@ -6,6 +6,16 @@
 This container will attempt to mount the host's [X11](http://www.x.org) unix
 domain socket in order to create its graphical window on the host's X11 server.
 
+- [Installation](#introduction)
+  - [Installing from Docker Hub](#installing-from-docker-hub)
+  - [Installing from GitHub](#installing-from-github)
+- [Usage](#usage)
+- [Technical Information](#technical-information)
+  - [Known Issues](#known-issues)
+- [Contributing](#contributing)
+- [History](#history)
+- [License](#license)
+
 ## Installation:
 This container can be installed from either the [Docker
 Hub](http://hub.docker.com/r/hurricane/teamviewer) or by cloning this project to your host and running
@@ -19,10 +29,11 @@ started.
 ```
 docker run -it --rm \
     -v /usr/local/bin:/target \
+    hurricane/teamviewer \
     instl
 ```
 
-### Installing from [github](http://github.com/hurricanehrndz/docker-containers):
+### Installing from [GitHub](http://github.com/hurricanehrndz/docker-containers):
 ```
 git clone https://github.com/hurricanehrndz/docker-containers
 cd teamviewer
