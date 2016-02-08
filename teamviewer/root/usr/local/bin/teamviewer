@@ -1,11 +1,11 @@
 #!/bin/bash
 
-USER_UID=${USER_UID:-1000}
-USER_GID=${USER_GID:-1000}
+APP_UID=${APP_UID:-1000}
+APP_GID=${APP_GID:-1000}
 
 APP_USER=${APP_USER:-appuser}
 
 # Invoke GnuPG-Agent the first time we login.
 export HOME=/home/${APP_USER}
 cd $HOME
-s6-applyuidgid -u $USER_UID -g $USER_GID /opt/teamviewer/tv_bin/script/teamviewer
+s6-applyuidgid -u $APP_UID -g $APP_GID /opt/teamviewer/tv_bin/script/teamviewer
