@@ -1,0 +1,20 @@
+#!/usr/bin/expect
+# vim:set ft=sh sw=2 sts=2 st=2 et:
+
+spawn zypper in x11-video-nvidiaG04
+expect
+{
+  "Choose from above solutions by number or cancel*"
+  {
+    send "2\r"
+    expect -re "Choose from above solutions by number or cancel*"
+    {
+      send "3\r"
+      expect -re "Continue*"
+      {
+        send "y\r"
+        interact
+      }
+    }
+  }
+}

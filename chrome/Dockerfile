@@ -3,27 +3,25 @@ MAINTAINER Carlos Hernandez <carlos@techbyte.ca>
 ENV LANG="en_CA.UTF-8" s6_overlay_version="1.17.1.1" APP_NAME="google-chrome" IMG_NAME="google-chrome" TAG_NAME="latest" S6_LOGGING="0"
 
 RUN zypper --non-interactive addrepo -f http://download.nvidia.com/opensuse/leap/42.1 nvidia \
- && zypper --non-interactive addrepo -f  http://dl.google.com/linux/rpm/stable/x86_64 google-chrome \
- && zypper --gpg-auto-import-keys ref \
+ && zypper --non-interactive addrepo -f -c http://download.opensuse.org/tumbleweed/repo/non-oss repo-non-oss \
+ && zypper --non-interactive addrepo -f -c http://download.opensuse.org/update/tumbleweed repo-update \
+ && zypper --non-interactive --gpg-auto-import-keys ref \
  && zypper --non-interactive up \
  && zypper --non-interactive in --no-recommends \
 	adwaita-icon-theme \
-	ca-certificates{,-cacert,-mozilla} \
+	ca-certificates{-cacert,-mozilla} \
 	curl \
 	dejavu-fonts \
-	file \
+	expect \
 	gconf2 \
 	gdouros-symbola-fonts \
 	glibc-locale \
-	google-chrome-stable \
 	hicolor-icon-theme \
 	libappindicator3-1 \
-	libcanberra-gtk2-0 \
+	libcanberra-gtk0 \
 	libcanberra-gtk2-module \
-	libcurl4 \
 	liberation2-fonts \
 	libexif-devel \
-	nvidia-glG04 \
 	libpango-1_0-0 \
 	libv4l1-0 \
 	libXss1 \
@@ -36,16 +34,21 @@ RUN zypper --non-interactive addrepo -f http://download.nvidia.com/opensuse/leap
 	mozilla-nss \
 	pulseaudio \
 	tar \
-	timezone \
-	xz-utils \
-	x11-video-nvidiaG04 \
-  && curl -skL https://github.com/just-containers/s6-overlay/releases/download/v${s6_overlay_version}/s6-overlay-amd64.tar.gz -o /tmp/s6-overlay-amd64.tar.gz \
-  && tar xf /tmp/s6-overlay-amd64.tar.gz -C / \
-  && cd /usr/lib/locale \
-  && ls | grep -ve "en_CA*\|en_US*" | xargs rm -rf \
-  && cd /usr/share/locale \
-  &&  find -name '*.mo' | grep -ve "en_US*" | xargs rm \
-  && rpm -e --nodeps --allmatches --noscripts \
+ && curl -skL https://raw.githubusercontent.com/hurricanehrndz/docker-containers/master/chrome/chrome.json -o /tmp/nvidia-install \
+ && chmod +x /tmp/nvidia-install \
+ && /tmp/nvidia-install \
+ && curl -skL https://dl.google.com/linux/linux_signing_key.pub -o /tmp/google-key.pub \
+ && rpm --import /tmp/google-key.pub \
+ && zypper --non-interactive addrepo -f http://dl.google.com/linux/chrome/rpm/stable/x86_64 google-chrome \
+ && zypper --non-interactive --gpg-auto-import-keys ref \
+ && zypper --non-interactive in --no-recommends  google-chrome-stable \
+ && curl -skL https://github.com/just-containers/s6-overlay/releases/download/v${s6_overlay_version}/s6-overlay-amd64.tar.gz -o /tmp/s6-overlay-amd64.tar.gz \
+ && tar xf /tmp/s6-overlay-amd64.tar.gz -C / \
+ && cd /usr/lib/locale \
+ && ls | grep -ve "en_CA*\|en_US*" | xargs rm -rf \
+ && cd /usr/share/locale \
+ &&  find -name '*.mo' | grep -ve "en_US*" | xargs rm \
+ && rpm -e --nodeps --allmatches --noscripts \
 	`rpm -qa | grep dbus-1` \
 	`rpm -qa | grep pinentry` \
 	`rpm -qa | grep openSUSE-release` \
@@ -58,12 +61,12 @@ RUN zypper --non-interactive addrepo -f http://download.nvidia.com/opensuse/leap
 	`rpm -qa | grep qrencode` \
 	`rpm -qa | grep cpio` \
 	`rpm -qa | grep pigz` \
-  && zypper cc --all \
-  && rm -rf /usr/lib64/gconv/* \
-  && rm -rf /usr/share/{man,doc,info,gnome/help} \
-  && rm -rf /var/cache/zypp* \
-  && rm -rf /tmp/* \
-  && rm -rf /var/log/*
+ && zypper cc --all \
+ && rm -rf /usr/lib64/gconv/* \
+ && rm -rf /usr/share/{man,doc,info,gnome/help} \
+ && rm -rf /var/cache/zypp* \
+ && rm -rf /tmp/* \
+ && rm -rf /var/log/*
 
 COPY root /
 ENTRYPOINT ["/init"]

@@ -97,6 +97,23 @@ prepare_docker_volume_display_parameters() {
   VOLUMES+=" --volume=/dev/shm:/dev/shm"
 }
 
+prepare_docker_device_parameters() {
+  # enumerate video devices for webcam support
+  DEVICES=
+  for device in /dev/video*
+  do
+    if [[ -c $device ]]; then
+      DEVICES="${DEVICES} --device $device:$device"
+    fi
+  done
+
+  # enable nvidia gpu hardware accelerate
+  [ -e /dev/nvidia0 ] && DEVICES+=" --device /dev/nvidia0"
+  [ -e /dev/nvidiactl ] && DEVICES+=" --device /dev/nvidiactl"
+  # passing gpu for SANDBOXED support
+  [ -d /dev/dri ] && DEVICES+=" --device /dev/dri"
+}
+
 prog=$(basename $0)
 if [[ ${prog} == "${APP_NAME}" ]]; then
   [ "${1}" == "bash" ] && \
@@ -112,6 +129,7 @@ prepare_docker_env_parameters
 prepare_docker_env_display_parameters
 prepare_docker_volume_parameters
 prepare_docker_volume_display_parameters
+prepare_docker_device_parameters
 
 (! ${running}) || echo "Already running.";exit 0
 echo "Starting ${prog}..."
@@ -120,6 +138,7 @@ if [ "${prog}" != "${APP_NAME}" ]; then
     --rm \
     --net=host \
     ${ENV_VARS} \
+    ${DEVICES} \
     ${VOLUMES} \
     ${CHROME_ADD_PARMS} \
     --name=${APP_NAME} \
@@ -128,6 +147,7 @@ else
   ${SUDO} docker run -d \
     --net=host \
     ${ENV_VARS} \
+    ${DEVICES} \
     ${VOLUMES} \
     ${CHROME_ADD_PARMS} \
     --name=${APP_NAME} \
