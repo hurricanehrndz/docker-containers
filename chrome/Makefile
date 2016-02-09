@@ -3,8 +3,6 @@ all: build
 APP_NAME="google-chrome"
 IMG_NAME="google-chrome"
 TAG_NAME="latest"
-XSOCK=/tmp/.X11-unix
-XAUTH=/tmp/.docker.xauth
 
 ifndef APP_REPO
 APP_REPO=${USER}
@@ -16,13 +14,8 @@ ENV_VARS= \
 	--env="APP_UID=$(shell id -u)" \
 	--env="APP_GID=$(shell id -g)" \
     --env="IMG_NAME=${IMG_NAME}" \
-    --env="TAG_NAME=${TAG_NAME}" \
-	--env="DISPLAY" \
-	--env="XAUTHORITY=${XAUTH}"
+    --env="TAG_NAME=${TAG_NAME}"
 
-VOLUMES= \
-	--volume=${XSOCK}:${XSOCK} \
-	--volume=${XAUTH}:${XAUTH}
 
 help:
 	@echo ""
@@ -41,16 +34,14 @@ clean:
 build:
 	@docker build --rm=true --tag=${APP_REPO}/${IMG_NAME}:${TAG_NAME} .
 
-instl uninstl: clean build
+instl uninstl: build
 	@docker run -it --rm \
 		--volume=/usr/local/bin:/target \
-		${VOLUMES} \
 		${ENV_VARS} \
 		${APP_REPO}/${APP_NAME}:${TAG_NAME} $@
 
 service: build
 	@docker run -it --rm \
 		--volume=/etc/systemd/system:/target \
-		${VOLUMES} \
 		${ENV_VARS} \
 		${APP_REPO}/${APP_NAME}:${TAG_NAME} instl service

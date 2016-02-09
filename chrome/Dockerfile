@@ -22,7 +22,6 @@ RUN zypper --non-interactive addrepo -f http://download.nvidia.com/opensuse/leap
 	libcanberra-gtk2-module \
 	liberation2-fonts \
 	libexif-devel \
-	libgcc_s1 \
 	libpango-1_0-0 \
 	libv4l1-0 \
 	libXss1 \
@@ -39,8 +38,8 @@ RUN zypper --non-interactive addrepo -f http://download.nvidia.com/opensuse/leap
  && expect -c 'set timeout -1;spawn zypper in --no-recommends x11-video-nvidiaG04;expect "Choose from above solutions by number or cancel*";send "2\n";expect "Continue*";send "y\n";expect eof; exit;}' \
  && curl -skL https://dl.google.com/linux/linux_signing_key.pub -o /tmp/google-key.pub \
  && rpm --import /tmp/google-key.pub \
- && zypper --non-interactive addrepo -f http://dl.google.com/linux/chrome/rpm/stable/x86_64 google-chrome
-RUN zypper --non-interactive --gpg-auto-import-keys ref \
+ && zypper --non-interactive addrepo -f http://dl.google.com/linux/chrome/rpm/stable/x86_64 google-chrome \
+ && zypper --non-interactive --gpg-auto-import-keys ref \
  && zypper --non-interactive in --no-recommends  google-chrome-stable \
  && curl -skL https://github.com/just-containers/s6-overlay/releases/download/v${s6_overlay_version}/s6-overlay-amd64.tar.gz -o /tmp/s6-overlay-amd64.tar.gz \
  && tar xf /tmp/s6-overlay-amd64.tar.gz -C / \
@@ -49,7 +48,6 @@ RUN zypper --non-interactive --gpg-auto-import-keys ref \
  && cd /usr/share/locale \
  &&  find -name '*.mo' | grep -ve "en_US*" | xargs rm \
  && rpm -e --nodeps --allmatches --noscripts \
-	`rpm -qa | grep dbus-1` \
 	`rpm -qa | grep pinentry` \
 	`rpm -qa | grep openSUSE-release` \
 	`rpm -qa | grep perl` \
@@ -71,6 +69,7 @@ RUN zypper --non-interactive --gpg-auto-import-keys ref \
 	`rpm -qa | grep wayland` \
 	`rpm -qa | grep -e "^gcc.*"` \
 	`rpm -qa | grep cpp` \
+	`rpm -qa | grep sysv` \
  && zypper cc --all \
  && rm -rf /usr/lib64/gconv/* \
  && rm -rf /usr/share/{man,doc,info,gnome/help} \

@@ -36,7 +36,7 @@ list_options() {
 cleanup_stopped_instances() {
   for c in $(${SUDO} docker ps -a -q)
   do
-    image=$(${SUDO} docker inspect -f {{.Config.Image}} ${c})
+    image=$(${SUDO} docker inspect --format="{{.Config.Image}}" ${c})
     if [[ ${image} == "${APP_REPO}/${IMG_NAME}:${TAG_NAME}" ]]; then
       running=$(${SUDO} docker inspect --format="{{.State.Running}}" ${c})
       if [[ ${running} != true ]]; then
@@ -45,19 +45,20 @@ cleanup_stopped_instances() {
       fi
     fi
   done
+  running=$(${SUDO} docker inspect --format="{{.State.Running}}" ${APP_NAME} 2> /dev/null)
 }
 
 openin_started_instance() {
   if [ $running ]; then
-    docker exec -i ${APP_NAME} ${APP_NAME} "$@" > /dev/null 2>&1
+    exec docker exec -i ${APP_NAME} ${APP_NAME} "$@" > /dev/null 2>&1
   fi
 }
 
 prepare_docker_security_opt_parameters() {
   if [ ! -f "${APP_CONFIG}/.chrome.json" ]; then
-    wget https://raw.githubusercontent.com/hurricanehrndz/docker-containers/master/chrome/chrome.json -o ${APP_CONFIG}/.chrome.json
+    wget -o ${APP_CONFIG}/.chrome.json https://raw.githubusercontent.com/hurricanehrndz/docker-containers/master/chrome/chrome.json
   fi
-  SECURITY_OPT="--security-opt seccomp:${APP_CONFIG/.chrome.json}"
+  SECURITY_OPT="--security-opt seccomp:${APP_CONFIG}/.chrome.json"
 }
 
 prepare_docker_env_parameters() {
@@ -123,7 +124,7 @@ if [[ ${prog} == "${APP_NAME}" ]]; then
 fi
 
 cleanup_stopped_instances
-openin_started_instance
+openin_started_instance $@
 prepare_docker_security_opt_parameters
 prepare_docker_env_parameters
 prepare_docker_env_display_parameters
@@ -131,25 +132,31 @@ prepare_docker_volume_parameters
 prepare_docker_volume_display_parameters
 prepare_docker_device_parameters
 
-(! ${running}) || echo "Already running.";exit 0
-echo "Starting ${prog}..."
-if [ "${prog}" != "${APP_NAME}" ]; then
-  ${SUDO} docker run -it \
-    --rm \
-    --net=host \
-    ${ENV_VARS} \
-    ${DEVICES} \
-    ${VOLUMES} \
-    ${CHROME_ADD_PARMS} \
-    --name=${APP_NAME} \
-    ${APP_REPO}/${IMG_NAME}:${TAG_NAME} ${prog} $@
+if [ ${running} ]; then
+  echo "Already running."
+  exit 0
 else
-  ${SUDO} docker run -d \
-    --net=host \
-    ${ENV_VARS} \
-    ${DEVICES} \
-    ${VOLUMES} \
-    ${CHROME_ADD_PARMS} \
-    --name=${APP_NAME} \
-    ${APP_REPO}/${IMG_NAME}:${TAG_NAME} ${APP_NAME} $@ > /dev/null
+  echo "Starting ${prog}..."
+  if [ "${prog}" != "${APP_NAME}" ]; then
+    ${SUDO} docker run -it \
+      --rm \
+      --net=host \
+      ${SECURITY_OPT} \
+      ${ENV_VARS} \
+      ${DEVICES} \
+      ${VOLUMES} \
+      ${CHROME_ADD_PARMS} \
+      --name=${APP_NAME} \
+      ${APP_REPO}/${IMG_NAME}:${TAG_NAME} ${prog} $@
+  else
+    ${SUDO} docker run -d \
+      --net=host \
+      ${SECURITY_OPT} \
+      ${ENV_VARS} \
+      ${DEVICES} \
+      ${VOLUMES} \
+      ${CHROME_ADD_PARMS} \
+      --name=${APP_NAME} \
+      ${APP_REPO}/${IMG_NAME}:${TAG_NAME} ${APP_NAME} $@ > /dev/null
+  fi
 fi
