@@ -24,6 +24,8 @@ RUN zypper --non-interactive addrepo -f http://download.nvidia.com/opensuse/leap
 	libexif-devel \
 	libpango-1_0-0 \
 	libv4l1-0 \
+	libva-vdpau-driver \
+	libvdpau_va_gl1 \
 	libXss1 \
 	libXtst6 \
 	Mesa \
@@ -55,7 +57,6 @@ RUN zypper --non-interactive addrepo -f http://download.nvidia.com/opensuse/leap
 	`rpm -qa | grep kbd` \
 	`rpm -qa | grep cryptsetup` \
 	`rpm -qa | grep mapper` \
-	`rpm -qa | grep pinentry` \
 	`rpm -qa | grep qrencode` \
 	`rpm -qa | grep cpio` \
 	`rpm -qa | grep pigz` \
@@ -65,15 +66,38 @@ RUN zypper --non-interactive addrepo -f http://download.nvidia.com/opensuse/leap
 	`rpm -qa | grep nvidia-computeG04` \
 	`rpm -qa | grep kernel` \
 	`rpm -qa | grep gsettings-desktop-schemas` \
-	`rpm -qa | grep wallpaper-branding-openSUSE` \
+	`rpm -qa | grep branding` \
 	`rpm -qa | grep wayland` \
 	`rpm -qa | grep -e "^gcc.*"` \
 	`rpm -qa | grep cpp` \
 	`rpm -qa | grep sysv` \
+	`rpm -qa | grep aaa_base-` \
+	`rpm -qa | grep syslog` \
+	`rpm -qa | grep xz` \
+	`rpm -qa | grep expect` \
+	`rpm -qa | grep tcl` \
+	`rpm -qa | grep systemd-presents` \
+	`rpm -qa | grep binutils` \
+	`rpm -qa | grep logrotate` \
+	`rpm -qa | grep cron` \
+	`rpm -qa | grep branding` \
+	`rpm -qa | grep mailx` \
+	`rpm -qa | grep netcfg` \
+	`rpm -qa | grep glibc-devel` \
+	`rpm -qa | grep x11-tools` \
+	`rpm -qa | grep dbus-1-x11` \
+	`rpm -qa | grep pkg-config` \
+	`rpm -qa | grep gsettings` \
+	`rpm -qa | grep wicked-service` \
+	`rpm -qa | grep -e "^systemd"` \
+	`rpm -qa | grep -e "^util-linux-systemd"` \
+	`rpm -qa | grep networking` \
+	`rpm -qa | grep suse-module-tools` \
  && zypper cc --all \
  && rm -rf /usr/lib64/gconv/* \
  && rm -rf /usr/share/{man,doc,info,gnome/help} \
  && rm -rf /var/cache/zypp* \
+ && rm -rf /usr/src/* \
  && rm -rf /tmp/* \
  && rm -rf /var/log/*
 

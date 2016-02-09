@@ -50,15 +50,8 @@ cleanup_stopped_instances() {
 
 openin_started_instance() {
   if [ $running ]; then
-    exec docker exec -i ${APP_NAME} ${APP_NAME} "$@" > /dev/null 2>&1
+    exec docker exec ${APP_NAME} ${APP_NAME} $@ > /dev/null 2>&1
   fi
-}
-
-prepare_docker_security_opt_parameters() {
-  if [ ! -f "${APP_CONFIG}/.chrome.json" ]; then
-    wget -o ${APP_CONFIG}/.chrome.json https://raw.githubusercontent.com/hurricanehrndz/docker-containers/master/chrome/chrome.json
-  fi
-  SECURITY_OPT="--security-opt seccomp:${APP_CONFIG}/.chrome.json"
 }
 
 prepare_docker_env_parameters() {
@@ -125,7 +118,6 @@ fi
 
 cleanup_stopped_instances
 openin_started_instance $@
-prepare_docker_security_opt_parameters
 prepare_docker_env_parameters
 prepare_docker_env_display_parameters
 prepare_docker_volume_parameters
@@ -140,8 +132,9 @@ else
   if [ "${prog}" != "${APP_NAME}" ]; then
     ${SUDO} docker run -it \
       --rm \
+      --memory 3gb \
+      --privileged \
       --net=host \
-      ${SECURITY_OPT} \
       ${ENV_VARS} \
       ${DEVICES} \
       ${VOLUMES} \
@@ -150,8 +143,9 @@ else
       ${APP_REPO}/${IMG_NAME}:${TAG_NAME} ${prog} $@
   else
     ${SUDO} docker run -d \
+      --memory 3gb \
+      --privileged \
       --net=host \
-      ${SECURITY_OPT} \
       ${ENV_VARS} \
       ${DEVICES} \
       ${VOLUMES} \
