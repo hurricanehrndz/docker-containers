@@ -35,7 +35,7 @@ cleanup_stopped_instances() {
   echo "Cleaning up stopped ${APP_NAME} instances..."
   for c in $(${SUDO} docker ps -a -q)
   do
-    image=$(${SUDO} docker inspect -f {{.Config.Image}} ${c})
+    image=$(${SUDO} docker inspect --format="{{.Config.Image}}" ${c})
     if [[ ${image} == "${APP_REPO}/${IMG_NAME}:${TAG_NAME}" ]]; then
       running=$(${SUDO} docker inspect -f {{.State.Running}} ${c})
       if [[ ${running} != true ]]; then

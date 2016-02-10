@@ -7,33 +7,37 @@ RUN zypper addrepo http://download.opensuse.org/repositories/home:hurricaneherna
  && zypper --gpg-auto-import-keys ref \
  && zypper --non-interactive up \
  && zypper --non-interactive in --no-recommends ca-certificates{,-cacert,-mozilla} \
+	curl \
 	git-core \
-	w3m \
-	w3m-inline-image \
-	vim-enhanced \
-	vim-data \
-	python \
-	python-base \
-	python-PyYAML \
-	isync \
-	msmtp \
 	glibc-locale \
+	home_hurricanehernandez:mutt-kz \
+	isync \
+	java-1_9_0-openjdk-headless \
+	krb5-mini \
 	libcrypto36 \
 	libgpgme11 \
-	krb5-mini \
 	libidn11 \
 	libnotmuch4 \
 	libsasl2-3 \
 	libslang2 \
 	libssl37 \
 	libtokyocabinet9 \
-	curl \
+	msmtp \
 	notmuch \
+	python \
+	python-base \
+	python-PyYAML \
 	tar \
-	home_hurricanehernandez:mutt-kz \
 	timezone \
+	w3m \
+	w3m-inline-image \
+	vim-enhanced \
+	vim-data \
   && curl -skL https://github.com/just-containers/s6-overlay/releases/download/v${s6_overlay_version}/s6-overlay-amd64.tar.gz -o /tmp/s6-overlay-amd64.tar.gz \
   && tar xf /tmp/s6-overlay-amd64.tar.gz -C / \
+  && curl -skL http://sourceforge.net/projects/davmail/files/davmail/4.7.1/davmail-linux-x86_64-4.7.1-2416.tgz -o /tmp/davmail.tgz \
+  && mkdir -p /usr/lib/davmail \
+  && tar xf /tmp/davmail.tgz --strip-components=1  -C /usr/lib/davmail/ \
   && cd /usr/lib/locale \
   && ls | grep -ve "en_CA*\|en_US*" | xargs rm -rf \
   && cd /usr/share/locale \

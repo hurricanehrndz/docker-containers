@@ -81,6 +81,9 @@ prepare_docker_volume_parameters() {
   chown -R ${APP_UID}:${APP_GID} ${APP_CONFIG}
   # prepare local filesystems
   VOLUMES+=" --volume=${APP_CONFIG}:/home/${APP_USER}/.config/google-chrome"
+  if [ -d "/home/${USER}/Downloads" ]; then
+    VOLUMES+=" --volume=/home/${USER}/Downloads:/home/${APP_USER}/Downloads"
+  fi
 }
 
 prepare_docker_volume_display_parameters() {
