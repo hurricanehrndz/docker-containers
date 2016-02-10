@@ -34,19 +34,11 @@ if ! getent passwd ${APP_USER} > /dev/null; then
     --comment 'Container application user.' ${APP_USER} > /dev/null 2>&1
 fi
 
-# grant access to video devices
-for device in /dev/video*
-do
-  if [[ -c $device ]]; then
-¦ ¦ VIDEO_GID=$(stat -c %g $device)
-¦ ¦ break
-  fi
-done
-
 # create video group if requried
+usermod -a -G video ${APP_USER}
 if [[ -n "$VIDEO_GID" ]]; then
 ¦ getent group $VIDEO_GID || groupadd -f -g $VIDEO_GID dockervideo
-¦ adduser ${APP_USER} dockervideo
+¦ usermod -a -G dockervideo ${APP_USER}
 fi
 
 # fix configs permissions

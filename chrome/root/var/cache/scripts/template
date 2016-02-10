@@ -69,6 +69,9 @@ prepare_docker_env_parameters() {
 prepare_docker_env_display_parameters() {
   ENV_VARS+=" --env=DISPLAY"
   ENV_VARS+=" --env=XAUTHORITY=${XAUTH}"
+  # Get video group id
+  VIDEO_GID=$(getent group video | awk -F:'{print $3}')
+  ENV_VARS+=" --env=VIDEO_GID=${VIDEO_GID}"
 }
 
 prepare_docker_volume_parameters() {
@@ -106,6 +109,7 @@ prepare_docker_device_parameters() {
   [ -e /dev/nvidiactl ] && DEVICES+=" --device /dev/nvidiactl"
   # passing gpu for SANDBOXED support
   [ -d /dev/dri ] && DEVICES+=" --device /dev/dri"
+
 }
 
 prog=$(basename $0)
