@@ -16,6 +16,7 @@ RUN zypper --non-interactive addrepo -f http://download.nvidia.com/opensuse/leap
 	gconf2 \
 	gdouros-symbola-fonts \
 	glibc-locale \
+	google-droid-fonts \
 	hicolor-icon-theme \
 	libappindicator3-1 \
 	libcanberra-gtk0 \
@@ -34,6 +35,8 @@ RUN zypper --non-interactive addrepo -f http://download.nvidia.com/opensuse/leap
 	Mesa-libglapi0 \
 	mozilla-nspr \
 	mozilla-nss \
+	noto-sans-fonts  \
+	noto-serif-fonts \
 	pulseaudio \
 	tar \
 	which \

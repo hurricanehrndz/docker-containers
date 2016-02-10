@@ -9,4 +9,4 @@ export HOME=/home/${APP_USER}
 export PULSE_SERVER=unix:/run/pulse/native
 cd $HOME
 
-s6-applyuidgid -u $APP_UID -g $APP_GID /usr/bin/google-chrome $@ --force-device-scale-factor=1
+s6-applyuidgid -u $APP_UID -g $APP_GID /usr/bin/google-chrome $@
