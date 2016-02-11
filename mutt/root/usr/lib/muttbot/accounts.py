@@ -2,15 +2,15 @@ import os
 import re
 from messenger import Messenger
 
-gmail_remote_folders=['[Gmail]/Trash', 'INBOX', '[Gmail]/Drafts', '[Gmail]/Sent Mail', '[Gmail]/Important', '[Gmail]/Starred', '[Gmail]/All Mail', '[Gmail]/Spam']
-gmail_local_folders=['trash', 'INBOX', 'drafts', 'sent', 'important', 'flagged',  'archive', 'spam']
-exchange_folders=['Trash', 'Inbox', 'Drafts', 'Sent', 'Junk']
-exchange_local_folders=['trash', 'INBOX', 'drafts', 'sent', 'spam']
-exchange_ignore_folders=['"Unsent Messages"', '"Your feeds"', '"Sent Issues"']
 
 class AccountsSetuper(object):
     def __init__(self):
         self._log = Messenger()
+        self._gmail_remote_folders=['[Gmail]/Trash', 'INBOX', '[Gmail]/Drafts', '[Gmail]/Sent Mail', '[Gmail]/Important', '[Gmail]/Starred', '[Gmail]/All Mail', '[Gmail]/Spam']
+        self._gmail_local_folders=['trash', 'Inbox', 'drafts', 'sent', 'important', 'flagged',  'archive', 'spam']
+        self._exchange_folders=['Trash', 'Inbox', 'Drafts', 'Sent', 'Junk']
+        self._exchange_local_folders=['trash', 'Inbox', 'drafts', 'sent', 'spam']
+        self._exchange_ignore_folders=['"Unsent Messages"', '"Your feeds"', '"Sent Issues"']
         self._home_dir = os.path.expanduser('~')
         self._mail_dir = os.path.join(home_dir, '.mail')
         self._mutt_dir = os.path.join(home_dir, '.mutt/')
@@ -18,15 +18,14 @@ class AccountsSetuper(object):
         self._msmtprc_config = os.path.join(home_dir, ".msmtprc")
         self._other_emails = ''
 
-    def setup_gmail(self, account_name, account_info):
-        print 'Setting up ' + account_name
+    def setup_mbsync_imap_account(self, account_name, account_info, ssl_type):
         # setup account for mbsync
         mbsyncrc = open(self._mbsync_config, 'a')
         mbsyncrc.write('IMAPAccount ' + account_name + '\n')
         mbsyncrc.write('Host ' + account_info['imap'] + '\n')
         mbsyncrc.write('User ' + account_info['user'] + '\n')
         mbsyncrc.write('Pass ' + account_info['pass'] + '\n')
-        mbsyncrc.write('SSLType IMAPS\n')
+        mbsyncrc.write('SSLType ' + ssl_type + '\n')
         mbsyncrc.write('AuthMechs LOGIN\n')
         mbsyncrc.write('CertificateFile /var/lib/ca-certificates/ca-bundle.pem\n')
         mbsyncrc.write('\n')
@@ -35,11 +34,12 @@ class AccountsSetuper(object):
         mbsyncrc.write('\n')
         mbsyncrc.write('MaildirStore ' + account_name + '-local\n')
         mbsyncrc.write('Path ~/.mail/' + account_name + '/\n')
-        mbsyncrc.write('Inbox ~/.mail/' + account_name + '/INBOX\n')
+        mbsyncrc.write('Inbox ~/.mail/' + account_name + '/Inbox\n')
         mbsyncrc.write('Flatten .\n')
         mbsyncrc.write('\n')
         mbsyncrc.write('\n')
 
+    def setup_mbsync_channels(account_name, account_type):
         add_patterns = ''
         for i in range (0, len(gmail_folders)):
             mbsyncrc.write('Channel ' + account_name + '-' + local_folders[i] + '\n')
@@ -67,6 +67,11 @@ class AccountsSetuper(object):
         mbsyncrc.write('\n')
         mbsyncrc.write('\n')
         mbsyncrc.close()
+
+    def setup_mbsync_gmail_account(self, account_name, account_info):
+        print 'Setting up ' + account_name
+        setup_mbsync_imap_account(account_name, account_info, 'IMAPS')
+        setup_mbsync_channels(account_name, 'gmail')
 
     def write_account_muttrc(self, account_name, account_info):
         # Write mutt acount file that will be source
@@ -163,7 +168,6 @@ class AccountsSetuper(object):
                 kz.write(re.sub(r'/home/user_name/.mail',self._mail_dir, line))
 
     def setup(self, email_accounts):
-        other_emails = ''
         success = True
         mbsyncrc = open(self._mbsync_config, 'a')
         mbsyncrc.write('Sync All\n')
@@ -174,6 +178,11 @@ class AccountsSetuper(object):
         for email_account in email_accounts:
             account_info = email_account.values()[0]
             account_name = email_account.keys()[0]
+            if account_info['type'] = 'gmail':
+                setup_gmail_account(account_name, account_info)
+            else:
+                setup_exchange_account(account_name, account_info)
+
 
         return success
 
