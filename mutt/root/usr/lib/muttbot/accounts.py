@@ -4,25 +4,47 @@ from messenger import Messenger
 
 
 class AccountsSetuper(object):
-    def __init__(self):
-        self._log = Messenger()
-        self._gmail_remote_folders=['[Gmail]/Trash', 'INBOX', '[Gmail]/Drafts', '[Gmail]/Sent Mail', '[Gmail]/Important', '[Gmail]/Starred', '[Gmail]/All Mail', '[Gmail]/Spam']
-        self._gmail_local_folders=['trash', 'Inbox', 'drafts', 'sent', 'important', 'flagged',  'archive', 'spam']
-        self._exchange_folders=['Trash', 'Inbox', 'Drafts', 'Sent', 'Junk']
-        self._exchange_local_folders=['trash', 'Inbox', 'drafts', 'sent', 'spam']
-        self._exchange_ignore_folders=['"Unsent Messages"', '"Your feeds"', '"Sent Issues"']
-        self._home_dir = os.path.expanduser('~')
-        self._mail_dir = os.path.join(home_dir, '.mail')
-        self._mutt_dir = os.path.join(home_dir, '.mutt/')
-        self._mbsync_config = os.path.join(home_dir, '.mbsyncrc')
-        self._msmtprc_config = os.path.join(home_dir, ".msmtprc")
-        self._other_emails = ''
+
+    def setup(self, email_accounts):
+        success = True
+        mbsyncrc = open(self._mbsync_config, 'a')
+        mbsyncrc.write('Sync All\n')
+        mbsyncrc.write('Expunge Both\n')
+        mbsyncrc.close()
+
+        # set config files for each acount
+        for email_account in email_accounts:
+            account_info = email_account.values()[0]
+            account_name = email_account.keys()[0]
+            print 'Setting up ' + account_name
+            self.append_sync_cmd(account_name)
+            self.create_mail_dirs(account_name)
+            if str(account_info['type']) == 'gmail':
+                self.setup_mbsync_gmail_account(account_name, account_info)
+            else:
+                self.setup_mbsync_exchange_account(account_name, account_info)
+            self.write_account_muttrc(account_name, account_info)
+            self.write_account_signature(account_name, account_info)
+            self.muttrc_append_folderhook(account_name)
+            self.msmtprc_append_account(account_name, account_info)
+
+        # setup account wide settings
+        self.write_notmuch_config(email_accounts)
+        self.update_kz_muttrc()
+
+        return success
+
+    def setup_mbsync_gmail_account(self, account_name, account_info):
+        self.setup_mbsync_imap_account(account_name, account_info, 'IMAPS')
+        self.setup_mbsync_channels(account_name, 'gmail')
 
     def setup_mbsync_imap_account(self, account_name, account_info, ssl_type):
         # setup account for mbsync
         mbsyncrc = open(self._mbsync_config, 'a')
         mbsyncrc.write('IMAPAccount ' + account_name + '\n')
         mbsyncrc.write('Host ' + account_info['imap'] + '\n')
+        if 'port' in account_info:
+            mbsyncrc.write('Port ' + account_info['port'] + '\n')
         mbsyncrc.write('User ' + account_info['user'] + '\n')
         mbsyncrc.write('Pass ' + account_info['pass'] + '\n')
         mbsyncrc.write('SSLType ' + ssl_type + '\n')
@@ -38,17 +60,26 @@ class AccountsSetuper(object):
         mbsyncrc.write('Flatten .\n')
         mbsyncrc.write('\n')
         mbsyncrc.write('\n')
+        mbsyncrc.close()
 
-    def setup_mbsync_channels(account_name, account_type):
-        add_patterns = ''
-        for i in range (0, len(gmail_folders)):
+    def setup_mbsync_channels(self, account_name, account_type):
+        folder_patterns_to_ignore = ''
+        local_folders = getattr(self, '_' + account_type + '_local_folders')
+        remote_folders = getattr(self, '_' + account_type + '_remote_folders')
+        ignore_folders = getattr(self, '_' + account_type + '_ignore_folders')
+        mbsyncrc = open(self._mbsync_config, 'a')
+        for i in range (0, len(remote_folders)):
             mbsyncrc.write('Channel ' + account_name + '-' + local_folders[i] + '\n')
-            mbsyncrc.write('Master :' + account_name + '-remote:"' + gmail_folders[i] + '"\n')
+            mbsyncrc.write('Master :' + account_name + '-remote:"' + remote_folders[i] + '"\n')
             mbsyncrc.write('Slave :' + account_name + '-local:"' +  local_folders[i] + '"\n')
             mbsyncrc.write('Create Both\n')
             mbsyncrc.write('SyncState *\n')
             mbsyncrc.write('\n')
-            add_patterns += '!' + gmail_local_folders[i] + '* '
+            folder_patterns_to_ignore += '!"' + remote_folders[i] + '"* '
+
+        print str(len(ignore_folders))
+        for i in range (0, len(ignore_folders)):
+            folder_patterns_to_ignore += '!' + ignore_folders[i] + '* '
 
         # Other folders
         mbsyncrc.write('Channel ' + account_name + '-default' + '\n')
@@ -56,29 +87,24 @@ class AccountsSetuper(object):
         mbsyncrc.write('Slave :' + account_name + '-local:\n')
         mbsyncrc.write('Create Both\n')
         mbsyncrc.write('SyncState *\n')
-        mbsyncrc.write('Patterns * ![Gmail]* ' + add_patterns + '\n')
+        mbsyncrc.write('Patterns * ' + folder_patterns_to_ignore + '\n')
         mbsyncrc.write('\n')
         mbsyncrc.write('\n')
 
         mbsyncrc.write('Group ' + account_name + '-group\n')
-        for i in range (0, len(gmail_remote_folders)):
-            mbsyncrc.write('Channel ' + account_name + '-' + gmail_local_folders[i] + '\n')
+        for i in range (0, len(local_folders)):
+            mbsyncrc.write('Channel ' + account_name + '-' + local_folders[i] + '\n')
         mbsyncrc.write('Channel ' + account_name + '-default' + '\n')
         mbsyncrc.write('\n')
         mbsyncrc.write('\n')
         mbsyncrc.close()
-
-    def setup_mbsync_gmail_account(self, account_name, account_info):
-        print 'Setting up ' + account_name
-        setup_mbsync_imap_account(account_name, account_info, 'IMAPS')
-        setup_mbsync_channels(account_name, 'gmail')
 
     def write_account_muttrc(self, account_name, account_info):
         # Write mutt acount file that will be source
         account_muttrc = open(os.path.join(self._mutt_dir, account_name), 'w')
         account_muttrc.write('set from = "' + account_info['email'] + '"\n')
         account_muttrc.write('set realname = "' + account_info['name'] + '"\n')
-        account_muttrc.write('set spoolfile = "+' + account_name + '/INBOX"\n')
+        account_muttrc.write('set spoolfile = "+' + account_name + '/Inbox"\n')
         account_muttrc.write('set mbox = "+' + account_name + '/archive"\n')
         account_muttrc.write('set postponed = "+' + account_name + '/drafts"\n')
         account_muttrc.write('set signature = ' + account_name + '.sig\n')
@@ -90,12 +116,12 @@ class AccountsSetuper(object):
         account_muttrc.write('set header_cache = ~/.mutt/cache/' + account_name +'/headers\n')
         account_muttrc.write('set message_cachedir = ~/.mutt/cache/' + account_name +'/bodies\n')
         account_muttrc.write('set certificate_file = ~/.mutt/cache/' + account_name +'/certificates\n')
-        account_muttrc.write('set nm_hidden_tags = "unread,drafts,flagged,INBOX,archive,important,' + account_name +'"\n')
+        account_muttrc.write('set nm_hidden_tags = "unread,drafts,flagged,Inbox,archive,important,' + account_name +'"\n')
         account_muttrc.write('set my_account_tag = ' + account_name + '\n')
         account_muttrc.write('source ~/.mutt/muttrc.folder.bindings\n')
         account_muttrc.close
 
-    def write_signature(self, account_name, account_info):
+    def write_account_signature(self, account_name, account_info):
         # Save signature
         signature = open(os.path.join(self._mutt_dir, account_name + '.sig'), 'w' )
         signature.write(account_info['signature'])
@@ -117,7 +143,7 @@ class AccountsSetuper(object):
         sync_cmds.write('/usr/lib/mutt/maildir-notmuch-sync ' + os.path.join(self._mail_dir, account_name) + '\n')
         sync_cmds.close()
 
-    def append_msmtprc_config(self, account_name, account_info):
+    def msmtprc_append_account(self, account_name, account_info):
         # setup msmtprc for sending mail
         msmtprc = open(os.path.join(self._home_dir, ".msmtprc"), 'a')
         msmtprc.write('account ' + account_name + '\n')
@@ -132,19 +158,19 @@ class AccountsSetuper(object):
         msmtprc.write('\n')
         msmtprc.close()
 
-    def append_folderhooks_to_muttrc(self, email_account, email_accounts):
+    def muttrc_append_folderhook(self, account_name):
         # add folder hooks to muttrc
         muttrc = open(os.path.join(self._mutt_dir, 'muttrc'), 'a')
-        if email_account == email_accounts[0]:
+        if self._is_first_account:
             muttrc.write('source ~/.mutt/' + account_name + '"\n')
-        else:
-            self._other_emails += account_info['email'] + ';'
+            self._is_first_account = False
 
         muttrc.write('folder-hook tag:"' +  account_name + '" "source ~/.mutt/' + account_name + '"\n')
         muttrc.close
 
     def write_notmuch_config(self, email_accounts):
         #notmuch config
+        other_emails = ''
         notmuch_config = open(os.path.join(self._home_dir, '.notmuch-config'), 'w')
         notmuch_config.write('[database]\n')
         notmuch_config.write('path=' + self._mail_dir + '\n')
@@ -153,7 +179,10 @@ class AccountsSetuper(object):
         notmuch_config.write('[user]\n')
         notmuch_config.write('name=' + email_accounts[0].values()[0]['name'] + '\n')
         notmuch_config.write('primary_email=' + email_accounts[0].values()[0]['email'] + '\n')
-        notmuch_config.write('other_email=' + self._other_emails + '\n')
+        for i in  range(0, len(email_accounts) - 1 ):
+            other_emails += email_accounts[i].values()[0]['email'] + ';'
+
+        notmuch_config.write('other_email=' + other_emails + '\n')
         notmuch_config.write('[maildir]\n')
         notmuch_config.write('synchronize_flags=true\n')
         notmuch_config.close()
@@ -167,24 +196,20 @@ class AccountsSetuper(object):
             for line in lines:
                 kz.write(re.sub(r'/home/user_name/.mail',self._mail_dir, line))
 
-    def setup(self, email_accounts):
-        success = True
-        mbsyncrc = open(self._mbsync_config, 'a')
-        mbsyncrc.write('Sync All\n')
-        mbsyncrc.write('Expunge Both\n')
-        mbsyncrc.close()
-
-        # set up mbsyncrc
-        for email_account in email_accounts:
-            account_info = email_account.values()[0]
-            account_name = email_account.keys()[0]
-            if account_info['type'] = 'gmail':
-                setup_gmail_account(account_name, account_info)
-            else:
-                setup_exchange_account(account_name, account_info)
-
-
-        return success
+    def __init__(self):
+        self._log = Messenger()
+        self._gmail_remote_folders=['[Gmail]/Trash', 'INBOX', '[Gmail]/Drafts', '[Gmail]/Sent Mail', '[Gmail]/Important', '[Gmail]/Starred', '[Gmail]/All Mail', '[Gmail]/Spam']
+        self._gmail_local_folders=['trash', 'Inbox', 'drafts', 'sent', 'important', 'flagged',  'archive', 'spam']
+        self._gmail_ignore_folders=[]
+        self._exchange_folders=['Trash', 'Inbox', 'Drafts', 'Sent', 'Junk']
+        self._exchange_local_folders=['trash', 'Inbox', 'drafts', 'sent', 'spam']
+        self._exchange_ignore_folders=['"Unsent Messages"', '"Your feeds"', '"Sent Issues"']
+        self._home_dir = os.path.expanduser('~')
+        self._mail_dir = os.path.join(self._home_dir, '.mail')
+        self._mutt_dir = os.path.join(self._home_dir, '.mutt/')
+        self._mbsync_config = os.path.join(self._home_dir, '.mbsyncrc')
+        self._msmtprc_config = os.path.join(self._home_dir, ".msmtprc")
+        self._is_first_account = True
 
 class SetupError(Exception):
     pass

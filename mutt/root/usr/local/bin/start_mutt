@@ -6,36 +6,36 @@ echo " " | gpg2 -q -r ${GPGKEY} -ae | gpg2 -q
 echo "Setting up mutt with secrets."
 python /usr/lib/muttbot/muttbot.py -c /usr/lib/muttbot/revealmuttsecrets
 
-if [ ! -e "/home/$APP_USER/.mail/.notmuch" ]; then
-  notmuch new
-  # assuming mail has to get synced for the first time
-  echo "Performing initial sync."
-  mail-sync
-fi
+#if [ ! -e "/home/$APP_USER/.mail/.notmuch" ]; then
+#  notmuch new
+#  # assuming mail has to get synced for the first time
+#  echo "Performing initial sync."
+#  mail-sync
+#fi
+#
+#logfile="/home/$APP_USER/mail-sync.log"
+/bin/bash
 
-logfile="/home/$APP_USER/mail-sync.log"
-
-while true      # run forever
-do
-  if [ -f $logfile ]; then
-    logsize=$(stat -c%s $logfile)
-  else
-    logsize=0
-  fi
-  if (($logsize > 10000000)) ; then
-    [ -f $logfile.1 ] && rm -f $logfile.1 > /dev/null 2>&1
-    mv $logfile $logfile.1 > /dev/null 2>&1
-  fi
-  mail-sync >>/home/$APP_USER/mail-sync.log 2>&1
-  sleep 120 # sleep 2 minutes
-done &      # run loop in background
-LOOP_PID=$! # copy PID of loop
-
-#/bin/bash
-/usr/bin/mutt
-
-kill $LOOP_PID             # these two lines are a cool trick to kill the
-wait $LOOP_PID 2>/dev/null # infinite loop and hide the error that it generates
-
-mail-sync &                # sync mail once more after mutt exits
+#while true      # run forever
+#do
+#  if [ -f $logfile ]; then
+#    logsize=$(stat -c%s $logfile)
+#  else
+#    logsize=0
+#  fi
+#  if (($logsize > 10000000)) ; then
+#    [ -f $logfile.1 ] && rm -f $logfile.1 > /dev/null 2>&1
+#    mv $logfile $logfile.1 > /dev/null 2>&1
+#  fi
+#  mail-sync >>/home/$APP_USER/mail-sync.log 2>&1
+#  sleep 120 # sleep 2 minutes
+#done &      # run loop in background
+#LOOP_PID=$! # copy PID of loop
+#
+#/usr/bin/mutt
+#
+#kill $LOOP_PID             # these two lines are a cool trick to kill the
+#wait $LOOP_PID 2>/dev/null # infinite loop and hide the error that it generates
+#
+#mail-sync &                # sync mail once more after mutt exits
 exit 0                     # force script to exit "cleanly"
