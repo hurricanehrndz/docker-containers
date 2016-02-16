@@ -38,13 +38,24 @@ class AccountsSetuper(object):
         self.setup_mbsync_imap_account(account_name, account_info, 'IMAPS')
         self.setup_mbsync_channels(account_name, 'gmail')
 
+    def setup_mbsync_exchange_account(self, account_name, account_info):
+        self.setup_mbsync_imap_account(account_name, account_info, 'None')
+        self.setup_mbsync_channels(account_name, 'exchange')
+        # davmail setsup an internal owa to imap proxy
+        self.write_davmail_config(account_name, account_info)
+
+    def write_davmail_config(self, account_name, account_info):
+        davmail_config = open(os.path.join(self._home_dir, account_name + '-davmail.properpties'), 'w' )
+        davmail_config.write(account_info['davmail'])
+        davmail_config.close
+
     def setup_mbsync_imap_account(self, account_name, account_info, ssl_type):
         # setup account for mbsync
         mbsyncrc = open(self._mbsync_config, 'a')
         mbsyncrc.write('IMAPAccount ' + account_name + '\n')
         mbsyncrc.write('Host ' + account_info['imap'] + '\n')
-        if 'port' in account_info:
-            mbsyncrc.write('Port ' + account_info['port'] + '\n')
+        if 'imap_port' in account_info:
+            mbsyncrc.write('Port ' + account_info['imap_port'] + '\n')
         mbsyncrc.write('User ' + account_info['user'] + '\n')
         mbsyncrc.write('Pass ' + account_info['pass'] + '\n')
         mbsyncrc.write('SSLType ' + ssl_type + '\n')
@@ -77,7 +88,6 @@ class AccountsSetuper(object):
             mbsyncrc.write('\n')
             folder_patterns_to_ignore += '!"' + remote_folders[i] + '"* '
 
-        print str(len(ignore_folders))
         for i in range (0, len(ignore_folders)):
             folder_patterns_to_ignore += '!' + ignore_folders[i] + '* '
 
@@ -148,13 +158,15 @@ class AccountsSetuper(object):
         msmtprc = open(os.path.join(self._home_dir, ".msmtprc"), 'a')
         msmtprc.write('account ' + account_name + '\n')
         msmtprc.write('host ' + account_info['smtp'] + '\n')
+        msmtprc.write('port ' + account_info['smtp_port'] + '\n')
         msmtprc.write('protocol smtp\n')
         msmtprc.write('auth on\n')
         msmtprc.write('from ' + account_info['email'] + '\n')
         msmtprc.write('user ' + account_info['user'] + '\n')
         msmtprc.write('password ' + account_info['pass'] + '\n')
-        msmtprc.write('tls on\n')
-        msmtprc.write('tls_trust_file /var/lib/ca-certificates/ca-bundle.pem\n')
+        if str(account_info['type']) == 'gmail':
+            msmtprc.write('tls on\n')
+            msmtprc.write('tls_trust_file /var/lib/ca-certificates/ca-bundle.pem\n')
         msmtprc.write('\n')
         msmtprc.close()
 

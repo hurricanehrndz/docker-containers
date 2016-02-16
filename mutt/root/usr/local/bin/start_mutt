@@ -1,11 +1,5 @@
 #!/bin/bash
 
-GPG_TTY=$(tty)
-export GPG_TTY=$(tty)
-echo " " | gpg2 -q -r ${GPGKEY} -ae | gpg2 -q
-echo "Setting up mutt with secrets."
-python /usr/lib/muttbot/muttbot.py -c /usr/lib/muttbot/revealmuttsecrets
-
 #if [ ! -e "/home/$APP_USER/.mail/.notmuch" ]; then
 #  notmuch new
 #  # assuming mail has to get synced for the first time

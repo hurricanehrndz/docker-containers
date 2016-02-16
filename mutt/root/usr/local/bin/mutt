@@ -8,4 +8,30 @@ APP_USER=${APP_USER:-appuser}
 # Invoke GnuPG-Agent the first time we login.
 export HOME=/home/${APP_USER}
 cd $HOME
+
+GPG_TTY=$(tty)
+export GPG_TTY=$(tty)
+echo " " | gpg2 -q -r ${GPGKEY} -ae | gpg2 -q
+
+echo "Setting up mutt with secrets..."
+s6-applyuidgid -u $APP_UID -g $APP_GID python /usr/lib/muttbot/muttbot.py -c /usr/lib/muttbot/revealmuttsecrets
+
+# Start additional services
+for i in $(find $HOME -name '*-davmial.properties'); do
+  davmail_service_name=${i#-*}
+  s6_davmail_dir=/var/run/s6/services/${davmail_service_name}_davmail
+  s6_davmail_run=$(s6_davmail_dir)/run
+  mkdir -p "$s6_davmail_dir"
+
+cat << EOF > $s6_davmail_run
+#!/usr/bin/with-contenv bash
+
+/usr/lib/davmail/davmail.sh $i
+
+EOF
+  s6-svc -u $s6_davmail_run > /dev/null 2>&1
+done
+
+
+echo "Starting mutt..."
 s6-applyuidgid -u $APP_UID -g $APP_GID /usr/local/bin/start_mutt
