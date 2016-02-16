@@ -26,6 +26,7 @@ RUN zypper --non-interactive addrepo -f http://download.nvidia.com/opensuse/leap
 	libexif-devel \
 	libpango-1_0-0 \
 	libv4l1-0 \
+	libva-glx1 \
 	libva-vdpau-driver \
 	libvdpau_va_gl1 \
 	libXss1 \
@@ -41,8 +42,8 @@ RUN zypper --non-interactive addrepo -f http://download.nvidia.com/opensuse/leap
 	pulseaudio \
 	repo-namtrac:freetype2 \
 	tar \
-	which \
 	vaapi-intel-driver \
+	which \
 	xf86-video-intel \
  && expect -c 'set timeout -1;spawn zypper in --no-recommends x11-video-nvidiaG04;expect "Choose from above solutions by number or cancel*";send "2\n";expect "Continue*";send "y\n";expect eof; exit;}' \
  && curl -skL https://dl.google.com/linux/linux_signing_key.pub -o /tmp/google-key.pub \
