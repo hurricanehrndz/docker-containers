@@ -41,6 +41,7 @@ RUN zypper --non-interactive addrepo -f http://download.nvidia.com/opensuse/leap
 	pulseaudio \
 	repo-namtrac:freetype2 \
 	tar \
+	xf86-video-intel \
 	which \
  && expect -c 'set timeout -1;spawn zypper in --no-recommends x11-video-nvidiaG04;expect "Choose from above solutions by number or cancel*";send "2\n";expect "Continue*";send "y\n";expect eof; exit;}' \
  && curl -skL https://dl.google.com/linux/linux_signing_key.pub -o /tmp/google-key.pub \

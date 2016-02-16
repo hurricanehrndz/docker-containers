@@ -12,7 +12,7 @@ XAUTH=/tmp/.docker.xauth
 
 ( id -Gn | grep -q docker ) || [ $EUID == 0 ] || SUDO=sudo
 
-if [ ${APP_USER} != "appuser" ]; then
+if [ "${APP_USER}" != "appuser" ]; then
   APP_UID=$(getent passwd $APP_USER | awk -F":" '{print $3}')
   APP_GID=$(getent passwd $APP_USER | awk -F":" '{print $4}')
 else
