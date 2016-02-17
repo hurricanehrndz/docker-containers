@@ -1,6 +1,6 @@
 FROM opensuse:tumbleweed
 MAINTAINER Carlos Hernandez <carlos@techbyte.ca>
-ENV LANG="en_CA.UTF-8" s6_overlay_version="1.17.1.1" APP_NAME="template" IMG_NAME="template" TAG_NAME="latest" S6_LOGGING="0"
+ENV LANG="en_CA.UTF-8" s6_overlay_version="1.17.1.2" APP_NAME="template" IMG_NAME="template" TAG_NAME="latest" S6_LOGGING="0"
 
 RUN zypper --gpg-auto-import-keys ref \
  && zypper --non-interactive up \
