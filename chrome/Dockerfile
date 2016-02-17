@@ -26,12 +26,15 @@ RUN zypper --non-interactive addrepo -f http://download.nvidia.com/opensuse/leap
 	libexif-devel \
 	libpango-1_0-0 \
 	libv4l1-0 \
+	libva-drm1  \
+	libva-egl1  \
 	libva-glx1 \
 	libva-vdpau-driver \
 	libvdpau_va_gl1 \
 	libXss1 \
 	libXtst6 \
 	Mesa \
+	Mesa-libEGL1 \
 	Mesa-libGL1 \
 	Mesa-libglapi0 \
 	Mesa-libva \
