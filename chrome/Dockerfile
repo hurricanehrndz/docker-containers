@@ -37,7 +37,7 @@ RUN zypper --non-interactive addrepo -f http://download.nvidia.com/opensuse/leap
 	Mesa-libEGL1 \
 	Mesa-libGL1 \
 	Mesa-libglapi0 \
-	Mesa-libGLESv2 \
+	Mesa-libGLESv2-2 \
 	Mesa-libva \
 	mozilla-nspr \
 	mozilla-nss \
