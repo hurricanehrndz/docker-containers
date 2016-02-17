@@ -32,9 +32,9 @@ RUN zypper --non-interactive addrepo -f http://download.nvidia.com/opensuse/leap
 	libXss1 \
 	libXtst6 \
 	Mesa \
-	Mesa-libEGL1 \
 	Mesa-libGL1 \
 	Mesa-libglapi0 \
+	Mesa-libva \
 	mozilla-nspr \
 	mozilla-nss \
 	noto-sans-fonts  \
