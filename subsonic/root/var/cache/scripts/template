@@ -7,8 +7,6 @@ APP_NAME="APP_NAME"
 APP_USER=${APP_USER:-$USER}
 APP_REPO=${APP_REPO:-hurricane}
 APP_CONFIG=${APP_CONFIG:-"/home/${APP_USER}/.${APP_NAME}"}
-XSOCK=/tmp/.X11-unix
-XAUTH=/tmp/.docker.xauth
 
 ( id -Gn | grep -q docker ) || [ $EUID == 0 ] || SUDO=sudo
 
@@ -60,11 +58,6 @@ prepare_docker_env_parameters() {
   fi
 }
 
-prepare_docker_env_display_parameters() {
-  ENV_VARS+=" --env=DISPLAY"
-  ENV_VARS+=" --env=XAUTHORITY=${XAUTH}"
-}
-
 prepare_docker_volume_parameters() {
   if [ ! -d "${APP_CONFIG}" ]; then
     mkdir -p ${APP_CONFIG}
@@ -72,14 +65,6 @@ prepare_docker_volume_parameters() {
   chown -R ${APP_UID}:${APP_GID} ${APP_CONFIG}
   # prepare local filesystems
   VOLUMES+=" --volume=${APP_CONFIG}:/config"
-}
-
-prepare_docker_volume_display_parameters() {
-  touch ${XAUTH}
-  xauth nlist :0 | sed -e 's/^..../ffff/' | xauth -f ${XAUTH} nmerge -
-
-  VOLUMES+=" --volume=${XSOCK}:${XSOCK}"
-  VOLUMES+=" --volume=${XAUTH}:${XAUTH}"
 }
 
 prog=$(basename $0)
@@ -92,9 +77,7 @@ fi
 
 cleanup_stopped_instances
 prepare_docker_env_parameters
-prepare_docker_env_display_parameters
 prepare_docker_volume_parameters
-prepare_docker_volume_display_parameters
 
 if [ ${running} ]; then
   echo "Already running."
@@ -104,17 +87,17 @@ else
   if [ "${prog}" != "${APP_NAME}" ]; then
     ${SUDO} docker run -it \
       --rm \
-      --net=host \
+      -p 4040:4040 \
       ${ENV_VARS} \
       ${VOLUMES} \
       --name=${APP_NAME} \
       ${APP_REPO}/${IMG_NAME}:${TAG_NAME} ${prog} $@
   else
     ${SUDO} docker run -d \
-      --net=host \
+      -p 4040:4040 \
       ${ENV_VARS} \
       ${VOLUMES} \
       --name=${APP_NAME} \
-      ${APP_REPO}/${IMG_NAME}:${TAG_NAME} ${APP_NAME} $@ > /dev/null
+      ${APP_REPO}/${IMG_NAME}:${TAG_NAME} > /dev/null
   fi
 fi

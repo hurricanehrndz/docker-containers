@@ -1,0 +1,67 @@
+#!/usr/bin/with-contenv bash
+#########################################################################
+# Shell script for starting Subsonic.  See http://subsonic.org.       	#
+#                                                                       #
+# Adpated for unRAID by Carlos Hernandez <carlos@techbyte.ca>           #
+#									                                                      #
+#########################################################################
+APP_UID=${APP_UID:-1000}
+APP_GID=${APP_GID:-1000}
+
+APP_USER=${APP_USER:-appuser}
+
+SUBSONIC_HOME=/subsonic
+SUBSONIC_HOST=0.0.0.0
+SUBSONIC_PORT=${WEB_PORT:-4040}
+SUBSONIC_HTTPS_PORT=${SSL_PORT:-0}
+SUBSONIC_CONTEXT_PATH=/
+SUBSONIC_MAX_MEMORY=${MAX_MEM:-150}
+SUBSONIC_DEFAULT_MUSIC_FOLDER=/music
+SUBSONIC_DEFAULT_PODCAST_FOLDER=/podcasts
+SUBSONIC_DEFAULT_PLAYLIST_FOLDER=/playlists
+
+# Use JAVA_HOME if set, otherwise assume java is in the path.
+JAVA=java
+if [ -e "${JAVA_HOME}" ]
+    then
+    JAVA=${JAVA_HOME}/bin/java
+fi
+
+# Create Subsonic home directory.
+if [ ! -e ${SUBSONIC_HOME} ]; then
+  mkdir -p ${SUBSONIC_HOME}
+  chown -R ${APP_UID}:${APP_GID} ${SUBSONIC_HOME}
+fi
+
+if [ ! -e ${SUBSONIC_DEFAULT_MUSIC_FOLDER} ]; then
+  mkdir -p ${SUBSONIC_DEFAULT_MUSIC_FOLDER}
+  chown -R ${APP_UID}:${APP_GID} ${SUBSONIC_DEFAULT_MUSIC_FOLDER}
+fi
+
+if [ ! -e ${SUBSONIC_DEFAULT_PODCAST_FOLDER} ]; then
+  mkdir -p ${SUBSONIC_DEFAULT_PODCAST_FOLDER}
+  chown -R ${APP_UID}:${APP_GID} ${SUBSONIC_DEFAULT_PODCAST_FOLDER}
+fi
+
+if [ ! -e ${SUBSONIC_DEFAULT_PLAYLIST_FOLDER} ]; then
+  mkdir -p ${SUBSONIC_DEFAULT_PLAYLIST_FOLDER}
+  chown -R ${APP_UID}:${APP_GID} ${SUBSONIC_DEFAULT_PLAYLIST_FOLDER}
+fi
+
+cd /opt/subsonic/
+LOG=${SUBSONIC_HOME}/subsonic_sh.log
+echo "Starting Subsonic.."
+s6-applyuidgid -u $APP_UID -g $APP_GID ${JAVA} \
+  -Xmx${SUBSONIC_MAX_MEMORY}m \
+  -Dsubsonic.home=${SUBSONIC_HOME} \
+  -Dsubsonic.host=${SUBSONIC_HOST} \
+  -Dsubsonic.port=${SUBSONIC_PORT} \
+  -Dsubsonic.httpsPort=${SUBSONIC_HTTPS_PORT} \
+  -Dsubsonic.contextPath=${SUBSONIC_CONTEXT_PATH} \
+  -Dsubsonic.defaultMusicFolder=${SUBSONIC_DEFAULT_MUSIC_FOLDER} \
+  -Dsubsonic.defaultPodcastFolder=${SUBSONIC_DEFAULT_PODCAST_FOLDER} \
+  -Dsubsonic.defaultPlaylistFolder=${SUBSONIC_DEFAULT_PLAYLIST_FOLDER} \
+  -Djava.awt.headless=true \
+  -Djava.net.preferIPv4Stack=true \
+  -verbose:gc \
+  -jar subsonic-booter-jar-with-dependencies.jar > ${LOG}
