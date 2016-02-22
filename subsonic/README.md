@@ -197,7 +197,7 @@ https://github.com/hurricanehrndz/container-templates/tree/master/hurricane
 ```
 For more information on adding templates to unRAID please visit the [unRAID forums](https://lime-technology.com/forum/).
 
-## unRAID Automatic Updates:
+## unRAID Automatic Upgrades:
 On unRAID, execute the following to have the container periodically update
 itself. Additionally, to make the change persistent add the same line of code to your `go` file.
 
