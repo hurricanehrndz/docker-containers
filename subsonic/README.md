@@ -241,7 +241,11 @@ Of course you can always run docker image manually. Please be aware that if you
 wish your data to remain persistent you need to provide a location for the
 `/config` volume. For example,
 ```
-docker run -d -v /home/user/.subsonic:/subsonic hurricane/subsonic
+docker run -d --net=host -v /*your_subsonichome_location*:/subsonic \
+                         -v /*your_music_folder_location*:/music \
+                         -v /*your_podcast_folder_location*:/podcasts \
+                         -e TZ=America/Edmonton
+                         --name=subsonic hurricane/subsonic
 ```
 All the information mention previously regarding user UID and GID still applies
 when executing a docker run command.
