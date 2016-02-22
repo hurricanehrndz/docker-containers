@@ -12,8 +12,15 @@
 - [Maintenance](#maintenance)
   - [Upgrading](#upgrading)
   - [Automatic Upgrades](#automatic-upgrades)
-  - [Uninstallation](#uninstallation)
+  - [Removal](#removal)
   - [Shell Access](#shell-access)
+- [unRAID](#unraid)
+  - [Installation](#unraid-installation)
+  - [Automatic Upgrades](#unraid-automatic-upgrades)
+- [Technical Information](#technical-information)
+  - [Environment Variables](#environment-variables)
+  - [Volumes](#volumes)
+- [Manual Run and Installation](#manual-run-and-installation)
 - [License](#license)
 
 # Introduction
@@ -59,8 +66,14 @@ If the above recommendations do not help then [report your issue](../../issues/n
 
 ### [Docker Hub](https://hub.docker.com/r/hurricane/subsonic/):
 It is recommended you install directly from the [Docker Hub](https://hub.docker.com/r/hurricane/subsonic/).
-Before starting the install procedure please verify the following prerequisites
-are fulfilled:
+Before starting the install procedure please verify that any and all
+prerequisites are fulfilled:
+
+The following command copies over a wrapper scrip that will create a container
+named `subsonic` when executed. The wrapper script will ensure that the
+container gets setup with the appropriate environment variables and volumes
+each time it is executed. It does so by prompting and saving certain setting to
+answer file that it will look up each time it is called.
 
 Start the installation by issuing the following command from within a terminal:
 ```
@@ -156,7 +169,7 @@ entry. Like so:
 ```
 echo "0 2 * * * docker exec subsonic update" | sudo tee -a /var/spool/cron/crontabs/root
 ```
-## Uninstallation
+## Removal:
 
 ```bash
 docker run -it --rm \
@@ -174,37 +187,56 @@ a running containers shell by starting `bash` using `docker exec`:
 docker exec -it subsonic bash
 ```
 
-## unRAID:
+# unRAID:
 You can find the template for this container on GitHub. Located [here](https://github.com/hurricanehrndz/container-templates/tree/master/hurricane).
 
-### Automatic Updates:
-On unRAID you can execute and add the line of code that follows to your `go`
-file to have the container automatically update.
-```
-echo "0 2 * * * docker exec subsonic update" | sudo tee -a /var/spool/cron/crontabs/root
-```
-
-### Installtion:
+## unRAID Installation:
 Please navigate to the Docker settings page on unRAID's Web-UI and under repositories add:
 ```
 https://github.com/hurricanehrndz/container-templates/tree/master/hurricane
 ```
 For more information on adding templates to unRAID please visit the [unRAID forums](https://lime-technology.com/forum/).
 
-## Technical information:
-This image and installation process setups Subsonic to run with the permissions
-of the user executing `subsonic`. So, Subsonic's data is set to save within the
-user's home directory under the subdirectory named `.subsonic`.
+## unRAID Automatic Updates:
+On unRAID, execute the following to have the container periodically update
+itself. Additionally, to make the change persistent add the same line of code to your `go` file.
 
+```
+echo "0 2 * * * docker exec subsonic update" | sudo tee -a /var/spool/cron/crontabs/root
+```
+
+# Technical information:
+By default the image has been created to run with UID and GID 1000. If using
+the automatic install method from Docker, the container is set to run with the
+UID and GID of of the user executing the `subsonic` wrapper script.
+Additionally, the wrapper script by default saves subsonic's database and
+settings in a hidden sub folder in the executing user's home directory. Most
+default settings can be adjusted by passing the appropriate environment
+variable. Here is a list of any and all applicable environment variables that
+can be override by the end user.
+
+## Environment Variables:
 You may overwrite the default settings by passing the appropriate environment variable:
-* APP_USER - name of user to create within container for purposes of running subsonic, UID, GID are more important.
-* APP_UID - UID assigned to APP_USER upon creation.
-* APP_GID - GID assigned to APP_USER upon creation.
+* APP_USER   - name of user to create within container for purposes of running subsonic, UID, GID are more important.
+* APP_UID    - UID assigned to APP_USER upon creation.
+* APP_GID    - GID assigned to APP_USER upon creation.
 * APP_CONFIG - the directory that should house Subsonic  metadata and configuration.
+* HTTP_PORT  - port Subsonic listens to for HTTP requests. Default is 4040.
+* HTTPS_PORT - port Subsonic listens to for HTTPS requests. Default is null.
+* MAX_MEM    - maximum Java heap size in megabytes. Default value is 150.
+
+If you set HTTPS_PORT to something else other than `0` all HTTP request will be
+redirected to HTTPS.
 
 Please read Docker documentation on [environment variables](https://docs.docker.com/engine/reference/run/#env-environment-variables) for more information.
 
-## Manual Run and Installtion:
+## Volumes:
+* `/subsonic`  - Folder to store Subsonic's log, configuration and database.
+* `/music`     - Default music folder.
+* `/podcasts`  - Default podcast folder.
+* `/playlists` - Default playlists folder.
+
+# Manual Run and Installation:
 Of course you can always run docker image manually. Please be aware that if you
 wish your data to remain persistent you need to provide a location for the
 `/config` volume. For example,
@@ -214,5 +246,5 @@ docker run -d -v /home/user/.subsonic:/subsonic hurricane/subsonic
 All the information mention previously regarding user UID and GID still applies
 when executing a docker run command.
 
-## License
+# License
 Code released under the [MIT license](./LICENSE).

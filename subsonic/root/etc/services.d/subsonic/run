@@ -1,4 +1,5 @@
 #!/usr/bin/with-contenv bash
+# vim:set ft=sh sw=2 sts=2 st=2 et:
 #########################################################################
 # Shell script for starting Subsonic.  See http://subsonic.org.       	#
 #                                                                       #
@@ -12,8 +13,8 @@ APP_USER=${APP_USER:-appuser}
 
 SUBSONIC_HOME=/subsonic
 SUBSONIC_HOST=0.0.0.0
-SUBSONIC_PORT=${WEB_PORT:-4040}
-SUBSONIC_HTTPS_PORT=${SSL_PORT:-0}
+SUBSONIC_PORT=${HTTP_PORT:-4040}
+SUBSONIC_HTTPS_PORT=${HTTPS_PORT:-0}
 SUBSONIC_CONTEXT_PATH=/
 SUBSONIC_MAX_MEMORY=${MAX_MEM:-150}
 SUBSONIC_DEFAULT_MUSIC_FOLDER=/music
@@ -47,6 +48,12 @@ if [ ! -e ${SUBSONIC_DEFAULT_PLAYLIST_FOLDER} ]; then
   mkdir -p ${SUBSONIC_DEFAULT_PLAYLIST_FOLDER}
   chown -R ${APP_UID}:${APP_GID} ${SUBSONIC_DEFAULT_PLAYLIST_FOLDER}
 fi
+
+# Use system install of ffmpeg for transcoding
+[ ! -d /subsonic/transcode ] || rm -r /subsonic/transcode
+mkdir -p /subsonic/transcode
+ln -s "$(which ffmpeg)" /subsonic/transcode/ffmpeg
+chown -R $APP_UID:$APP_GID /subsonic/transcode
 
 cd /opt/subsonic/
 LOG=${SUBSONIC_HOME}/subsonic_sh.log
