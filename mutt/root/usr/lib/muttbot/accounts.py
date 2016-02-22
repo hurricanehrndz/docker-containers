@@ -45,7 +45,7 @@ class AccountsSetuper(object):
         self.write_davmail_config(account_name, account_info)
 
     def write_davmail_config(self, account_name, account_info):
-        davmail_config = open(os.path.join(self._home_dir, account_name + '-davmail.properpties'), 'w' )
+        davmail_config = open(os.path.join(self._home_dir, account_name + '-davmail.properties'), 'w' )
         davmail_config.write(account_info['davmail'])
         davmail_config.close
 
@@ -55,7 +55,7 @@ class AccountsSetuper(object):
         mbsyncrc.write('IMAPAccount ' + account_name + '\n')
         mbsyncrc.write('Host ' + account_info['imap'] + '\n')
         if 'imap_port' in account_info:
-            mbsyncrc.write('Port ' + account_info['imap_port'] + '\n')
+            mbsyncrc.write('Port ' + str(account_info['imap_port']) + '\n')
         mbsyncrc.write('User ' + account_info['user'] + '\n')
         mbsyncrc.write('Pass ' + account_info['pass'] + '\n')
         mbsyncrc.write('SSLType ' + ssl_type + '\n')
@@ -158,7 +158,7 @@ class AccountsSetuper(object):
         msmtprc = open(os.path.join(self._home_dir, ".msmtprc"), 'a')
         msmtprc.write('account ' + account_name + '\n')
         msmtprc.write('host ' + account_info['smtp'] + '\n')
-        msmtprc.write('port ' + account_info['smtp_port'] + '\n')
+        msmtprc.write('port ' + str(account_info['smtp_port']) + '\n')
         msmtprc.write('protocol smtp\n')
         msmtprc.write('auth on\n')
         msmtprc.write('from ' + account_info['email'] + '\n')
@@ -213,7 +213,7 @@ class AccountsSetuper(object):
         self._gmail_remote_folders=['[Gmail]/Trash', 'INBOX', '[Gmail]/Drafts', '[Gmail]/Sent Mail', '[Gmail]/Important', '[Gmail]/Starred', '[Gmail]/All Mail', '[Gmail]/Spam']
         self._gmail_local_folders=['trash', 'Inbox', 'drafts', 'sent', 'important', 'flagged',  'archive', 'spam']
         self._gmail_ignore_folders=[]
-        self._exchange_folders=['Trash', 'Inbox', 'Drafts', 'Sent', 'Junk']
+        self._exchange_remote_folders=['Trash', 'Inbox', 'Drafts', 'Sent', 'Junk']
         self._exchange_local_folders=['trash', 'Inbox', 'drafts', 'sent', 'spam']
         self._exchange_ignore_folders=['"Unsent Messages"', '"Your feeds"', '"Sent Issues"']
         self._home_dir = os.path.expanduser('~')

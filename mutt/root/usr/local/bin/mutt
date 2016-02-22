@@ -17,10 +17,12 @@ echo "Setting up mutt with secrets..."
 s6-applyuidgid -u $APP_UID -g $APP_GID python /usr/lib/muttbot/muttbot.py -c /usr/lib/muttbot/revealmuttsecrets
 
 # Start additional services
-for i in $(find $HOME -name '*-davmial.properties'); do
-  davmail_service_name=${i#-*}
+for i in $(find $HOME -name "*davmail.properties"); do
+  davmail_service_name=${i%-davmail.properties}
+  davmail_service_name=${davmail_service_name#$HOME/}
+  echo "Setting up davmail for ${davmail_service_name}..."
   s6_davmail_dir=/var/run/s6/services/${davmail_service_name}_davmail
-  s6_davmail_run=$(s6_davmail_dir)/run
+  s6_davmail_run=${s6_davmail_dir}/run
   mkdir -p "$s6_davmail_dir"
 
 cat << EOF > $s6_davmail_run
@@ -29,9 +31,12 @@ cat << EOF > $s6_davmail_run
 /usr/lib/davmail/davmail.sh $i
 
 EOF
-  s6-svc -u $s6_davmail_run > /dev/null 2>&1
+  chmod +x $s6_davmail_run
+  s6-svscanctl -a /var/run/s6/services
+  s6-svc -u $s6_davmail_dir
 done
 
 
 echo "Starting mutt..."
+bash
 s6-applyuidgid -u $APP_UID -g $APP_GID /usr/local/bin/start_mutt

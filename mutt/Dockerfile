@@ -14,13 +14,13 @@ RUN zypper addrepo http://download.opensuse.org/repositories/home:hurricaneherna
 	isync \
 	java-1_9_0-openjdk-headless \
 	krb5-mini \
-	libcrypto36 \
+	libcrypto37 \
 	libgpgme11 \
 	libidn11 \
 	libnotmuch4 \
 	libsasl2-3 \
 	libslang2 \
-	libssl37 \
+	libssl38 \
 	libtokyocabinet9 \
 	msmtp \
 	notmuch \
