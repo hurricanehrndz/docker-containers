@@ -28,31 +28,10 @@ if [ -e "${JAVA_HOME}" ]
     JAVA=${JAVA_HOME}/bin/java
 fi
 
-# Create Subsonic home directory.
-if [ ! -e ${SUBSONIC_HOME} ]; then
-  mkdir -p ${SUBSONIC_HOME}
-  chown -R ${APP_UID}:${APP_GID} ${SUBSONIC_HOME}
-fi
-
-if [ ! -e ${SUBSONIC_DEFAULT_MUSIC_FOLDER} ]; then
-  mkdir -p ${SUBSONIC_DEFAULT_MUSIC_FOLDER}
-  chown -R ${APP_UID}:${APP_GID} ${SUBSONIC_DEFAULT_MUSIC_FOLDER}
-fi
-
-if [ ! -e ${SUBSONIC_DEFAULT_PODCAST_FOLDER} ]; then
-  mkdir -p ${SUBSONIC_DEFAULT_PODCAST_FOLDER}
-  chown -R ${APP_UID}:${APP_GID} ${SUBSONIC_DEFAULT_PODCAST_FOLDER}
-fi
-
-if [ ! -e ${SUBSONIC_DEFAULT_PLAYLIST_FOLDER} ]; then
-  mkdir -p ${SUBSONIC_DEFAULT_PLAYLIST_FOLDER}
-  chown -R ${APP_UID}:${APP_GID} ${SUBSONIC_DEFAULT_PLAYLIST_FOLDER}
-fi
-
 # Use system install of ffmpeg for transcoding
 [ ! -d /subsonic/transcode ] || rm -r /subsonic/transcode
 mkdir -p /subsonic/transcode
-ln -s "$(which ffmpeg)" /subsonic/transcode/ffmpeg
+ln -s "$(command -v ffmpeg)" /subsonic/transcode/ffmpeg
 chown -R $APP_UID:$APP_GID /subsonic/transcode
 
 cd /opt/subsonic/
