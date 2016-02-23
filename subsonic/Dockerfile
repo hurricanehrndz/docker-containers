@@ -28,7 +28,6 @@ RUN zypper --non-interactive ar -f -n packman http://ftp.gwdg.de/pub/linux/misc/
 	curl \
 	`rpm -qa | grep cpio` \
 	`rpm -qa | grep cryptsetup` \
-	`rpm -qa | grep dbus-1` \
 	`rpm -qa | grep kbd` \
 	`rpm -qa | grep kmod` \
 	`rpm -qa | grep mapper` \

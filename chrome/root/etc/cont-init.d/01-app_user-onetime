@@ -37,8 +37,8 @@ fi
 # create video group if requried
 usermod -a -G video ${APP_USER}
 if [[ -n "$VIDEO_GID" ]]; then
-¦ getent group $VIDEO_GID || groupadd -f -g $VIDEO_GID dockervideo
-¦ usermod -a -G dockervideo ${APP_USER}
+  getent group $VIDEO_GID || groupadd -f -g $VIDEO_GID dockervideo
+  usermod -a -G dockervideo ${APP_USER}
 fi
 
 # fix configs permissions
