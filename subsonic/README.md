@@ -22,6 +22,7 @@
   - [Volumes](#volumes)
 - [Manual Run and Installation](#manual-run-and-installation)
 - [License](#license)
+- [Donation](#donation)
 
 
 # Introduction
@@ -273,3 +274,9 @@ when executing a docker run command.
 # License
 
 Code released under the [MIT license](./LICENSE).
+
+
+
+# Donation
+
+[@hurricanehrndz](https://github.com/hurricanehrndz): <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=74S5RK533DD6C"><img src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" alt="[paypal]" /></a>
