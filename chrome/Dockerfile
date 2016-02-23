@@ -12,6 +12,7 @@ RUN zypper --non-interactive addrepo -f http://download.nvidia.com/opensuse/leap
 	adwaita-icon-theme \
 	ca-certificates{-cacert,-mozilla} \
 	curl \
+	dbus-1-x11 \
 	dejavu-fonts \
 	expect \
 	gconf2 \
