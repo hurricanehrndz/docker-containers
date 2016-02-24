@@ -7,6 +7,7 @@ RUN zypper --non-interactive addrepo -f -c http://download.opensuse.org/reposito
  && zypper --non-interactive up \
  && zypper --non-interactive in --no-recommends \
 	curl \
+	fontconfig \
 	fontconfig-32bit \
 	glibc-locale \
 	libasound2-32bit \
