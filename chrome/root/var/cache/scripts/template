@@ -140,7 +140,7 @@ else
     ${SUDO} docker run -it \
       --rm \
       --memory 3gb \
-      --privileged \
+      --security-opt seccomp:unconfined \
       --net=host \
       ${ENV_VARS} \
       ${DEVICES} \
@@ -151,7 +151,7 @@ else
   else
     ${SUDO} docker run -d \
       --memory 3gb \
-      --privileged \
+      --security-opt seccomp:unconfined \
       --net=host \
       ${ENV_VARS} \
       ${DEVICES} \
