@@ -110,14 +110,14 @@ else
   if [ "${prog}" != "${APP_NAME}" ]; then
     ${SUDO} docker run -it \
       --rm \
-      --net=host \
+      --security-opt seccomp:unconfined \
       ${ENV_VARS} \
       ${VOLUMES} \
       --name=${APP_NAME} \
       ${APP_REPO}/${IMG_NAME}:${TAG_NAME} ${prog} $@
   else
     ${SUDO} docker run -d \
-      --net=host \
+      --security-opt seccomp:unconfined \
       ${ENV_VARS} \
       ${VOLUMES} \
       --name=${APP_NAME} \
