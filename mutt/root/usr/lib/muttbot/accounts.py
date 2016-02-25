@@ -67,7 +67,7 @@ class AccountsSetuper(object):
         mbsyncrc.write('\n')
         mbsyncrc.write('MaildirStore ' + account_name + '-local\n')
         mbsyncrc.write('Path ~/.mail/' + account_name + '/\n')
-        mbsyncrc.write('Inbox ~/.mail/' + account_name + '/Inbox\n')
+        mbsyncrc.write('Inbox ~/.mail/' + account_name + '/INBOX\n')
         mbsyncrc.write('Flatten .\n')
         mbsyncrc.write('\n')
         mbsyncrc.write('\n')
@@ -85,11 +85,15 @@ class AccountsSetuper(object):
             mbsyncrc.write('Slave :' + account_name + '-local:"' +  local_folders[i] + '"\n')
             mbsyncrc.write('Create Both\n')
             mbsyncrc.write('SyncState *\n')
+            mbsyncrc.write('Patterns *\n')
             mbsyncrc.write('\n')
             folder_patterns_to_ignore += '!"' + remote_folders[i] + '"* '
 
         for i in range (0, len(ignore_folders)):
             folder_patterns_to_ignore += '!' + ignore_folders[i] + '* '
+
+        for i in range (0, len(local_folders)):
+            folder_patterns_to_ignore += '!' + local_folders[i] + '* '
 
         # Other folders
         mbsyncrc.write('Channel ' + account_name + '-default' + '\n')
@@ -114,7 +118,7 @@ class AccountsSetuper(object):
         account_muttrc = open(os.path.join(self._mutt_dir, account_name), 'w')
         account_muttrc.write('set from = "' + account_info['email'] + '"\n')
         account_muttrc.write('set realname = "' + account_info['name'] + '"\n')
-        account_muttrc.write('set spoolfile = "+' + account_name + '/Inbox"\n')
+        account_muttrc.write('set spoolfile = "+' + account_name + '/INBOX"\n')
         account_muttrc.write('set mbox = "+' + account_name + '/archive"\n')
         account_muttrc.write('set postponed = "+' + account_name + '/drafts"\n')
         account_muttrc.write('set signature = ' + account_name + '.sig\n')
@@ -211,11 +215,11 @@ class AccountsSetuper(object):
     def __init__(self):
         self._log = Messenger()
         self._gmail_remote_folders=['[Gmail]/Trash', 'INBOX', '[Gmail]/Drafts', '[Gmail]/Sent Mail', '[Gmail]/Important', '[Gmail]/Starred', '[Gmail]/All Mail', '[Gmail]/Spam']
-        self._gmail_local_folders=['trash', 'Inbox', 'drafts', 'sent', 'important', 'flagged',  'archive', 'spam']
+        self._gmail_local_folders=['trash', 'INBOX', 'drafts', 'sent', 'important', 'flagged',  'archive', 'spam']
         self._gmail_ignore_folders=[]
-        self._exchange_remote_folders=['Trash', 'Inbox', 'Drafts', 'Sent', 'Junk']
-        self._exchange_local_folders=['trash', 'Inbox', 'drafts', 'sent', 'spam']
-        self._exchange_ignore_folders=['"Unsent Messages"', '"Your feeds"', '"Sent Issues"']
+        self._exchange_remote_folders=['Trash', 'INBOX', 'Drafts', 'Sent', 'Junk']
+        self._exchange_local_folders=['trash', 'INBOX', 'drafts', 'sent', 'spam']
+        self._exchange_ignore_folders=['"Unsent Messages"', '"Your feeds"', '"Sync Issues*"']
         self._home_dir = os.path.expanduser('~')
         self._mail_dir = os.path.join(self._home_dir, '.mail')
         self._mutt_dir = os.path.join(self._home_dir, '.mutt/')

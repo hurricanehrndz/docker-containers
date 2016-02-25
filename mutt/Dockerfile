@@ -1,6 +1,6 @@
 FROM opensuse:tumbleweed
 MAINTAINER Carlos Hernandez <carlos@techbyte.ca>
-ENV LANG="en_CA.UTF-8" s6_overlay_version="1.17.1.2" APP_NAME="mutt" IMG_NAME="mutt" TAG_NAME="latest" S6_LOGGING="1" TERM=xterm-256color
+ENV LANG="en_US.UTF-8" s6_overlay_version="1.17.1.2" APP_NAME="mutt" IMG_NAME="mutt" TAG_NAME="latest" S6_LOGGING="1" TERM=xterm-256color
 
 RUN zypper addrepo http://download.opensuse.org/repositories/home:hurricanehernandez/openSUSE_Tumbleweed/home:hurricanehernandez.repo \
  && zypper addrepo http://download.opensuse.org/repositories/server:mail/openSUSE_Tumbleweed/server:mail.repo \
@@ -9,6 +9,7 @@ RUN zypper addrepo http://download.opensuse.org/repositories/home:hurricaneherna
  && zypper --non-interactive in --no-recommends ca-certificates{,-cacert,-mozilla} \
 	curl \
 	git-core \
+	glibc-i18ndata \
 	glibc-locale \
 	home_hurricanehernandez:mutt-kz \
 	isync \
@@ -29,10 +30,10 @@ RUN zypper addrepo http://download.opensuse.org/repositories/home:hurricaneherna
 	python-PyYAML \
 	tar \
 	timezone \
+	vim-data \
+	vim-enhanced \
 	w3m \
 	w3m-inline-image \
-	vim-enhanced \
-	vim-data \
   && curl -skL https://github.com/just-containers/s6-overlay/releases/download/v${s6_overlay_version}/s6-overlay-amd64.tar.gz -o /tmp/s6-overlay-amd64.tar.gz \
   && tar xf /tmp/s6-overlay-amd64.tar.gz -C / \
   && curl -skL http://sourceforge.net/projects/davmail/files/davmail/4.7.1/davmail-linux-x86_64-4.7.1-2416.tgz -o /tmp/davmail.tgz \
@@ -46,9 +47,23 @@ RUN zypper addrepo http://download.opensuse.org/repositories/home:hurricaneherna
   && git clone --depth 1 https://github.com/dbeniamine/vim-mail /var/cache/.vim/bundle/vim-mail \
   && git clone --depth 1 https://github.com/altercation/vim-colors-solarized /var/cache/.vim/bundle/vim-colors-solarized \
   && rpm -e --nodeps --allmatches --noscripts \
+	`rpm -qa | grep cpio` \
+	`rpm -qa | grep cryptsetup` \
+	`rpm -qa | grep dbus-1` \
+	`rpm -qa | grep kbd` \
+	`rpm -qa | grep kmod` \
+	`rpm -qa | grep mapper` \
+	`rpm -qa | grep openSUSE-release` \
+	`rpm -qa | grep perl` \
+	`rpm -qa | grep pigz` \
+	`rpm -qa | grep pinentry` \
+	`rpm -qa | grep pinentry` \
+	`rpm -qa | grep qrencode` \
 	aaa_base \
+	curl \
 	dbus-1 \
 	dracut \
+	git-core \
 	kmod \
 	ncurses-utils \
 	pkg-config \
@@ -57,24 +72,11 @@ RUN zypper addrepo http://download.opensuse.org/repositories/home:hurricaneherna
 	systemd-presets-branding-openSUSE \
 	systemd-sysvinit \
 	tar \
-	curl \
-	`rpm -qa | grep dbus-1` \
-	`rpm -qa | grep pinentry` \
-	`rpm -qa | grep openSUSE-release` \
-	`rpm -qa | grep perl` \
-	`rpm -qa | grep kmod` \
-	`rpm -qa | grep kbd` \
-	`rpm -qa | grep cryptsetup` \
-	`rpm -qa | grep mapper` \
-	`rpm -qa | grep pinentry` \
-	`rpm -qa | grep qrencode` \
-	`rpm -qa | grep cpio` \
-	`rpm -qa | grep pigz` \
-	git-core \
+  && localedef -i en_US -f UTF-8 en_US.UTF-8 \
   && zypper cc --all \
+  && rm -rf /tmp/* \
   && rm -rf /usr/share/{man,doc,info,gnome/help} \
   && rm -rf /var/cache/zypp* \
-  && rm -rf /tmp/* \
   && rm -rf /var/log/*
 
 COPY root /
