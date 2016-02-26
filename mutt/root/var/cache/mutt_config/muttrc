@@ -78,7 +78,7 @@ set tilde                                # show tildes like in vim
 set smart_wrap                           # long lines wrapped at a word boundary
 unset markers                            # no ugly plus signs
 alternative_order text/plain text/html * # preferred view order
-auto_view text/html                      # automatically view html files in pager
+auto_view text/html text/calendar image/*
 
 
 # ------------------------------------------------------------------------------

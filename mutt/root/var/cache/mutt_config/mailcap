@@ -2,3 +2,4 @@ application/octet-stream ; echo %s "can be anything..."                     ; co
 text/html                ; /usr/bin/w3m -I %{charset} -T text/html -dump %s ; nametemplate=%s.html ; copiousoutput
 application/pdf          ; /usr/bin/zathura %s                              ; copiousoutput
 image/*                  ; /usr/local/bin/muttimage.sh %s                   ; copiousoutput
+text/calendar            ; galcli import -d %s                              ; copiousoutput

@@ -38,6 +38,16 @@ class AccountsSetuper(object):
         self.setup_mbsync_imap_account(account_name, account_info, 'IMAPS')
         self.setup_mbsync_channels(account_name, 'gmail')
 
+    def setup_goobook(self, account_name, account_info):
+        goobookrc = open(os.path.join(self._home_dir,'.goobookrc-' + account_name), 'w')
+        goobookrc.write('[DEFAULT]\n')
+        goobookrc.wrtie('email: ' + account_info['email'] + '\n')
+        goobookrc.write('password: ' + account_info['pass'] + '\n')
+        goobookrc.write('cache_filename: ~/.goobook_cache_' + account_name + '\n')
+        goobookrc.write('cache_expiry_hours: 48\n')
+        goobookrc.close()
+
+
     def setup_mbsync_exchange_account(self, account_name, account_info):
         self.setup_mbsync_imap_account(account_name, account_info, 'None')
         self.setup_mbsync_channels(account_name, 'exchange')
@@ -133,6 +143,18 @@ class AccountsSetuper(object):
         account_muttrc.write('set nm_hidden_tags = "unread,drafts,flagged,Inbox,archive,important,' + account_name +'"\n')
         account_muttrc.write('set my_account_tag = ' + account_name + '\n')
         account_muttrc.write('source ~/.mutt/muttrc.folder.bindings\n')
+        # add goobookrc if type is gmail
+        if str(account_info['type']) == 'gmail':
+            if str(account_info['global_goobook'] == 'true'):
+                kz_muttrc =  open(os.path.join(self._mutt_dir, 'muttrc.kz'), w)
+                kz_muttrc.write('set query_command="goobook -c ' + os.path.join(self._home_dir,'.goobookrc-' + account_name) + ' query \'%s\'"\n')
+                kz_muttrc.write('macro index,pager a "<pipe-message>goobook -c ' + os.path.join(self._home_dir,'.goobookrc-' + account_name) + ' add<return>" "add sender to google contacts"\n')
+                kz_muttrc.write('bind editor <Tab> complete-query\n')
+                kz_muttrc.close()
+            else:
+                account_muttrc.write('set query_command="goobook -c ' + os.path.join(self._home_dir,'.goobookrc-' + account_name) + ' query \'%s\'"\n')
+                account_muttrc.write('macro index,pager a "<pipe-message>goobook -c ' + os.path.join(self._home_dir,'.goobookrc-' + account_name) + ' add<return>" "add sender to google contacts"\n')
+                account_muttrc.write('bind editor <Tab> complete-query\n')
         account_muttrc.close
 
     def write_account_signature(self, account_name, account_info):
