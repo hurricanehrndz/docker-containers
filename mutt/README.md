@@ -43,7 +43,8 @@ features include but are not limited to:
 
 This container and its functionality is provided without warranties or
 guarantees. Please ensure you backup your email accounts before trying this
-container out.
+container out. Additionally, ensure any existing exchange folders or GMail
+labels have been named without any periods or spaces.
 
 ## Contributing
 
@@ -74,12 +75,13 @@ If the above recommendations do not help then [report your issue](../../issues/n
 * GPG key per account.
 * Global GPG key exported as environment variable named GPGKEY
 * gnupg2
-* email account info provided in yaml config file
+* email account info provided in yaml config file acsii encrypted with global
+  GPG key.
 
 ## Preparation:
 
-Setup a YAML file with your email account or accounts info like in the examples
-that follow.
+Setup a YAML file named `~/muttsecrets` with your email account or accounts
+info like in the examples that follow.
 
 Below is an example of a YAML configuration file for a GMail account.
 ```
@@ -110,7 +112,7 @@ Here is an example of a YAML configuration file for an exchange account.
     smtp_port: 465
     imap: 127.0.0.1
     imap_port: 993
-    gpg: '0x85D83547'
+    gpg: '0xFFFFFFFF'
     signature: |
         Best Regards,
         John Smith
@@ -124,6 +126,11 @@ Here is an example of a YAML configuration file for an exchange account.
         davmail.allowRemote=false
         davmail.bindAddress=127.0.0.1
 
+```
+
+Finally encrypt the YAML file with the global GPG key you setup earlier. i.e.
+```
+gpg2 -o ~/.muttsecrets -r $GPGKEY ~/muttsecrets
 ```
 
 ## Installation:
@@ -150,7 +157,7 @@ troubleshooting and development. To install Subsonic from GitHub execute the
 following:
 ```
 git clone https://github.com/hurricane/docker-containers
-cd docker-containers/subsonic
+cd docker-containers/mutt
 make instl
 ```
 
@@ -208,11 +215,16 @@ can be override by the end user.
 ## Environment Variables:
 
 You may overwrite the default settings by passing the appropriate environment variable:
-* APP_USER   - name of user to create within container for purposes of running subsonic, UID, GID are more important.
+* APP_USER   - name of user to create within container for purposes of running mutt, UID, GID are more important.
 * APP_UID    - UID assigned to APP_USER upon creation.
 * APP_GID    - GID assigned to APP_USER upon creation.
 
 Please read Docker documentation on [environment variables](https://docs.docker.com/engine/reference/run/#env-environment-variables) for more information.
+
+## Volumes:
+
+* `/home/$APP_USER/.mail` - root maildir directory
+* `/home/$APP_USER/mutt/cache` - mutt cache directory
 
 
 # Manual Run and Installation:

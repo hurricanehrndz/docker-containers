@@ -92,12 +92,6 @@ prepare_docker_volume_parameters() {
     echo "Making mutt cache directory." && \
     mkdir -p ~/.mutt/cache
   VOLUMES+=" --volume=/home/${USER}/.mutt/cache:/home/${APP_USER}/.mutt/cache"
-
-  # make mbsync directory if it doesn't exist
-  [ ! -d ~/.mbsync ] && \
-    echo "Making isync directory." && \
-    mkdir -p ~/.mbsync
-  VOLUMES+=" --volume=/home/${USER}/.mbsync:/home/${APP_USER}/.mbsync"
 }
 
 prog=$(basename $0)
