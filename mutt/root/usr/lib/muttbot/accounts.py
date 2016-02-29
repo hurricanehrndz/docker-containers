@@ -140,7 +140,7 @@ class AccountsSetuper(object):
         account_muttrc.write('set header_cache = ~/.mutt/cache/' + account_name +'/headers\n')
         account_muttrc.write('set message_cachedir = ~/.mutt/cache/' + account_name +'/bodies\n')
         account_muttrc.write('set certificate_file = ~/.mutt/cache/' + account_name +'/certificates\n')
-        account_muttrc.write('set nm_hidden_tags = "unread,drafts,flagged,Inbox,archive,important,' + account_name +'"\n')
+        account_muttrc.write('set nm_hidden_tags = "unread,drafts,flagged,INBOX,archive,important,' + account_name +'"\n')
         account_muttrc.write('set my_account_tag = ' + account_name + '\n')
         account_muttrc.write('source ~/.mutt/muttrc.folder.bindings\n')
         # add goobookrc if type is gmail
