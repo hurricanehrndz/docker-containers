@@ -50,7 +50,7 @@ RUN zypper addrepo http://download.opensuse.org/repositories/home:hurricaneherna
   && git clone --depth 1 https://github.com/altercation/vim-colors-solarized /var/cache/.vim/bundle/vim-colors-solarized \
   && pip install --upgrade pip \
   && pip install goobook \
-  && pip install gcalcli \
+  && pip install mutt_ics \
   && rpm -e --nodeps --allmatches --noscripts \
 	`rpm -qa | grep cpio` \
 	`rpm -qa | grep cryptsetup` \
