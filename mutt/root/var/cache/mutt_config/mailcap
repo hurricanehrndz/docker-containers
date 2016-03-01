@@ -1,5 +1,5 @@
 application/octet-stream ; echo %s "can be anything..."                     ; copiousoutput
 text/html                ; /usr/bin/w3m -I %{charset} -T text/html -dump %s ; nametemplate=%s.html ; copiousoutput
 application/pdf          ; /usr/bin/zathura %s                              ; copiousoutput
-image/*                  ; /usr/local/bin/muttimage.sh %s                   ; copiousoutput
+image/*                  ; /usr/bin/mirage %s > /dev/null 2>&1              ; copiousoutput
 text/calendar            ; mutt-ics %s                                      ; copiousoutput

@@ -26,7 +26,8 @@ account_virtual_boxes() {
 			# find periods in folder name, each is a depth
 			periods="${notmuch_tag//[^.]}"
 			depth=${#periods}
-			prefix=$(for i in {1..$depth}; do echo -n -; done)
+			prefix=$(for i in {1..$depth}; do echo -n ' '; done)
+			prefix=${prefix}└
 			if [[ $depth > 0 ]]; then
 				label="${prefix}${notmuch_tag##*.}"
 			else

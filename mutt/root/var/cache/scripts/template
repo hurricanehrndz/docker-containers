@@ -7,6 +7,8 @@ APP_NAME="APP_NAME"
 APP_USER=${APP_USER:-$USER}
 APP_REPO=${APP_REPO:-hurricane}
 APP_CONFIG=${APP_CONFIG:-"/home/${APP_USER}/.${APP_NAME}"}
+XSOCK=/tmp/.X11-unix
+XAUTH=/tmp/.docker.xauth
 
 ( id -Gn | grep -q docker ) || [ $EUID == 0 ] || SUDO=sudo
 
@@ -66,6 +68,11 @@ prepare_docker_env_parameters() {
   fi
 }
 
+prepare_docker_env_display_parameters() {
+  ENV_VARS+=" --env=DISPLAY"
+  ENV_VARS+=" --env=XAUTHORITY=${XAUTH}"
+}
+
 prepare_docker_volume_parameters() {
   # check to see if secrets exits
   [ ! -f ~/.muttsecrets ] && \
@@ -94,6 +101,14 @@ prepare_docker_volume_parameters() {
   VOLUMES+=" --volume=/home/${USER}/.mutt/cache:/home/${APP_USER}/.mutt/cache"
 }
 
+prepare_docker_volume_display_parameters() {
+  touch ${XAUTH}
+  xauth nlist :0 | sed -e 's/^..../ffff/' | xauth -f ${XAUTH} nmerge -
+
+  VOLUMES+=" --volume=${XSOCK}:${XSOCK}"
+  VOLUMES+=" --volume=${XAUTH}:${XAUTH}"
+}
+
 prog=$(basename $0)
 if [[ ${prog} == "${APP_NAME}" ]]; then
   [ "${1}" == "bash" ] && \
@@ -104,7 +119,9 @@ fi
 
 cleanup_stopped_instances
 prepare_docker_env_parameters
+prepare_docker_env_display_parameters
 prepare_docker_volume_parameters
+prepare_docker_volume_display_parameters
 
 echo "Starting ${prog}..."
 ${SUDO} docker run -it \

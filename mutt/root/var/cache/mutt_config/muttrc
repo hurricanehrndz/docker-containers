@@ -29,7 +29,6 @@ source ~/.mutt/muttrc.sidebar
 ignore *                                      # ignore all headers
 unignore from to cc date subject reply-to     # headers to be shown
 unignore user-agent posted-to contnet-type
-unignore x-
 ignore "Authentication-Results:"
 ignore "DomainKey-Signature:"
 ignore "DKIM-Signature:"
@@ -37,6 +36,12 @@ ignore "X-Recieved:"
 ignore "X-TUID:"
 ignore "X-Notifications:"
 ignore "X-Account-Notification-Type:"
+ignore "X-MS-Exchange-Organization-AuthAs:"
+ignore "X-MS-Exchange-Organization-AuthMechanism:"
+ignore "X-MS-Exchange-Organization-AuthSource:"
+ignore "X-MS-Has-Attach:"
+ignore "X-MS-Exchange-Organization-SCL:"
+ignore "X-MS-TNEF-Correlator:"
 unhdr_order *                                 # some distros order things by default
 hdr_order from: to: cc: date: subject:        # and in this order
 
@@ -78,7 +83,7 @@ set tilde                                # show tildes like in vim
 set smart_wrap                           # long lines wrapped at a word boundary
 unset markers                            # no ugly plus signs
 alternative_order text/plain text/html * # preferred view order
-auto_view text/html text/calendar image/* application/pdf
+auto_view text/html text/calendar
 
 
 # ------------------------------------------------------------------------------

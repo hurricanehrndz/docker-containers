@@ -468,6 +468,11 @@ Notmuch_State_To_Maildir__Move_To_Maildir ()
 # the notmuch db. This indicates that we need to copy the message to a
 # new maildir. After the next 'notmuch new' db update, the tags/folders
 # should thus be at parity again.
+  if [ -d $MAILDIR_ACCOUNT_ROOT/archive ]; then
+    ARCHIVE_FILTER="AND tag:"$ARCHIVE""
+  else
+    ARCHIVE_FILTER=""
+  fi
 
   local THIS_MAILDIR_FULL_PATH="$1"
   local THIS_NOTMUCH_FOLDER="$(Notmuch_Folder_From_Full_Path $THIS_MAILDIR_FULL_PATH)"
@@ -475,8 +480,8 @@ Notmuch_State_To_Maildir__Move_To_Maildir ()
   local THESE_MESSAGE_IDS_TO_COPY="$(\
     notmuch search --output=messages\
     tag:"$THIS_NOTMUCH_TAG" \
-    AND tag:"$ARCHIVE" \
-    ${ACCOUNT_NAME:+"tag:${ACCOUNT_NAME}"} \
+    $ARCHIVE_FILTER \
+    AND ${ACCOUNT_NAME:+"tag:${ACCOUNT_NAME}"} \
     NOT folder:"$THIS_NOTMUCH_FOLDER" \
     NOT folder:"$TRASH" \
     NOT tag:"$NEW_TAG")"
@@ -536,6 +541,11 @@ Notmuch_State_To_Maildir__Remove_From_Maildir ()
 # Note that the search below uses the $ARCHIVE folder/tag value
 # as a check that the messages have been previously indexed and processed
 # by this script.
+  if [ -d $MAILDIR_ACCOUNT_ROOT/archive ]; then
+    ARCHIVE_FILTER="AND tag:"$ARCHIVE""
+  else
+    ARCHIVE_FILTER=""
+  fi
 
   local THIS_MAILDIR_FULL_PATH="$1"
   local THIS_NOTMUCH_FOLDER="$(Notmuch_Folder_From_Full_Path $THIS_MAILDIR_FULL_PATH)"
@@ -543,8 +553,8 @@ Notmuch_State_To_Maildir__Remove_From_Maildir ()
   local THESE_MESSAGE_IDS_TO_REMOVE="$(\
     notmuch search --output=messages\
     folder:"$THIS_NOTMUCH_FOLDER" \
-    AND tag:"$ARCHIVE" \
-    ${ACCOUNT_NAME:+"tag:${ACCOUNT_NAME}"} \
+    $ARCHIVE_FILTER \
+    AND ${ACCOUNT_NAME:+"tag:${ACCOUNT_NAME}"} \
     NOT tag:"$THIS_NOTMUCH_TAG" \
     NOT tag:"$NEW_TAG")"
 
