@@ -1,7 +1,7 @@
 #!/bin/bash
 
 default_tags=("INBOX" "flagged" "important" "sent" "drafts" "archive" "trash" "spam")
-added_labels=()
+virtualfolders=()
 result=""
 
 pad_string() {
@@ -15,6 +15,12 @@ account_virtual_boxes() {
 	MAILBOXES_FULL_PATHS="$(echo "$(find $MAILDIR_ACCOUNT_ROOT -name "cur" -type d -exec dirname '{}' \;)" | sort;)"
 	for MAILBOX_FULL_PATH in ${MAILBOXES_FULL_PATHS}; do
 		notmuch_tag=${MAILBOX_FULL_PATH#$MAILDIR_ACCOUNT_ROOT/}
+		if [ -n "$3" ]; then
+			trimmed_tag=${notmuch_tag##$3.}
+			if [[ ${#trimmed_tag} == ${#notmuch_tag} ]]; then
+				continue
+			fi
+		fi
 		# don not add vritual boxes for the default tags
 		if [[ ! " ${default_tags[@]} " =~ " ${notmuch_tag} " ]]; then
 			# find periods in folder name, each is a depth
@@ -26,13 +32,12 @@ account_virtual_boxes() {
 			else
 				label=${notmuch_tag}
 			fi
-			if [[ ! " ${added_labels[@]} " =~ " ${label} " ]]; then
+			virtualfolder="\"  ${label}\"                \"notmuch://?query=tag:${2} and tag:${notmuch_tag}\" "
+			if [[ " ${virtualfolders[@]} " =~ " ${virtualfolder} " ]]; then
 				continue
 			fi
-			echo "${added_labels[@]}"
-			echo "$label"
-			result+="\"  ${label}\"                \"notmuch://?query=tag:${2} and tag:${notmuch_tag}\" "
-			added_labels+=("$label")
+			result+=${virtualfolder}
+			virtualfolders+=($virtualfolder)
 		fi
 	done
 }
@@ -44,9 +49,10 @@ for account_full_path in ~/.mail/*; do
 	# add virtual boxes for the default tags
 	for tag in "${default_tags[@]}"; do
 		result+="\"  ${tag}\"                \"notmuch://?query=tag:${account_name} and tag:${tag}\" "
+		account_virtual_boxes ~/.mail/${account_name}/ $account_name $tag
 	done
 
-	account_virtual_boxes ~/.mail/${account_name}/ $account_name "*"
+	account_virtual_boxes ~/.mail/${account_name}/ $account_name
 done
 
 echo ${result}

@@ -445,6 +445,9 @@ Notmuch_State_To_Maildir__Create_Maildir ()
       [[ "$THIS_NOTMUCH_TAG" != "$ACCOUNT_NAME" ]] && \
         [[ "$THIS_NOTMUCH_TAG" != "new" ]] && \
         [[ "$THIS_NOTMUCH_TAG" != "unread" ]] && \
+        [[ "$THIS_NOTMUCH_TAG" != "replied" ]] && \
+        [[ "$THIS_NOTMUCH_TAG" != "signed" ]] && \
+        [[ "$THIS_NOTMUCH_TAG" != "attachment" ]] && \
         $RUNCMD "mkdir -p $THIS_MAILDIR_FULL_PATH/$THIS_NOTMUCH_TAG/{cur,new,tmp}" || true
     fi
   done
