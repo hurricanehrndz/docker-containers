@@ -1,15 +1,31 @@
 #!/bin/bash
 set -e
 
+# Global variables required
 APP_UID=${APP_UID:-1000}
 APP_GID=${APP_GID:-1000}
-
 APP_USER=${APP_USER:-appuser}
+SETUP_ONLY=false
 
-# Invoke GnuPG-Agent the first time we login.
+while [[ $# > 1 ]]; do
+	key="$1"
+
+	case $key in
+		-s|--setup-only)
+		SETUP_ONLY=true
+		shift            # past argument
+		;;
+		*)
+				         # unknown option
+		;;
+	esac
+	shift                # past argument or value
+done
+
 export HOME=/home/${APP_USER}
 cd $HOME
 
+# Invoke GnuPG-Agent the first time we login.
 GPG_TTY=$(tty)
 export GPG_TTY=$(tty)
 echo " " | gpg2 -q -r ${GPGKEY} -ae | gpg2 -q
@@ -39,5 +55,7 @@ for i in $(find $HOME -name "*davmail.properties"); do
 done
 
 
-echo "Starting mutt..."
-s6-applyuidgid -u $APP_UID -g $APP_GID /usr/local/bin/start_mutt
+if [ ! $SETUP_ONLY ]; then
+	echo "Starting mutt..."
+	s6-applyuidgid -u $APP_UID -g $APP_GID /usr/local/bin/start_mutt
+fi

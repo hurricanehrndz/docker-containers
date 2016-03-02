@@ -5,10 +5,12 @@ macro index,pager Gd "<change-vfolder>notmuch://?query=tag:$my_account_tag and t
 macro index,pager Gs "<change-vfolder>notmuch://?query=tag:$my_account_tag and tag:sent<enter>" "Go to Sent Mail"
 
 # keyboard shortchts to move messages
-macro index,pager a "<save-message>=$my_account_tag/archive<enter><enter>" "Archive"
-macro index,pager d "<save-message>=$my_account_tag/trash<enter><enter>" "Trash"
-macro index,pager u "<save-message>=$my_account_tag/INBOX<enter><enter>" "Move to Inbox"
-macro index,pager ! "<save-message>=$my_account_tag/spam<enter><enter>" "Report spam"
-macro index,pager + "<save-message>=$my_account_tag/important<enter><enter>" "Mark as Important"
-macro index,pager * "<save-message>=$my_account_tag/flagged<enter><enter>" "Star Message"
+macro index,pager a "<modify-labels>+archive -INBOX -unread<enter><sync-mailbox>" "Archive"
+macro index,pager d "<modify-labels-then-hide>+archive -INBOX -unread +trash<enter><sync-mailbox>" "Trash"
+macro index l "<modify-labels>" "Label"
+macro index L "<tag-prefix><modify-labels>" "Label"
+macro index,pager u "<modify-labels-then-hide>+archive +INBOX -trash<enter><sync-mailbox>" "Move to Inbox"
+macro index,pager ! "<modify-labels-then-hide>-INBOX -archive -unread +spam<enter><sync-mailbox>" "Report spam"
+macro index,pager + "<modify-labels>+important<enter><sync-mailbox>" "Mark as Important"
+macro index,pager * "<modify-labels>+flagged<enter><sync-mailbox>" "Star Message"
 

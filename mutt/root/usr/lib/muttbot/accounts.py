@@ -131,7 +131,7 @@ class AccountsSetuper(object):
         account_muttrc.write('set spoolfile = "+' + account_name + '/INBOX"\n')
         account_muttrc.write('set mbox = "+' + account_name + '/archive"\n')
         account_muttrc.write('set postponed = "+' + account_name + '/drafts"\n')
-        account_muttrc.write('set signature = ' + account_name + '.sig\n')
+        account_muttrc.write('set signature = ~/.mutt/' + account_name + '.sig\n')
         account_muttrc.write('set pgp_sign_as = ' + str(account_info['gpg']) + '\n')
         account_muttrc.write('my_hdr OpenPGP: id=' + str(account_info['gpg'])[2:] + ' \n')
         account_muttrc.write('set sendmail = "/usr/bin/msmtp -a ' + account_name +  '"\n')
@@ -166,10 +166,11 @@ class AccountsSetuper(object):
 
     def create_mail_dirs(self, account_name):
         # Create required folders and files for account
-        if not os.path.exists(os.path.join(self._mutt_dir, 'cache/')):
-            os.makedirs(os.path.join(mutt_dir, 'cache/' + account_name + '/headers'))
-            os.makedirs(os.path.join(mutt_dir, 'cache/' + account_name + '/bodies'))
-            open(os.path.join(mutt_dir, 'cache/' + account_name + '/certificates'), 'a').close()
+        if not os.path.exists(os.path.join(self._mutt_dir, 'cache/' + account_name )):
+            os.makedirs(os.path.join(self._mutt_dir, 'cache/' + account_name))
+            os.makedirs(os.path.join(self._mutt_dir, 'cache/' + account_name + '/headers'))
+            os.makedirs(os.path.join(self._mutt_dir, 'cache/' + account_name + '/bodies'))
+            open(os.path.join(self._mutt_dir, 'cache/' + account_name + '/certificates'), 'a').close()
 
         if not os.path.exists(os.path.join(self._mail_dir, account_name)):
             os.makedirs(os.path.join(self._mail_dir, account_name))
@@ -187,15 +188,19 @@ class AccountsSetuper(object):
         msmtprc.write('host ' + account_info['smtp'] + '\n')
         msmtprc.write('port ' + str(account_info['smtp_port']) + '\n')
         msmtprc.write('protocol smtp\n')
-        msmtprc.write('auth on\n')
-        msmtprc.write('from ' + account_info['email'] + '\n')
-        msmtprc.write('user ' + account_info['user'] + '\n')
-        msmtprc.write('password ' + account_info['pass'] + '\n')
         if str(account_info['type']) == 'gmail':
             msmtprc.write('tls on\n')
             msmtprc.write('tls_trust_file /var/lib/ca-certificates/ca-bundle.pem\n')
+            msmtprc.write('auth on\n')
+        else:
+            msmtprc.write('auth login\n')
+        msmtprc.write('from ' + account_info['email'] + '\n')
+        msmtprc.write('user ' + account_info['user'] + '\n')
+        msmtprc.write('password ' + account_info['pass'] + '\n')
+        msmtprc.write('logfile ~/.' + account_name + '-msmtp.log\n')
         msmtprc.write('\n')
         msmtprc.close()
+        os.chmod(os.path.join(self._home_dir, ".msmtprc"), 0600)
 
     def muttrc_append_folderhook(self, account_name):
         # add folder hooks to muttrc
