@@ -351,11 +351,7 @@ NOTMUCH_ROOT="${NOTMUCH_ROOT%/}"
 
 # Normalize path by trimming trailing slash, if any
 # (use eval in case user quoted a path with ~ in it, though they shouldn't have)
-eval "MAILDIR_ACCOUNT_ROOT=${LAST_ARG%/}"
-# Used for mbsync
-ACCOUNT_NAME=${MAILDIR_ACCOUNT_ROOT#$NOTMUCH_ROOT/}
-
-
+eval "MAILDIR_ROOT=${LAST_ARG%/}"
 
 # ----------------------------------------------------------------------
 # Helper Functions
@@ -437,14 +433,15 @@ Notmuch_State_To_Maildir__Create_Maildir ()
 # tags in the notmuch db.	This indicates that we need create folder for those
 # tags.
 	local THIS_MAILDIR_FULL_PATH="$1"
+	local THIS_ACCOUNT_NAME="$2"
 	local THESE_NOTMUCH_TAGS="$( \
 								notmuch search --output=tags \
-								tag:\"$ACCOUNT_NAME\" \
+								tag:\"$THIS_ACCOUNT_NAME\" \
 								)"
 
 	for THIS_NOTMUCH_TAG in $THESE_NOTMUCH_TAGS; do
 		if [ ! -d "$THIS_MAILDIR_FULL_PATH/$THIS_NOTMUCH_TAG" ]; then
-			[[ "$THIS_NOTMUCH_TAG" != "$ACCOUNT_NAME" ]] && \
+			[[ "$THIS_NOTMUCH_TAG" != "$THIS_ACCOUNT_NAME" ]] && \
 				[[ "$THIS_NOTMUCH_TAG" != "new" ]] && \
 				[[ "$THIS_NOTMUCH_TAG" != "unread" ]] && \
 				[[ "$THIS_NOTMUCH_TAG" != "replied" ]] && \
@@ -470,23 +467,20 @@ Notmuch_State_To_Maildir__Move_To_Maildir ()
 # the notmuch db. This indicates that we need to copy the message to a
 # new maildir. After the next 'notmuch new' db update, the tags/folders
 # should thus be at parity again.
-	if [ -d $MAILDIR_ACCOUNT_ROOT/archive ]; then
-		ARCHIVE_FILTER="AND tag:"$ARCHIVE""
-	else
-		ARCHIVE_FILTER=""
-	fi
 
 	local THIS_MAILDIR_FULL_PATH="$1"
+	local THIS_ACCOUNT_NAME="$2"
 	local THIS_NOTMUCH_FOLDER="$(Notmuch_Folder_From_Full_Path $THIS_MAILDIR_FULL_PATH)"
 	local THIS_NOTMUCH_TAG="$(Notmuch_Tag_From_Full_Path $THIS_MAILDIR_FULL_PATH)"
 	local THESE_MESSAGE_IDS_TO_COPY="$(\
-		notmuch search --output=messages\
-		tag:"$THIS_NOTMUCH_TAG" \
-		$ARCHIVE_FILTER \
-		AND tag:"$ACCOUNT_NAME" \
-		NOT folder:"$THIS_NOTMUCH_FOLDER" \
-		NOT folder:"$ACCOUNT_NAME/$TRASH" \
-		NOT tag:"$NEW_TAG")"
+										notmuch search --output=messages\
+										tag:"$THIS_NOTMUCH_TAG" \
+										AND tag:"$THIS_ACCOUNT_NAME" \
+										AND path:"$THIS_ACCOUNT_NAME/**" \
+										NOT folder:"$THIS_NOTMUCH_FOLDER" \
+										NOT folder:"$THIS_ACCOUNT_NAME/$TRASH" \
+										NOT tag:"$NEW_TAG" \
+										)"
 
 	# We are running this function prior to the remove function below
 	# but there is still the edge case wherein the user has manually
@@ -522,7 +516,6 @@ Notmuch_State_To_Maildir__Move_To_Maildir ()
 			echo -e "DESTINATION MAILDIR: $THIS_MAILDIR_FULL_PATH\n"
 		fi
 	done
-
 }
 
 Notmuch_State_To_Maildir__Remove_From_Maildir ()
@@ -540,27 +533,22 @@ Notmuch_State_To_Maildir__Remove_From_Maildir ()
 # has of course not yet changed. We need to remove the messages from
 # maildir folders from which it has been untagged.
 #
-# Note that the search below uses the $ARCHIVE and $ACCOUNT_NAME folder/tag value
+# Note that the search below uses the $THIS_ACCOUNT_NAME folder/tag value
 # as a check that the messages have been previously indexed and processed
 # by this script.
 
-	if [ -d $MAILDIR_ACCOUNT_ROOT/archive ]; then
-		ARCHIVE_FILTER="AND tag:"$ARCHIVE""
-	else
-		ARCHIVE_FILTER=""
-	fi
-
 	local THIS_MAILDIR_FULL_PATH="$1"
+	local THIS_ACCOUNT_NAME="$2"
 	local THIS_NOTMUCH_FOLDER="$(Notmuch_Folder_From_Full_Path $THIS_MAILDIR_FULL_PATH)"
 	local THIS_NOTMUCH_TAG="$(Notmuch_Tag_From_Full_Path $THIS_MAILDIR_FULL_PATH)"
 	local THESE_MESSAGE_IDS_TO_REMOVE="$(\
 										notmuch search --output=messages\
 										folder:"$THIS_NOTMUCH_FOLDER" \
-										$ARCHIVE_FILTER \
-										AND tag:"$ACCOUNT_NAME" \
+										AND tag:"$THIS_ACCOUNT_NAME" \
+										AND path:"$THIS_ACCOUNT_NAME/**" \
 										NOT tag:"$THIS_NOTMUCH_TAG" \
 										NOT tag:"$NEW_TAG" \
-										NOT folder:"$ACCOUNT_NAME/$TRASH" \
+										NOT folder:"$THIS_ACCOUNT_NAME/$TRASH" \
 										)"
 
 	for THIS_MESSAGE_ID in $THESE_MESSAGE_IDS_TO_REMOVE; do
@@ -620,13 +608,14 @@ Maildir_State_To_Notmuch__Add_Tags_To_Notmuch ()
 # as required.
 
 	local THIS_MAILDIR_FULL_PATH="$1"
+	local THIS_ACCOUNT_NAME="$2"
 	local THIS_NOTMUCH_FOLDER="$(Notmuch_Folder_From_Full_Path $THIS_MAILDIR_FULL_PATH)"
 	local THIS_NOTMUCH_TAG="$(Notmuch_Tag_From_Full_Path $THIS_MAILDIR_FULL_PATH)"
-	local THIS_NOTMUCH_QUERY="folder:\"$THIS_NOTMUCH_FOLDER\" NOT tag:\"$THIS_NOTMUCH_TAG\""
+	local THIS_NOTMUCH_QUERY="folder:\"$THIS_NOTMUCH_FOLDER\" AND path:\"$THIS_ACCOUNT_NAME/**\" NOT tag:\"$THIS_NOTMUCH_TAG\""
 	local THIS_COUNT="$(notmuch count $THIS_NOTMUCH_QUERY)"
 
-	$DRYRUN || notmuch tag +"$THIS_NOTMUCH_TAG" -- $THIS_NOTMUCH_QUERY
-	[[ $THIS_COUNT > 0 ]] && echo "Tagged $THIS_COUNT messages with \"$THIS_NOTMUCH_TAG\"" || true
+	$DRYRUN || notmuch tag +"$THIS_NOTMUCH_TAG" +"$THIS_ACCOUNT_NAME" -- $THIS_NOTMUCH_QUERY
+	[[ $THIS_COUNT > 0 ]] && echo "Tagged $THIS_COUNT messages with \"$THIS_NOTMUCH_TAG\" and \"$THIS_ACCOUNT_NAME\"" || true
 }
 
 Maildir_State_To_Notmuch__Remove_Tags_From_Notmuch ()
@@ -646,11 +635,13 @@ Maildir_State_To_Notmuch__Remove_Tags_From_Notmuch ()
 # We skip the trash since we might want to restore those in future?
 
 	local THIS_MAILDIR_FULL_PATH="$1"
+	local THIS_ACCOUNT_NAME="$2"
 	local THIS_NOTMUCH_FOLDER="$(Notmuch_Folder_From_Full_Path $THIS_MAILDIR_FULL_PATH)"
 	local THIS_NOTMUCH_TAG="$(Notmuch_Tag_From_Full_Path $THIS_MAILDIR_FULL_PATH)"
 	local THIS_NOTMUCH_QUERY="tag:\"$THIS_NOTMUCH_TAG\" \
+								AND path:\"$THIS_ACCOUNT_NAME/**\" \
 								NOT folder:\"$THIS_NOTMUCH_FOLDER\" \
-								NOT folder:\"$ACCOUNT_NAME/$TRASH\""
+								NOT folder:\"$THIS_ACCOUNT_NAME/$TRASH\""
 	local THIS_COUNT="$(notmuch count $THIS_NOTMUCH_QUERY)"
 
 	$DRYRUN || notmuch tag -"$THIS_NOTMUCH_TAG" -- $THIS_NOTMUCH_QUERY
@@ -669,10 +660,10 @@ Notmuch_Cleanup ()
 	# remove "$NEW_TAG" tags, optionally converting to "$UNREAD_TAG"
 	case $MAKE_NEW_UNREAD in
 		true|TRUE|yes|YES|y|Y)
-			$RUNCMD "notmuch tag -\"$NEW_TAG\" +\"$UNREAD_TAG\" ${ACCOUNT_NAME:+"+\"${ACCOUNT_NAME}\""} -- tag:\"$NEW_TAG\""
+			$RUNCMD "notmuch tag -\"$NEW_TAG\" +\"$UNREAD_TAG\" -- tag:\"$NEW_TAG\""
 			;;
 		*)
-			$RUNCMD "notmuch tag -\"$NEW_TAG\" ${ACCOUNT_NAME:+"+\"${ACCOUNT_NAME}\""} -- tag:\"$NEW_TAG\""
+			$RUNCMD "notmuch tag -\"$NEW_TAG\" -- tag:\"$NEW_TAG\""
 			;;
 	esac
 }
@@ -688,8 +679,7 @@ echo -e "\n---------------------------------------------------------------------
 echo "$(basename $0) start ${DRYRUN_MSG:-}"
 echo "----------------------------------------------------------------------"
 echo "NOTMUCH ROOT: $NOTMUCH_ROOT"
-echo "ACCOUNT ROOT: $MAILDIR_ACCOUNT_ROOT"
-echo "ACCOUNT NAME: $ACCOUNT_NAME"
+echo "MAILDIR ROOT: $MAILDIR_ROOT"
 
 
 if [ ! -e "$NOTMUCH_ROOT/.notmuch" ]; then
@@ -698,42 +688,45 @@ if [ ! -e "$NOTMUCH_ROOT/.notmuch" ]; then
 	Notmuch_Update
 fi
 
-# Review notmuch databaseand sync tags to maildir
-Notmuch_State_To_Maildir__Create_Maildir $MAILDIR_ACCOUNT_ROOT
+MAILDIR_ACCOUNTS="$(echo "$(ls -1 $MAILDIR_ROOT)" | sort;)"
 
 # ----------------------------------------------------------------------
 # MAILBOXES:
 # ----------------------------------------------------------------------
-# Get list of mailboxes using a recursive find within root maildir:
-MAILBOXES_FULL_PATHS="$(echo "$(find $MAILDIR_ACCOUNT_ROOT -name "cur" -type d -exec dirname '{}' \;)" | sort;)"
+for MAILDIR_ACCOUNT in $MAILDIR_ACCOUNTS; do
+	ACCOUNT_NAME="$MAILDIR_ACCOUNT"
+	MAILDIR_ACCOUNT_ROOT="$MAILDIR_ROOT/$MAILDIR_ACCOUNT"
+	echo "PROCESSING MAILDIR FOR ACCOUNT:: $MAILDIR_ACCOUNT_ROOT"
+	# Review notmuch databaseand sync tags to maildir
+	Notmuch_State_To_Maildir__Create_Maildir $MAILDIR_ACCOUNT_ROOT $ACCOUNT_NAME
 
-# Review the notmuch database state and sync up any changes first
-# (e.g. any retagged messages that need refiling)
-for MAILBOX_FULL_PATH in $MAILBOXES_FULL_PATHS; do
-	Notmuch_State_To_Maildir__Move_To_Maildir $MAILBOX_FULL_PATH
-done
-for MAILBOX_FULL_PATH in $MAILBOXES_FULL_PATHS; do
-	Notmuch_State_To_Maildir__Remove_From_Maildir $MAILBOX_FULL_PATH
-done
+	# Get list of mailboxes using a recursive find within root maildir:
+	MAILBOXES_FULL_PATHS="$(echo "$(find $MAILDIR_ACCOUNT_ROOT -name "cur" -type d -exec dirname '{}' \;)" | sort;)"
 
-# Sync maildir account with online
-$RUNCMD "mbsync -V ${ACCOUNT_NAME}-group"
+	# Review the notmuch database state and sync up any changes first
+	# (e.g. any retagged messages that need refiling)
+	for MAILBOX_FULL_PATH in $MAILBOXES_FULL_PATHS; do
+		Notmuch_State_To_Maildir__Move_To_Maildir $MAILBOX_FULL_PATH $ACCOUNT_NAME
+	done
+	for MAILBOX_FULL_PATH in $MAILBOXES_FULL_PATHS; do
+		Notmuch_State_To_Maildir__Remove_From_Maildir $MAILBOX_FULL_PATH $ACCOUNT_NAME
+	done
 
-# Update the notmuch database to reflect the changes we just made,
-# if any (so it can find the new messages)
-Notmuch_Update
+	# Sync maildir account with online
+	#$RUNCMD "mbsync -V ${ACCOUNT_NAME}-group"
 
-# get a list of all mailboxes
-MAILBOXES_FULL_PATHS="$(echo "$(find $MAILDIR_ACCOUNT_ROOT -name "cur" -type d -exec dirname '{}' \;)" | sort;)"
-for MAILBOX_FULL_PATH in $MAILBOXES_FULL_PATHS; do
-	Maildir_State_To_Notmuch__Add_Tags_To_Notmuch $MAILBOX_FULL_PATH
-done
-for MAILBOX_FULL_PATH in $MAILBOXES_FULL_PATHS; do
-	Maildir_State_To_Notmuch__Remove_Tags_From_Notmuch $MAILBOX_FULL_PATH
+	# Update the notmuch database to reflect the changes we just made,
+	# if any (so it can find the new messages)
+	Notmuch_Update
+
+	# get a list of all mailboxes
+	MAILBOXES_FULL_PATHS="$(echo "$(find $MAILDIR_ACCOUNT_ROOT -name "cur" -type d -exec dirname '{}' \;)" | sort;)"
+	for MAILBOX_FULL_PATH in $MAILBOXES_FULL_PATHS; do
+		Maildir_State_To_Notmuch__Add_Tags_To_Notmuch $MAILBOX_FULL_PATH $ACCOUNT_NAME
+	done
+	for MAILBOX_FULL_PATH in $MAILBOXES_FULL_PATHS; do
+		Maildir_State_To_Notmuch__Remove_Tags_From_Notmuch $MAILBOX_FULL_PATH $ACCOUNT_NAME
+	done
 done
 
 Notmuch_Cleanup
-
-if [ -f /home/$APP_USER/.sync_lock ]; then
-	rm -rf /home/$APP_USER/.sync_lock > /dev/null 2>&1
-fi

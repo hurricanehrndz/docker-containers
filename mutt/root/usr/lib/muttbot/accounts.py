@@ -17,7 +17,6 @@ class AccountsSetuper(object):
             account_info = email_account.values()[0]
             account_name = email_account.keys()[0]
             print 'Setting up ' + account_name
-            self.append_sync_cmd(account_name)
             self.create_mail_dirs(account_name)
             if str(account_info['type']) == 'gmail':
                 self.setup_mbsync_gmail_account(account_name, account_info)
@@ -174,12 +173,6 @@ class AccountsSetuper(object):
 
         if not os.path.exists(os.path.join(self._mail_dir, account_name)):
             os.makedirs(os.path.join(self._mail_dir, account_name))
-
-    def append_sync_cmd(self, account_name):
-        # sync cmds
-        sync_cmds = open(os.path.join(self._home_dir, 'sync_cmds'), 'a')
-        sync_cmds.write('/usr/lib/mutt/maildir-notmuch-sync ' + os.path.join(self._mail_dir, account_name) + '\n')
-        sync_cmds.close()
 
     def msmtprc_append_account(self, account_name, account_info):
         # setup msmtprc for sending mail

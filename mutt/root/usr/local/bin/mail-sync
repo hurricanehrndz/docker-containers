@@ -1,6 +1,7 @@
 #!/bin/bash
 
 sync_lock="/home/$APP_USER/.sync_lock"
+sync_is_done=false
 
 if [ -f $sync_lock ]; then
   exit 0
@@ -8,7 +9,6 @@ else
   touch $sync_lock  > /dev/null 2>&1
 fi
 
-while read sync_cmd
-do
-  eval "$sync_cmd $output"
-done < "/home/$APP_USER/sync_cmds"
+/usr/lib/mutt/maildir-notmuch-sync /home/$APP_USER/.mail
+
+rm -rf $sync_lock > /dev/null 2>&1
