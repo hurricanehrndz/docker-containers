@@ -18,11 +18,15 @@
   - [Environment Variables](#environment-variables)
   - [Volumes](#volumes)
 - [Manual Run and Installation](#manual-run-and-installation)
+- [References](#references)
 - [License](#license)
 - [Donation](#donation)
 
 
 # Introduction
+
+
+![Alt text](http://i.imgur.com/yK3B9lt.png "")
 
 [Mutt](www.mutt.org) is a small but very powerful text-based mail client for Unix operating
 systems. This [Docker](https://www.docker.com) image has been designed and
@@ -39,6 +43,7 @@ features include but are not limited to:
 - tag support (notmuch via Mutt-kz)
 - ics support via mutt-ics
 - two way sync of maildir folders (GMail tags) and notmuch tags
+- solarized theme
 
 
 This container and its functionality is provided without warranties or
@@ -240,8 +245,22 @@ docker run -d --net=host -v /*your_mail_dir*:/home/$USER/.mail \
 All the information mention previously regarding user UID and GID still applies
 when executing a docker run command.
 
+# Known Issues:
 
-# License
+- mbsync passwords stored in plain text within container
+- msmtp password stored in plain text within cotainer
+
+# References:
+
+- https://github.com/altercation/es-bin/blob/master/maildir-notmuch-sync
+- https://github.com/altercation/es-etc/tree/master/mail
+- http://stevelosh.com/blog/2012/10/the-homely-mutt/
+- https://wiki.archlinux.org/index.php/Isync
+- https://github.com/altercation/mutt-colors-solarized
+- https://wiki.archlinux.org/index.php/msmtp
+
+
+# License:
 
 Code released under the [MIT license](./LICENSE).
 

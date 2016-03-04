@@ -6,7 +6,7 @@ macro index,pager Gs "<change-vfolder>notmuch://?query=tag:$my_account_tag and t
 
 # keyboard shortchts to move messages
 macro index,pager a "<modify-labels>+archive -INBOX -unread<enter><sync-mailbox>" "Archive"
-macro index,pager d "<modify-labels-then-hide>+archive -INBOX -unread +trash<enter><sync-mailbox>" "Trash"
+macro index,pager d "<modify-labels-then-hide>-archive -INBOX -unread +trash<enter><sync-mailbox>" "Trash"
 macro index l "<modify-labels>" "Label"
 macro index L "<tag-prefix><modify-labels>" "Label"
 macro index,pager u "<modify-labels-then-hide>+archive +INBOX -trash<enter><sync-mailbox>" "Move to Inbox"

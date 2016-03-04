@@ -7,13 +7,12 @@ APP_GID=${APP_GID:-1000}
 APP_USER=${APP_USER:-appuser}
 SETUP_ONLY=false
 
-while [[ $# > 1 ]]; do
+while [[ $# > 0 ]]; do
 	key="$1"
 
 	case $key in
 		-s|--setup-only)
 		SETUP_ONLY=true
-		shift            # past argument
 		;;
 		*)
 				         # unknown option
@@ -54,8 +53,7 @@ for i in $(find $HOME -name "*davmail.properties"); do
 	sleep 5
 done
 
-
-if [ ! $SETUP_ONLY ]; then
+if  ! $SETUP_ONLY ; then
 	echo "Starting mutt..."
 	s6-applyuidgid -u $APP_UID -g $APP_GID /usr/local/bin/start_mutt
 fi

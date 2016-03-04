@@ -123,7 +123,7 @@ set editor         = "vim \"+:silent+?^$\" \"+:noh\" \"+:set spell spelllang=en_
 bind editor <Tab> complete-query
 bind editor ^T complete
 bind editor <space> noop
-#set query_command  = "goobook query '%s'"     # address query via goobook helper
+set query_command  = "goobook query '%s'"     # address query via goobook helper
 
 # ------------------------------------------------------------------------------
 # GPG Options

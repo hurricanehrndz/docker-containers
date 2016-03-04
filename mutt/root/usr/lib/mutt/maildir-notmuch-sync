@@ -474,7 +474,7 @@ Notmuch_State_To_Maildir__Move_To_Maildir ()
 	local THIS_ACCOUNT_NAME="$2"
 	local THIS_NOTMUCH_FOLDER="$(Notmuch_Folder_From_Full_Path $THIS_MAILDIR_FULL_PATH)"
 	local THIS_NOTMUCH_TAG="$(Notmuch_Tag_From_Full_Path $THIS_MAILDIR_FULL_PATH)"
-	if [[ ! " ${MAILDIR_ACCOUNTS[@]} " =~ " ${THIS_NOTMUCH_TAG} " ]]; then
+	if [[ " ${MAILDIR_ACCOUNTS[@]} " =~ " ${THIS_NOTMUCH_TAG} " ]]; then
 		return;
 	fi
 	local THESE_MESSAGE_IDS_TO_COPY="$(\
@@ -719,7 +719,7 @@ for MAILDIR_ACCOUNT in "${MAILDIR_ACCOUNTS[@]}"; do
 	done
 
 	# Sync maildir account with online
-	#$RUNCMD "mbsync -V ${ACCOUNT_NAME}-group"
+	$RUNCMD "mbsync -V ${ACCOUNT_NAME}-group" || true
 
 	# Update the notmuch database to reflect the changes we just made,
 	# if any (so it can find the new messages)
