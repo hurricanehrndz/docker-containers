@@ -440,14 +440,16 @@ Notmuch_State_To_Maildir__Create_Maildir ()
 								)"
 
 	for THIS_NOTMUCH_TAG in $THESE_NOTMUCH_TAGS; do
-		if [ ! -d "$THIS_MAILDIR_FULL_PATH/$THIS_NOTMUCH_TAG" ]; then
-			[[ "$THIS_NOTMUCH_TAG" != "$THIS_ACCOUNT_NAME" ]] && \
-				[[ "$THIS_NOTMUCH_TAG" != "new" ]] && \
-				[[ "$THIS_NOTMUCH_TAG" != "unread" ]] && \
-				[[ "$THIS_NOTMUCH_TAG" != "replied" ]] && \
-				[[ "$THIS_NOTMUCH_TAG" != "signed" ]] && \
-				[[ "$THIS_NOTMUCH_TAG" != "attachment" ]] && \
-				$RUNCMD "mkdir -p $THIS_MAILDIR_FULL_PATH/$THIS_NOTMUCH_TAG/{cur,new,tmp}" || true
+		if [[ ! " ${MAILDIR_ACCOUNTS[@]} " =~ " ${THIS_NOTMUCH_TAG} " ]]; then
+			if [ ! -d "$THIS_MAILDIR_FULL_PATH/$THIS_NOTMUCH_TAG" ]; then
+				[[ "$THIS_NOTMUCH_TAG" != "$THIS_ACCOUNT_NAME" ]] && \
+					[[ "$THIS_NOTMUCH_TAG" != "new" ]] && \
+					[[ "$THIS_NOTMUCH_TAG" != "unread" ]] && \
+					[[ "$THIS_NOTMUCH_TAG" != "replied" ]] && \
+					[[ "$THIS_NOTMUCH_TAG" != "signed" ]] && \
+					[[ "$THIS_NOTMUCH_TAG" != "attachment" ]] && \
+					$RUNCMD "mkdir -p $THIS_MAILDIR_FULL_PATH/$THIS_NOTMUCH_TAG/{cur,new,tmp}" || true
+			fi
 		fi
 	done
 }
@@ -472,6 +474,9 @@ Notmuch_State_To_Maildir__Move_To_Maildir ()
 	local THIS_ACCOUNT_NAME="$2"
 	local THIS_NOTMUCH_FOLDER="$(Notmuch_Folder_From_Full_Path $THIS_MAILDIR_FULL_PATH)"
 	local THIS_NOTMUCH_TAG="$(Notmuch_Tag_From_Full_Path $THIS_MAILDIR_FULL_PATH)"
+	if [[ ! " ${MAILDIR_ACCOUNTS[@]} " =~ " ${THIS_NOTMUCH_TAG} " ]]; then
+		return;
+	fi
 	local THESE_MESSAGE_IDS_TO_COPY="$(\
 										notmuch search --output=messages\
 										tag:"$THIS_NOTMUCH_TAG" \
@@ -688,12 +693,13 @@ if [ ! -e "$NOTMUCH_ROOT/.notmuch" ]; then
 	Notmuch_Update
 fi
 
-MAILDIR_ACCOUNTS="$(echo "$(ls -1 $MAILDIR_ROOT)" | sort;)"
+MAILDIR_ACCOUNTS=($(echo "$(ls $MAILDIR_ROOT)"))
+
 
 # ----------------------------------------------------------------------
 # MAILBOXES:
 # ----------------------------------------------------------------------
-for MAILDIR_ACCOUNT in $MAILDIR_ACCOUNTS; do
+for MAILDIR_ACCOUNT in "${MAILDIR_ACCOUNTS[@]}"; do
 	ACCOUNT_NAME="$MAILDIR_ACCOUNT"
 	MAILDIR_ACCOUNT_ROOT="$MAILDIR_ROOT/$MAILDIR_ACCOUNT"
 	echo "PROCESSING MAILDIR FOR ACCOUNT:: $MAILDIR_ACCOUNT_ROOT"
