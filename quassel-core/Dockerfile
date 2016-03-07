@@ -5,12 +5,14 @@ ENV LANG="en_US.UTF-8" s6_overlay_version="1.17.1.2" APP_NAME="quassel-core" IMG
 RUN zypper --gpg-auto-import-keys ref \
  && zypper --non-interactive up \
  && zypper --non-interactive in --no-recommends \
+	ca-certificates{-cacert,-mozilla} \
 	curl \
-	tar \
-	libsqlite3-0 \
-	libqt4-sql-sqlite \
-	quassel-core \
 	glibc-locale \
+	libqt4-sql-psql \
+	openssl \
+	postgresql \
+	quassel-core \
+	tar \
 	timezone \
   && curl -skL https://github.com/just-containers/s6-overlay/releases/download/v${s6_overlay_version}/s6-overlay-amd64.tar.gz -o /tmp/s6-overlay-amd64.tar.gz \
   && tar xf /tmp/s6-overlay-amd64.tar.gz -C / \
