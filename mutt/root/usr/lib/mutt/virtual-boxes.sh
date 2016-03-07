@@ -1,7 +1,7 @@
 #!/bin/bash
 
 default_tags=("INBOX" "flagged" "important" "sent" "drafts" "archive" "trash" "spam")
-virtualfolders=()
+PROCESSED_MAILBOXES=()
 result=""
 
 pad_string() {
@@ -34,11 +34,11 @@ account_virtual_boxes() {
 				label=${notmuch_tag}
 			fi
 			virtualfolder="\"  ${label}\"                \"notmuch://?query=tag:${2} and tag:${notmuch_tag}\" "
-			if [[ " ${virtualfolders[@]} " =~ " ${virtualfolder} " ]]; then
+			if [[ " ${PROCESSED_MAILBOXES[@]} " =~ " ${MAILBOX_FULL_PATH} " ]]; then
 				continue
 			fi
 			result+=${virtualfolder}
-			virtualfolders+=($virtualfolder)
+			PROCESSED_MAILBOXES+=("$MAILBOX_FULL_PATH")
 		fi
 	done
 }

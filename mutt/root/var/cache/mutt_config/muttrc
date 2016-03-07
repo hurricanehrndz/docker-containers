@@ -10,8 +10,8 @@ set tmpdir           = ~/.mutt/temp          # where to keep temp files
 # Basic options
 # ------------------------------------------------------------------------------
 set mbox_type = Maildir # folder format
-set timeout = 90        # seconds to wait after last key pressed to check mail
-set mail_check = 0      # how often (in seconds) mutt should look for new mail
+set timeout = 10        # seconds to wait after last key pressed to check mail
+set mail_check = 30     # how often (in seconds) mutt should look for new mail
 unset move              # dont confirm on moving messages from spool to mbox
 unset mark_old          # dont make distinction between old and new, unread will always be new
 set beep_new            # beep whenever new message arrives
