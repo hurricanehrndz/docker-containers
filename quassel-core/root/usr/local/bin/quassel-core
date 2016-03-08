@@ -1,0 +1,24 @@
+#!/bin/bash
+# vim:set ft=sh sw=4 sts=4 st=4 noet:
+
+APP_UID=${APP_UID:-1000}
+APP_GID=${APP_GID:-1000}
+
+APP_USER=${APP_USER:-appuser}
+APP_CONFIG=${APP_CONFIG:-/config}
+
+PGDATA=$APP_CONFIG/pgdata
+
+
+QUASSEL_EXIST=$(s6-setuidgid postgres psql -tAc "SELECT 1 FROM pg_roles WHERE rolname='quassel';")
+if [ ! -n "QUASSEL_EXIST" ]; then
+	echo "Creating quassel databse."
+	s6-setuidgid postgres psql -c "CREATE USER quassel ENCRYPTED PASSWORD 'password';" > /dev/null 2>&1
+	s6-setuidgid postgres psql -c "CREATE DATABASE quassel WITH OWNER quassel ENCODING 'UTF8';" > /dev/null 2>&1
+fi
+
+export HOME=/home/${APP_USER}
+cd $HOME
+
+s6-applyuidgid -u $APP_UID -g $APP_GID certs_manager
+s6-applyuidgid -u $APP_UID -g $APP_GID quasselcore --configdir=/config --port=4242 --select-backend=PostgreSQL --require-ssl

@@ -1,12 +1,24 @@
 #!/bin/bash
 # vim:set ft=sh noet :
 
-CONFIG_DIR=${CONFIG_DIR:-"/config"}
-CERTS_DIR=$CONFIG_DIR/certs
+APP_UID=${APP_UID:-1000}
+APP_GID=${APP_GID:-1000}
+
+APP_USER=${APP_USER:-appuser}
+APP_CONFIG=${APP_CONFIG:-/config}
+
+CERTS_DIR=$APP_CONFIG/certs
 DOMAIN_NAME=${DOMAIN_NAME:-"quassel-core"}
 ACCOUNT_KEY=$CERTS_DIR/account_key
 DOMAIN_KEY=$CERTS_DIR/domain_key
 DOMAIN_CSR=$CERTS_DIR/domain_csr
+
+
+ensure_certs_dir() {
+	if [ ! -d $CERTS_DIR ]; then
+		mkdir -p $CERTS_DIR
+	fi
+}
 
 ensure_account_key() {
 	if [ ! -f $ACCOUNT_KEY ]; then
@@ -30,14 +42,18 @@ download_intermediate() {
 	curl -sL https://letsencrypt.org/certs/lets-encrypt-x1-cross-signed.pem -o $CERTS_DIR/intermediate.pem
 }
 
-ensured_signed() {
-
-}
+#ensured_signed() {
+#
+#}
 
 
 if [ "$DOMAIN_NAME" == "quassel-core" ]; then
-	openssl req -x509 -nodes -days 365 -newkey rsa:4096 -keyout $CERTS_DIR/quasselCert.pem -out $CERTS_DIR/quasselCert.pem -subj "/CN=$DOMAIN_NAME"
+	ensure_certs_dir
+	if [ ! -f $CERTS_DIR/quasselCert.pem ]; then
+		openssl req -x509 -nodes -days 365 -newkey rsa:4096 -keyout $CERTS_DIR/quasselCert.pem -out $CERTS_DIR/quasselCert.pem -subj "/CN=$DOMAIN_NAME"
+	fi
 else
+	ensure_certs_dir
 	ensure_account_key
 	ensure_domain_key
 	download_intermediate

@@ -1,0 +1,8 @@
+#!/usr/bin/with-contenv bash
+# vim:set ft=sh sw=4 sts=4 st=4 noet:
+
+APP_CONFIG=${APP_CONFIG:-/config}
+PGDATA=$APP_CONFIG/pgdata
+
+echo "Starting postgres..."
+s6-setuidgid postgres postgres -p 5432 -D $PGDATA

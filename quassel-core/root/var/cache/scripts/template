@@ -60,27 +60,19 @@ prepare_docker_env_parameters() {
   fi
 }
 
-prepare_docker_env_display_parameters() {
-  ENV_VARS+=" --env=DISPLAY"
-  ENV_VARS+=" --env=XAUTHORITY=${XAUTH}"
-}
-
 prepare_docker_volume_parameters() {
   if [ ! -d "${APP_CONFIG}" ]; then
     mkdir -p ${APP_CONFIG}
   fi
-  chown -R ${APP_UID}:${APP_GID} ${APP_CONFIG}
+
+  CURR_SID=$(stat -c"%u:%g" ${APP_CONFIG})
+  if [ "$CURR_SID" != "$APP_UID:$APP_GID" ] ; then
+    chown -R $APP_UID:$APP_GID ${APP_CONFIG}
+  fi
   # prepare local filesystems
   VOLUMES+=" --volume=${APP_CONFIG}:/config"
 }
 
-prepare_docker_volume_display_parameters() {
-  touch ${XAUTH}
-  xauth nlist :0 | sed -e 's/^..../ffff/' | xauth -f ${XAUTH} nmerge -
-
-  VOLUMES+=" --volume=${XSOCK}:${XSOCK}"
-  VOLUMES+=" --volume=${XAUTH}:${XAUTH}"
-}
 
 prog=$(basename $0)
 if [[ ${prog} == "${APP_NAME}" ]]; then
@@ -92,9 +84,7 @@ fi
 
 cleanup_stopped_instances
 prepare_docker_env_parameters
-prepare_docker_env_display_parameters
 prepare_docker_volume_parameters
-prepare_docker_volume_display_parameters
 
 if [ ${running} ]; then
   echo "Already running."

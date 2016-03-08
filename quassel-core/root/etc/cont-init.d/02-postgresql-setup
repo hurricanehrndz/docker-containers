@@ -1,0 +1,16 @@
+#!/usr/bin/with-contenv bash
+# vim:set ft=sh sw=4 sts=4 st=4 noet:
+
+
+APP_CONFIG=${APP_CONFIG:-/config}
+PGDATA=$APP_CONFIG/pgdata
+
+if [ ! -d $PGDATA ]; then
+	echo "No existing dabase found."
+	s6-setuidgid postgres mkdir -p $PGDATA
+	# Init postgresql db
+	s6-setuidgid postgres initdb -E 'UTF-8' -D $PGDATA > /dev/null 2>&1
+	s6-setuidgid postgres psql -c "CREATE USER quassel ENCRYPTED PASSWORD 'password';" > /dev/null 2>&1
+	s6-setuidgid postgres psql -c "CREATE DATABASE quassel WITH OWNER quassel ENCODING 'UTF8';" > /dev/null 2>&1
+	echo "Created new postgres database."
+fi

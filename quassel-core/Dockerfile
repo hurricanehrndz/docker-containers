@@ -8,9 +8,11 @@ RUN zypper --gpg-auto-import-keys ref \
 	ca-certificates{-cacert,-mozilla} \
 	curl \
 	glibc-locale \
-	libqt4-sql-psql \
+	libqt4_sql_backend \
+	libqt4-sql-postgresql \
 	openssl \
 	postgresql \
+	postgresql-server \
 	quassel-core \
 	tar \
 	timezone \
