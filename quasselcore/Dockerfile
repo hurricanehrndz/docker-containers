@@ -1,15 +1,16 @@
 FROM opensuse:tumbleweed
 MAINTAINER Carlos Hernandez <carlos@techbyte.ca>
-ENV LANG="en_US.UTF-8" s6_overlay_version="1.17.1.2" APP_NAME="quassel-core" IMG_NAME="quassel-core" TAG_NAME="latest" S6_LOGGING="0"
+ENV LANG="en_US.UTF-8" s6_overlay_version="1.17.2.0" APP_NAME="quasselcore" IMG_NAME="quasselcore" TAG_NAME="latest" S6_LOGGING="0"
 
 RUN zypper --gpg-auto-import-keys ref \
  && zypper --non-interactive up \
  && zypper --non-interactive in --no-recommends \
 	ca-certificates{-cacert,-mozilla} \
 	curl \
+	expect \
 	glibc-locale \
-	libqt4_sql_backend \
-	libqt4-sql-postgresql \
+	libQt5Sql5 \
+	libQt5Sql5-postgresql \
 	openssl \
 	postgresql \
 	postgresql-server \

@@ -8,7 +8,7 @@ APP_USER=${APP_USER:-appuser}
 APP_CONFIG=${APP_CONFIG:-/config}
 
 CERTS_DIR=$APP_CONFIG/certs
-DOMAIN_NAME=${DOMAIN_NAME:-"quassel-core"}
+DOMAIN_NAME=${DOMAIN_NAME:-"quasselcore"}
 ACCOUNT_KEY=$CERTS_DIR/account_key
 DOMAIN_KEY=$CERTS_DIR/domain_key
 DOMAIN_CSR=$CERTS_DIR/domain_csr
@@ -47,7 +47,7 @@ download_intermediate() {
 #}
 
 
-if [ "$DOMAIN_NAME" == "quassel-core" ]; then
+if [ "$DOMAIN_NAME" == "quasselcore" ]; then
 	ensure_certs_dir
 	if [ ! -f $CERTS_DIR/quasselCert.pem ]; then
 		openssl req -x509 -nodes -days 365 -newkey rsa:4096 -keyout $CERTS_DIR/quasselCert.pem -out $CERTS_DIR/quasselCert.pem -subj "/CN=$DOMAIN_NAME"

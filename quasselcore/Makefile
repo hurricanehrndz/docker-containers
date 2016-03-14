@@ -1,7 +1,7 @@
 all: build
 
-APP_NAME="quassel-core"
-IMG_NAME="quassel-core"
+APP_NAME="quasselcore"
+IMG_NAME="quasselcore"
 TAG_NAME="latest"
 
 ifndef APP_REPO
