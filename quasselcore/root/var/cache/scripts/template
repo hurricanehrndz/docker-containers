@@ -94,12 +94,14 @@ else
   if [ "${prog}" != "${APP_NAME}" ]; then
     ${SUDO} docker run -it \
       --rm \
+      -p 4242:4242 \
       ${ENV_VARS} \
       ${VOLUMES} \
       --name=${APP_NAME} \
       ${APP_REPO}/${IMG_NAME}:${TAG_NAME} ${prog} $@
   else
     ${SUDO} docker run -d \
+      -p 4242:4242 \
       ${ENV_VARS} \
       ${VOLUMES} \
       --name=${APP_NAME} \
