@@ -15,7 +15,7 @@ QUASSEL_PORT=${QUASSEL_PORT:-4242}
 
 export HOME=/home/${APP_USER}
 cd $HOME
-s6-applyuidgid -u $APP_UID -g $APP_GID certs_manager
+s6-applyuidgid -u $APP_UID -g $APP_GID check_ssl
 
 if [ ! -n "$QUASSEL_EXIST" ]; then
 	RANDOM_PW=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1)

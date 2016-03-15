@@ -1,0 +1,16 @@
+#!/bin/bash
+# vim:set ft=sh noet :
+
+APP_UID=${APP_UID:-1000}
+APP_GID=${APP_GID:-1000}
+
+APP_USER=${APP_USER:-appuser}
+APP_CONFIG=${APP_CONFIG:-/config}
+
+DOMAIN_NAME=${DOMAIN_NAME:-"quasselcore"}
+DOMAIN_CERT=$APP_CONFIG/quasselCert.pem
+
+
+if [ ! -f $DOMAIN_CERT ]; then
+	openssl req -x509 -nodes -days 365 -newkey rsa:4096 -keyout $DOMAIN_CERT -out $DOMAIN_CERT -subj "/CN=$DOMAIN_NAME"
+fi
