@@ -5,4 +5,4 @@ APP_CONFIG=${APP_CONFIG:-/config}
 PGDATA=$APP_CONFIG/pgdata
 
 echo "Starting postgres..."
-s6-setuidgid postgres postgres -p 5432 -D $PGDATA
+s6-setuidgid postgres postgres -p 5432 -D $PGDATA > /dev/null 2>&1
