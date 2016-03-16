@@ -105,6 +105,6 @@ else
       ${ENV_VARS} \
       ${VOLUMES} \
       --name=${APP_NAME} \
-      ${APP_REPO}/${IMG_NAME}:${TAG_NAME} ${APP_NAME} $@ > /dev/null
+      ${APP_REPO}/${IMG_NAME}:${TAG_NAME} ${APP_NAME} > /dev/null
   fi
 fi
