@@ -10,16 +10,19 @@ APP_CONFIG=${APP_CONFIG:-/config}
 PGDATA=$APP_CONFIG/pgdata
 
 QUASSEL_USER=${QUASSEL_USER:-admin}
-QUASSEL_EXIST=$(s6-setuidgid postgres psql -tAc "SELECT 1 FROM pg_roles WHERE rolname='quassel';")
 QUASSEL_PORT=${QUASSEL_PORT:-4242}
 
 export HOME=/home/${APP_USER}
 cd $HOME
+
 s6-applyuidgid -u $APP_UID -g $APP_GID check_ssl
 
+# wait for postgresql to come up
+sleep 1
+QUASSEL_EXIST=$(s6-setuidgid postgres psql -tAc "SELECT 1 FROM pg_roles WHERE rolname='quassel';")
 if [ ! -n "$QUASSEL_EXIST" ]; then
 	RANDOM_PW=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1)
-	echo "Setting up database for quassel-core."
+	echo "Setting up database for quasselcore."
 	s6-setuidgid postgres psql -c "CREATE USER quassel ENCRYPTED PASSWORD 'password';" > /dev/null 2>&1
 	s6-setuidgid postgres psql -c "CREATE DATABASE quassel WITH OWNER quassel ENCODING 'UTF8';" > /dev/null 2>&1
 	s6-applyuidgid -u $APP_UID -g $APP_GID expect -c "set timeout -1;spawn /usr/bin/quasselcore --configdir=/config --port=$QUASSEL_PORT --select-backend=PostgreSQL --require-ssl; expect \"Username (quassel):\"; send \"\n\";expect \"Password:\"; send \"password\n\"; expect \"Hostname (localhost):\"; send \"\n\"; expect \"Port (5432):\"; send \"\n\"; expect \"Database (quassel):\"; send \"\n\"; expect \"Username:\"; send \"admin\n\";expect \"Password:\"; send \"$RANDOM_PW\n\"; expect \"Repeat Password:\"; send \"$RANDOM_PW\n\";expect eof; exit;"
