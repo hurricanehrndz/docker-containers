@@ -7,7 +7,8 @@ PGDATA=$APP_CONFIG/pgdata
 
 if [ ! -d $PGDATA ]; then
 	echo "No existing dabase found."
-	s6-setuidgid postgres mkdir -p $PGDATA
+	mkdir -p $PGDATA
+	chown postgres:postgres $PGDATA
 	# Init postgresql db
 	s6-setuidgid postgres initdb -E 'UTF-8' -D $PGDATA > /dev/null 2>&1
 	echo "Created new postgres database."
