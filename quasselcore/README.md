@@ -123,7 +123,7 @@ quasselcore
 
 ## Automatic Upgrades:
 
-In order to have the container periodically check and upgrade the subsonic
+In order to have the container periodically check and upgrade the quasselcore
 binary one needs to add  a [`crontab`](https://en.wikipedia.org/wiki/Cron)
 entry. Like so:
 ```
