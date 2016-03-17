@@ -18,7 +18,7 @@ if [ ! -d $PGDATA ]; then
 	echo "Created new postgres database."
 fi
 
-POSTGRESQL_RUN_DIR="/var/run/postgressql"
+POSTGRESQL_RUN_DIR="/var/run/postgresql"
 if [ ! -d "$POSTGRESQL_RUN_DIR" ]; then
 	mkdir -p "$POSTGRESQL_RUN_DIR"
 	chmod 777 "$POSTGRESQL_RUN_DIR"
