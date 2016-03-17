@@ -17,3 +17,9 @@ if [ ! -d $PGDATA ]; then
 	s6-applyuidgid -u $APP_UID -g $APP_GID initdb -E 'UTF-8' -D $PGDATA > /dev/null 2>&1
 	echo "Created new postgres database."
 fi
+
+POSTGRESQL_RUN_DIR="/var/run/postgressql"
+if [ ! -d "$POSTGRESQL_RUN_DIR" ]; then
+	mkdir -p "$POSTGRESQL_RUN_DIR"
+	chmod 777 "$POSTGRESQL_RUN_DIR"
+fi
