@@ -1,15 +1,19 @@
 #!/usr/bin/with-contenv bash
 # vim:set ft=sh sw=4 sts=4 st=4 noet:
 
+APP_UID=${APP_UID:-1000}
+APP_GID=${APP_GID:-1000}
 
+APP_USER=${APP_USER:-appuser}
 APP_CONFIG=${APP_CONFIG:-/config}
+
 PGDATA=$APP_CONFIG/pgdata
 
 if [ ! -d $PGDATA ]; then
 	echo "No existing dabase found."
-	mkdir -p $PGDATA
-	chown postgres:postgres $PGDATA
+	s6-applyuidgid -u $APP_UID -g $APP_GID mkdir -p $PGDATA
+	chown $APP_UID:$APP_GID $PGDATA
 	# Init postgresql db
-	s6-setuidgid postgres initdb -E 'UTF-8' -D $PGDATA > /dev/null 2>&1
+	s6-applyuidgid -u $APP_UID -g $APP_GID initdb -E 'UTF-8' -D $PGDATA > /dev/null 2>&1
 	echo "Created new postgres database."
 fi
