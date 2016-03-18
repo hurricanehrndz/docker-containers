@@ -1,0 +1,22 @@
+#!/usr/bin/with-contenv bash
+# vim:set ft=sh sw=2 sts=2 st=2 et:
+
+APP_UID=${APP_UID:-1000}
+APP_GID=${APP_GID:-1000}
+
+APP_USER=${APP_USER:-appuser}
+APP_CONFIG=${APP_CONFIG:-/config}
+
+# Create znc config if it doesn't exist
+if [ ! -f "${APP_CONFIG}/configs/znc.conf" ]; then
+  mkdir -p "${APP_CONFIG}/configs"
+  cp /var/cache/znc.conf.default "${APP_CONFIG}/configs/znc.conf"
+fi
+
+
+if [ $(grep -c "User admin" "${APP_CONFIG}/configs/znc.conf") ]; then
+fi
+
+if [ ! -f "${APP_CONFIG}/znc.pem" ]; then
+  znc --makepem -d "$APP_CONFIG"
+fi

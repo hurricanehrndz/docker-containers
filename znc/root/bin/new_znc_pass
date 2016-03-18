@@ -1,0 +1,14 @@
+#!/usr/bin/expect -f
+
+lassign $argv arg1 
+
+
+set timeout -1
+spawn znc --makepass
+expect -exact "\[1m\[34m\[\[33m ** \[34m\]\[39m\[22m Type your new password.\r
+\[1m\[34m\[\[33m ?? \[34m\]\[39m\[22m Enter password: "
+send -- "$arg1\r"
+expect -exact "\r
+\[1m\[34m\[\[33m ?? \[34m\]\[39m\[22m Confirm password: "
+send -- "$arg1\r"
+expect eof
