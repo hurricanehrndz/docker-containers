@@ -1,6 +1,6 @@
 #!/usr/bin/expect -f
 
-lassign $argv arg1 
+lassign $argv arg1
 
 
 set timeout -1

@@ -11,12 +11,21 @@ APP_CONFIG=${APP_CONFIG:-/config}
 if [ ! -f "${APP_CONFIG}/configs/znc.conf" ]; then
   mkdir -p "${APP_CONFIG}/configs"
   cp /var/cache/znc.conf.default "${APP_CONFIG}/configs/znc.conf"
+  chown -R $APP_UID:$APP_GID ${APP_CONFIG}/configs
 fi
 
 
-if [ $(grep -c "User admin" "${APP_CONFIG}/configs/znc.conf") ]; then
+if [ $(grep -c "<User admin>" "${APP_CONFIG}/configs/znc.conf") ]; then
+  echo "Generating random password..."
+  RANDOM_PASS=$(date +%s | sha256sum | base64 | head -c 32 ; echo  -n)
+  ZNC_MAKEPASS_OUTPUT=$(new_znc_pass $RANDOM_PASS)
+  HASH=$(echo $ZNC_MAKEPASS_OUTPUT | awk -F '{print $9}' | sed -e s%" Hash = "%%g)
+  SALT=$(echo $ZNC_MAKEPASS_OUTPUT | awk -F '{print $10}' | sed -e s%" Salt = "%%g)
+  sed -i -e s%"\(\s\+Pass\s\+=\).*"%"\1 sha256#${HASH}#${SALT}#"% ${APP_CONFIG}/configs/znc.conf
+  echo "Admin password is ${RANDOM_PASS}"
 fi
 
 if [ ! -f "${APP_CONFIG}/znc.pem" ]; then
   znc --makepem -d "$APP_CONFIG"
+  chown $APP_UID:$APP_GID $APP_CONFIG/znc.pem
 fi

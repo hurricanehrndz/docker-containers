@@ -1,12 +1,13 @@
 FROM opensuse:tumbleweed
 MAINTAINER Carlos Hernandez <carlos@techbyte.ca>
-ENV LANG="en_CA.UTF-8" s6_overlay_version="1.17.2.0" APP_NAME="znc" IMG_NAME="znc" TAG_NAME="latest" S6_LOGGING="0"
+ENV LANG="en_US.UTF-8" s6_overlay_version="1.17.2.0" APP_NAME="znc" IMG_NAME="znc" TAG_NAME="latest" S6_LOGGING="0"
 
 RUN zypper --gpg-auto-import-keys ref \
  && zypper --non-interactive up \
  && zypper --non-interactive in --no-recommends \
 	ca-certificates{-cacert,-mozilla} \
 	curl \
+	expect \
 	glibc-locale \
 	tar \
 	timezone \
