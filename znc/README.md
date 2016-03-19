@@ -1,4 +1,4 @@
-![Alt text](http://www.activeobjects.no/subsonic/forum/templates/subSilver/images/logo_phpBB.gif "")
+![Alt text](http://i.imgur.com/ir3vAxL.png "")
 
 - [Introduction](#introduction)
   - [Contributing](#contributing)
