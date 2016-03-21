@@ -14,6 +14,7 @@ RUN zypper --gpg-auto-import-keys ref \
 	irssi-otr \
 	libnotify4 \
 	perl \
+	perl-base \
 	perl-Crypt-Blowfish  \
 	perl-Crypt-CBC \
 	perl-Crypt-DH-GMP \
@@ -32,9 +33,7 @@ RUN zypper --gpg-auto-import-keys ref \
 	`rpm -qa | grep kmod` \
 	`rpm -qa | grep mapper` \
 	`rpm -qa | grep openSUSE-release` \
-	`rpm -qa | grep perl` \
 	`rpm -qa | grep pigz` \
-	`rpm -qa | grep pinentry` \
 	`rpm -qa | grep pinentry` \
 	`rpm -qa | grep qrencode` \
 	curl \

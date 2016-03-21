@@ -8,5 +8,8 @@ APP_GID=${APP_GID:-1000}
 APP_USER=${APP_USER:-appuser}
 
 
-ln -s /usr/local/share/irssi/themes/solarized-universal.theme  /home/$APP_USER/.irssi/default.theme
-ln -s /usr/local/share/irssi/scripts  /home/$APP_USER/.irssi/scripts
+if [ ! -d /home/${APP_USER}/.irssi ]; then
+  s6-applyuidgid -u $APP_UID -g $APP_GID  mkdir -p /home/${APP_USER}/.irssi
+fi
+ln -sf /usr/local/share/irssi/themes/solarized-universal.theme/solarized-universal.theme  /home/$APP_USER/.irssi/default.theme
+ln -sf /usr/local/share/irssi/scripts  /home/$APP_USER/.irssi/scripts

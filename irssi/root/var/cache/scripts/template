@@ -71,7 +71,7 @@ prepare_docker_volume_parameters() {
   fi
   chown -R ${APP_UID}:${APP_GID} ${APP_CONFIG}
   # prepare local filesystems
-  VOLUMES+=" --volume=${APP_CONFIG}:/config"
+  VOLUMES+=" --volume=${APP_CONFIG}:/home/${APP_USER}/.irssi"
 }
 
 prepare_docker_volume_display_parameters() {
