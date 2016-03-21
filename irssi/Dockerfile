@@ -19,6 +19,7 @@ RUN zypper --gpg-auto-import-keys ref \
 	perl-Crypt-CBC \
 	perl-Crypt-DH-GMP \
 	perl-Crypt-OpenSSL-Bignum \
+	perl-Text-CharWidth \
 	tar \
 	timezone \
   && curl -skL https://github.com/just-containers/s6-overlay/releases/download/v${s6_overlay_version}/s6-overlay-amd64.tar.gz -o /tmp/s6-overlay-amd64.tar.gz \
