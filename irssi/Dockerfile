@@ -22,6 +22,8 @@ RUN zypper --gpg-auto-import-keys ref \
 	perl-Text-CharWidth \
 	tar \
 	timezone \
+  && git clone --depth 1 https://github.com/irssi/scripts.irssi.org.git /var/cache/defaults/irssi-scripts \
+  && curl -skL https://raw.githubusercontent.com/huyz/irssi-colors-solarized/master/solarized-universal.theme -o /var/cache/defaults/solarized-universal.theme \
   && curl -skL https://github.com/just-containers/s6-overlay/releases/download/v${s6_overlay_version}/s6-overlay-amd64.tar.gz -o /tmp/s6-overlay-amd64.tar.gz \
   && tar xf /tmp/s6-overlay-amd64.tar.gz -C / \
   && cd /usr/lib/locale \
@@ -39,8 +41,6 @@ RUN zypper --gpg-auto-import-keys ref \
 	`rpm -qa | grep qrencode` \
 	curl \
 	tar \
-  && git clone --depth 1 https://github.com/irssi/scripts.irssi.org.git /usr/local/share/irssi \
-  && git clone --depth 1 https://github.com/huyz/irssi-colors-solarized.git /usr/local/share/irssi/themes/solarized-universal.theme  \
   && zypper cc --all \
   && rm -rf /usr/lib64/gconv/* \
   && rm -rf /usr/share/{man,doc,info,gnome/help} \
