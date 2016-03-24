@@ -22,13 +22,13 @@ RUN zypper --gpg-auto-import-keys ref \
 	perl-Text-CharWidth \
 	tar \
 	timezone \
-  && git clone --depth 1 https://github.com/irssi/scripts.irssi.org.git /var/cache/defaults/irssi-scripts \
-  && curl -skL https://raw.githubusercontent.com/huyz/irssi-colors-solarized/master/solarized-universal.theme -o /var/cache/defaults/solarized-universal.theme \
-  && curl -skL https://github.com/just-containers/s6-overlay/releases/download/v${s6_overlay_version}/s6-overlay-amd64.tar.gz -o /tmp/s6-overlay-amd64.tar.gz \
-  && tar xf /tmp/s6-overlay-amd64.tar.gz -C / \
-  && cd /usr/lib/locale \
-  && ls | grep -ve "en_CA*\|en_US*" | xargs rm -rf \
-  && rpm -e --nodeps --allmatches --noscripts \
+ && curl -skL https://github.com/just-containers/s6-overlay/releases/download/v${s6_overlay_version}/s6-overlay-amd64.tar.gz -o /tmp/s6-overlay-amd64.tar.gz \
+ && tar xf /tmp/s6-overlay-amd64.tar.gz -C / \
+ && cd /usr/lib/locale \
+ && ls | grep -ve "en_CA*\|en_US*" | xargs rm -rf \
+ && cd /usr/share/locale \
+ &&  find -name '*.mo' | grep -ve "en_US*" | xargs rm \
+ && rpm -e --nodeps --allmatches --noscripts \
 	`rpm -qa | grep cpio` \
 	`rpm -qa | grep cryptsetup` \
 	`rpm -qa | grep dbus-1` \
@@ -41,12 +41,11 @@ RUN zypper --gpg-auto-import-keys ref \
 	`rpm -qa | grep qrencode` \
 	curl \
 	tar \
-  && zypper cc --all \
-  && rm -rf /usr/lib64/gconv/* \
-  && rm -rf /usr/share/{man,doc,info,gnome/help} \
-  && rm -rf /var/cache/zypp* \
-  && rm -rf /tmp/* \
-  && rm -rf /var/log/*
+ && zypper cc --all \
+ && rm -rf /usr/share/{man,doc,info,gnome/help} \
+ && rm -rf /var/cache/zypp* \
+ && rm -rf /tmp/* \
+ && rm -rf /var/log/*
 
 COPY root /
 ENTRYPOINT ["/init"]

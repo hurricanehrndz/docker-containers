@@ -11,11 +11,3 @@ APP_USER=${APP_USER:-appuser}
 if [ ! -d /home/${APP_USER}/.irssi ]; then
   s6-applyuidgid -u $APP_UID -g $APP_GID  mkdir -p /home/${APP_USER}/.irssi
 fi
-
-if [ ! -d /home/${APP_USER}/.irssi/scripts ]; then
-  s6-applyuidgid -u $APP_UID -g $APP_GID cp -R /var/cache/defaults/irssi-scripts/scripts /home/${APP_USER}/.irssi
-fi
-
-if [ ! -f /home/${APP_USER}/irssi/solarized-universal.theme ]; then
- s6-applyuidgid -u $APP_UID -g $APP_GID cp /var/cache/defaults/solarized-universal.theme /home/${APP_USER}/.irssi
-fi
