@@ -99,6 +99,8 @@ Once Irssi has been installed you can simply execute the binary from a terminal:
 irssi
 ```
 
+You can then proceed
+
 # Maintenance
 
 ## Upgrading:

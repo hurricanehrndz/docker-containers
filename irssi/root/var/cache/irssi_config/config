@@ -386,7 +386,6 @@ settings = {
     awl_shared_sbar = "OFF";
     awl_viewer = "no";
     usercount_show_zero = "yes";
-    nickcolor_colors = "1 2 3 4 5 6";
   };
 };
 logs = { };
@@ -395,6 +394,6 @@ windows = {
   99 = { name = "hilight"; sticky = "yes"; };
 };
 mainwindows = {
-  5 = { first_line = "5"; lines = "33"; };
+  1 = { first_line = "5"; lines = "33"; };
   99 = { first_line = "1"; lines = "4"; };
 };
