@@ -53,6 +53,8 @@ prepare_docker_env_parameters() {
   ENV_VARS+=" --env=TZ=$(cat /etc/timezone)"
   ENV_VARS+=" --env=APP_USER=${APP_USER}"
   ENV_VARS+=" --env=DISPLAY"
+  ENV_VARS+=" --env=DBUS_SESSION_BUS_ADDRESS=unix:path=/var/run/user/$APP_UID/bus"
+
 
   if [ ! -z ${GPGKEY} ]; then
     ENV_VARS+=" --env=GPGKEY=${GPGKEY}"
@@ -99,6 +101,12 @@ prepare_docker_volume_parameters() {
     echo "Making mutt cache directory." && \
     mkdir -p ~/.mutt/cache
   VOLUMES+=" --volume=/home/${USER}/.mutt/cache:/home/${APP_USER}/.mutt/cache"
+
+  # make downloads directory if doesn't exist
+  [ ! -d ~/Downloads ] && \
+    echo "Making Downloads directory." && \
+    mkdir -p ~/Downloads
+  VOLUMES+=" --volume=/home/${USER}/Downloads/${APP_USER}/Downloads"
 }
 
 prepare_docker_volume_display_parameters() {
@@ -107,6 +115,9 @@ prepare_docker_volume_display_parameters() {
 
   VOLUMES+=" --volume=${XSOCK}:${XSOCK}"
   VOLUMES+=" --volume=${XAUTH}:${XAUTH}"
+  VOLUMES+=" --volume=/var/run/dbus:/var/run/dbus"
+  VOLUMES+=" --volume=/var/run/user/$APP_UID/bus:/var/run/user/$APP_UID/bus"
+  VOLUMES+=" --volume=/etc/localtime:/etc/localtime:ro"
 }
 
 prog=$(basename $0)

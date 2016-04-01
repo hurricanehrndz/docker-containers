@@ -12,6 +12,7 @@ RUN zypper --non-interactive addrepo http://download.opensuse.org/repositories/h
 	adwaita-icon-theme \
 	ca-certificates{,-cacert,-mozilla} \
 	curl \
+	dbus-1-x11 \
 	dejavu-fonts \
 	git-core \
 	glibc-i18ndata \
@@ -25,6 +26,7 @@ RUN zypper --non-interactive addrepo http://download.opensuse.org/repositories/h
 	libgpgme11 \
 	libgtk-2_0-0 \
 	libidn11 \
+	libnotify4 \
 	libnotmuch4 \
 	libsasl2-3 \
 	libslang2 \
@@ -34,6 +36,8 @@ RUN zypper --non-interactive addrepo http://download.opensuse.org/repositories/h
 	msmtp \
 	notmuch \
 	python \
+	python-notify \
+	python-pyinotify \
 	python-base \
 	python-pip \
 	python-PyYAML \
@@ -62,7 +66,6 @@ RUN zypper --non-interactive addrepo http://download.opensuse.org/repositories/h
   && rpm -e --nodeps --allmatches --noscripts \
 	`rpm -qa | grep cpio` \
 	`rpm -qa | grep cryptsetup` \
-	`rpm -qa | grep dbus-1` \
 	`rpm -qa | grep kbd` \
 	`rpm -qa | grep kmod` \
 	`rpm -qa | grep mapper` \
@@ -70,11 +73,9 @@ RUN zypper --non-interactive addrepo http://download.opensuse.org/repositories/h
 	`rpm -qa | grep perl` \
 	`rpm -qa | grep pigz` \
 	`rpm -qa | grep pinentry` \
-	`rpm -qa | grep pinentry` \
 	`rpm -qa | grep qrencode` \
 	aaa_base \
 	curl \
-	dbus-1 \
 	dracut \
 	git-core \
 	kmod \
