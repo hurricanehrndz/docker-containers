@@ -1,15 +1,15 @@
 FROM opensuse:tumbleweed
 MAINTAINER Carlos Hernandez <carlos@techbyte.ca>
-ENV LANG="en_US.UTF-8" s6_overlay_version="1.17.2.0" APP_NAME="irssi" IMG_NAME="irssi" TAG_NAME="latest" S6_LOGGING="0"
+ENV LANG="en_US.UTF-8" s6_overlay_version="1.17.2.0" APP_NAME="irssi" IMG_NAME="irssi" TAG_NAME="latest" S6_LOGGING="1"
 
 RUN zypper --gpg-auto-import-keys ref \
  && zypper --non-interactive up \
  && zypper --non-interactive in --no-recommends \
-	bitlbee \
 	ca-certificates{-cacert,-mozilla} \
 	curl \
 	git-core \
 	glibc-locale \
+	gobject-introspection \
 	irssi \
 	irssi-otr \
 	libnotify4 \
@@ -19,9 +19,12 @@ RUN zypper --gpg-auto-import-keys ref \
 	perl-Crypt-CBC \
 	perl-Crypt-DH-GMP \
 	perl-Crypt-OpenSSL-Bignum \
+	perl-Glib-Object-Introspection \
+	perl-HTML-Parser \
 	perl-Text-CharWidth \
 	tar \
 	timezone \
+	typelib-1_0-Notify-0_7 \
  && curl -skL https://github.com/just-containers/s6-overlay/releases/download/v${s6_overlay_version}/s6-overlay-amd64.tar.gz -o /tmp/s6-overlay-amd64.tar.gz \
  && tar xf /tmp/s6-overlay-amd64.tar.gz -C / \
  && cd /usr/lib/locale \

@@ -109,10 +109,11 @@ else
       --name=${APP_NAME} \
       ${APP_REPO}/${IMG_NAME}:${TAG_NAME} ${prog} $@
   else
-    ${SUDO} docker run -d \
+    ${SUDO} docker run -it \
+      --rm \
       ${ENV_VARS} \
       ${VOLUMES} \
       --name=${APP_NAME} \
-      ${APP_REPO}/${IMG_NAME}:${TAG_NAME} ${APP_NAME} $@ > /dev/null
+      ${APP_REPO}/${IMG_NAME}:${TAG_NAME} ${APP_NAME} $@
   fi
 fi
