@@ -26,7 +26,6 @@ RUN zypper --non-interactive addrepo http://download.opensuse.org/repositories/h
 	libgpgme11 \
 	libgtk-2_0-0 \
 	libidn11 \
-	libnotify4 \
 	libnotmuch4 \
 	libsasl2-3 \
 	libslang2 \
@@ -36,7 +35,6 @@ RUN zypper --non-interactive addrepo http://download.opensuse.org/repositories/h
 	msmtp \
 	notmuch \
 	python \
-	python-notify \
 	python-pyinotify \
 	python-base \
 	python-pip \
