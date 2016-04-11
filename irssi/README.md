@@ -99,7 +99,19 @@ Once Irssi has been installed you can simply execute the binary from a terminal:
 irssi
 ```
 
-You can then proceed
+You can then add an irc server or a bouncer such as ZNC like so:
+```
+/network add freenode
+/server add -net freenode -auto -ssl my.bouncer.net 6660 username/freenode:password
+/save
+/connect freenode
+```
+
+Once your connected you can set the `hilightwin` plugin to highlight your
+nickname by issuing the following command:
+```
+/hilight hurricanehrndz
+```
 
 # Maintenance
 
