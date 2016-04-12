@@ -35,9 +35,13 @@ if ! getent passwd ${APP_USER} > /dev/null; then
 fi
 
 # vim config
-mv /var/cache/.vim /home/${APP_USER}/
-chown -R ${APP_UID}:${APP_GID} \
-  /home/${APP_USER}/.vim
+if [ ! -e "/home/${APP_USER}/.vim" ]; then
+  mv /var/cache/.vim /home/${APP_USER}/
+  chown -R ${APP_UID}:${APP_GID} \
+    /home/${APP_USER}/.vim
+fi
 
-# fix configs permissions
-chown ${APP_UID}:${APP_GID} /home/${APP_USER}
+if [ "$TARGET_DIR" != "/home/${APP_USER}" ]; then
+  # fix configs permissions
+  chown ${APP_UID}:${APP_GID} /home/${APP_USER}
+fi
