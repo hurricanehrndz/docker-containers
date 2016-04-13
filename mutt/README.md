@@ -260,6 +260,9 @@ when executing a docker run command.
 - https://github.com/altercation/mutt-colors-solarized
 - https://wiki.archlinux.org/index.php/msmtp
 
+# History:
+
+* 2016-04-13 Updated mutt-kz to vesion 1.6.0.1
 
 # License:
 
