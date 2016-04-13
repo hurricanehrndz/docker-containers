@@ -1,9 +1,10 @@
 # Sidebar Patch --------------------------------------
-set sidebar_delim   = '│'
+set sidebar_divider_char   = '│'
 set sidebar_visible = yes
 set sidebar_width   = 30
-set sidebar_refresh = 10
-set sort_sidebar = unsorted
+set sidebar_short_path = yes
+set sidebar_refresh_time = 10
+set sidebar_sort_method = unsorted
 color sidebar_new green default
 
 # Sidebar Navigation ---------------------------------

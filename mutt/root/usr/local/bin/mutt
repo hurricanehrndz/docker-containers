@@ -55,10 +55,6 @@ for i in $(find $HOME -name "*davmail.properties"); do
 	sleep 5
 done
 
-# start background mail sync
-s6_sync_dir=/var/run/s6/services/sync
-s6_sync_run=${s6_sync_dir}/run
-
 # do initial sync
 if  ! $SETUP_ONLY ; then
 	s6-applyuidgid -u $APP_UID -g $APP_GID /usr/local/bin/init_sync
@@ -66,35 +62,40 @@ fi
 
 # Prep syncing service
 sync_lock="/home/$APP_USER/.sync_lock"
-mkdir -p "$s6_sync_dir"
-
-# create s6 service to sync mail
-cat <<-'EOF' > $s6_sync_run
-#!/usr/bin/with-contenv bash
-
-sleep 30
-
-logfile="/home/$APP_USER/mail-sync.log"
-
-while true
-do
-if [ -f $logfile ]; then
-    logsize=$(stat -c%s $logfile)
-else
-    logsize=0
-fi
-if (($logsize > 10000000)) ; then
-    [ -f $logfile.1 ] && rm -f $logfile.1 > /dev/null 2>&1
-    mv $logfile $logfile.1 > /dev/null 2>&1
-fi
-mail-sync >>/home/$APP_USER/mail-sync.log 2>&1
-sleep 90
-done
-EOF
-
-chmod +x $s6_sync_run
 
 if  ! $SETUP_ONLY ; then
+	# init variables for background mail sync
+	s6_sync_dir=/var/run/s6/services/sync
+	s6_sync_run=${s6_sync_dir}/run
+
+	mkdir -p "$s6_sync_dir"
+
+	# create s6 service to sync mail
+	cat <<-'EOF' > $s6_sync_run
+	#!/usr/bin/with-contenv bash
+
+	sleep 30
+
+	logfile="/home/$APP_USER/mail-sync.log"
+
+	while true
+	do
+	if [ -f $logfile ]; then
+		logsize=$(stat -c%s $logfile)
+	else
+		logsize=0
+	fi
+	if (($logsize > 10000000)) ; then
+		[ -f $logfile.1 ] && rm -f $logfile.1 > /dev/null 2>&1
+		mv $logfile $logfile.1 > /dev/null 2>&1
+	fi
+	mail-sync >>/home/$APP_USER/mail-sync.log 2>&1
+	sleep 90
+	done
+	EOF
+
+	chmod +x $s6_sync_run
+
 	echo "Starting mutt..."
 	s6-svscanctl -a /var/run/s6/services
 	s6-svc -u $s6_sync_dir
@@ -109,4 +110,6 @@ do
 	sleep 2
 done
 
-s6-svc -d $s6_sync_dir
+if  ! $SETUP_ONLY ; then
+	s6-svc -d $s6_sync_dir
+fi
