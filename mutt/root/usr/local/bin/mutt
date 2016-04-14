@@ -52,7 +52,7 @@ for i in $(find $HOME -name "*davmail.properties"); do
 	chmod +x $s6_davmail_run
 	s6-svscanctl -a /var/run/s6/services
 	s6-svc -u $s6_davmail_dir
-	sleep 5
+	sleep 1
 done
 
 # do initial sync
@@ -73,6 +73,10 @@ if  ! $SETUP_ONLY ; then
 	# create s6 service to sync mail
 	cat <<-'EOF' > $s6_sync_run
 	#!/usr/bin/with-contenv bash
+	APP_UID=${APP_UID:-1000}
+	APP_GID=${APP_GID:-1000}
+	APP_USER=${APP_USER:-appuser}
+	HOME=/home/$APP_USER
 
 	sleep 30
 
@@ -87,9 +91,9 @@ if  ! $SETUP_ONLY ; then
 	fi
 	if (($logsize > 10000000)) ; then
 		[ -f $logfile.1 ] && rm -f $logfile.1 > /dev/null 2>&1
-		mv $logfile $logfile.1 > /dev/null 2>&1
+		s6-applyuidgid -u $APP_UID -g $APP_GID mv $logfile $logfile.1 > /dev/null 2>&1
 	fi
-	mail-sync >>/home/$APP_USER/mail-sync.log 2>&1
+	s6-applyuidgid -u $APP_UID -g $APP_GID /bin/bash -c "mail-sync >>/home/$APP_USER/mail-sync.log 2>&1"
 	sleep 90
 	done
 	EOF
