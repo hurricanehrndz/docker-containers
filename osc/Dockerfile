@@ -47,4 +47,4 @@ RUN zypper --gpg-auto-import-keys ref \
   && rm -rf /var/log/*
 
 COPY root /
-ENTRYPOINT ["/init"]
+ENTRYPOINT ["/entrypoint"]
