@@ -7,6 +7,7 @@ import os
 from mailbox import MaildirMessage
 from email.header import decode_header
 
+ignored_boxes=['archive', 'trash', 'drafts', 'sent', 'spam']
 maildir = os.path.join('/home/' + os.environ.get('APP_USER'), '.mail')
 # Get email accounts
 accounts = filter( lambda f: not f.startswith('.'), os.listdir(maildir))
@@ -40,6 +41,7 @@ notifier = pyinotify.Notifier(wm, newfile)
 for account in accounts:
     boxes = os.listdir(os.path.join(maildir, account))
     for box in boxes:
-        wm.add_watch(os.path.join(maildir,account,box,'new'), pyinotify.IN_CREATE | pyinotify.IN_MOVED_TO)
+        if box not in ignored_boxes:
+            wm.add_watch(os.path.join(maildir,account,box,'new'), pyinotify.IN_CREATE | pyinotify.IN_MOVED_TO)
 
 notifier.loop()
