@@ -8,7 +8,7 @@ RUN zypper --non-interactive ar -f -n packman http://ftp.gwdg.de/pub/linux/misc/
  && zypper --non-interactive in --no-recommends \
 	curl \
 	glibc-locale \
-	java-1_9_0-openjdk-headless \
+	java-1_8_0-openjdk-headless \
 	libdbus-1-3 \
 	packman:ffmpeg \
 	tar \

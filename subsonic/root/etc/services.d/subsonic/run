@@ -36,10 +36,11 @@ if [ "$KEEP_TRANSCODE" != "false" ]; then
   ln -s "$(command -v ffmpeg)" /subsonic/transcode/ffmpeg
 fi
 
-CURR_SID=$(stat -c"%u:%g" ${SUBSONIC_HOME}/transcode)
-if [ "$CURR_SID" != "$APP_UID:$APP_GID" ] ; then
-  chown -R $APP_UID:$APP_GID ${SUBSONIC_HOME}/transcode
-
+if [ -d "${SUBSONIC_HOME}/transcode" ]; then
+  CURR_SID=$(stat -c"%u:%g" ${SUBSONIC_HOME}/transcode)
+  if [ "$CURR_SID" != "$APP_UID:$APP_GID" ] ; then
+    chown -R $APP_UID:$APP_GID ${SUBSONIC_HOME}/transcode
+  fi
 fi
 
 cd /opt/subsonic/
