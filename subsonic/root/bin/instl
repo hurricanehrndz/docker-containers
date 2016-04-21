@@ -20,6 +20,11 @@ if [ -n "${APP_CONFIG}" ]; then
   sed -i -e s%"\(APP_CONFIG=\).*"%"\1\"${APP_CONFIG}\""%1 /target/${APP_NAME}
 fi
 
+if [ -n "${KEEP_TRANSCODE}" ]; then
+  echo "Ensuring transcode directory does not get deleted..."
+  sed -i -e s%"\(KEEP_TRANSCODE=\).*"%"\1\"${KEPP_TRANSCODE}\""%1 /target/${APP_NAME}
+fi
+
 sed -i -e s%"=\"IMG_NAME\""%"=\"${IMG_NAME}\""%1 /target/${APP_NAME}
 sed -i -e s%"=\"TAG_NAME\""%"=\"${TAG_NAME}\""%1 /target/${APP_NAME}
 sed -i -e s%"=\"APP_NAME\""%"=\"${APP_NAME}\""%1 /target/${APP_NAME}

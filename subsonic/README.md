@@ -241,6 +241,8 @@ You may overwrite the default settings by passing the appropriate environment va
 * HTTP_PORT  - port Subsonic listens to for HTTP requests. Default is 4040.
 * HTTPS_PORT - port Subsonic listens to for HTTPS requests. Default is null.
 * MAX_MEM    - maximum Java heap size in megabytes. Default value is 150.
+* KEEP_TRANSCODE - ensures transcode directory does not get wiped each time the
+  container is created.
 
 If you set HTTPS_PORT to something else other than `0` all HTTP request will be
 redirected to HTTPS.

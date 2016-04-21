@@ -10,6 +10,7 @@ APP_UID=${APP_UID:-1000}
 APP_GID=${APP_GID:-1000}
 
 APP_USER=${APP_USER:-appuser}
+KEEP_TRANSCODE=${KEEP_TRANSCODE:-"false"}
 
 SUBSONIC_HOME=/subsonic
 SUBSONIC_HOST=0.0.0.0
@@ -29,10 +30,17 @@ if [ -e "${JAVA_HOME}" ]
 fi
 
 # Use system install of ffmpeg for transcoding
-[ ! -d /subsonic/transcode ] || rm -r /subsonic/transcode
-mkdir -p /subsonic/transcode
-ln -s "$(command -v ffmpeg)" /subsonic/transcode/ffmpeg
-chown -R $APP_UID:$APP_GID /subsonic/transcode
+if [ "$KEEP_TRANSCODE" != "false" ]; then
+  [ ! -d /subsonic/transcode ] || rm -r /subsonic/transcode
+  mkdir -p /subsonic/transcode
+  ln -s "$(command -v ffmpeg)" /subsonic/transcode/ffmpeg
+fi
+
+CURR_SID=$(stat -c"%u:%g" ${SUBSONIC_HOME}/transcode)
+if [ "$CURR_SID" != "$APP_UID:$APP_GID" ] ; then
+  chown -R $APP_UID:$APP_GID ${SUBSONIC_HOME}/transcode
+
+fi
 
 cd /opt/subsonic/
 LOG=${SUBSONIC_HOME}/subsonic_sh.log
