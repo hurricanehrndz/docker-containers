@@ -177,6 +177,13 @@ mutt
 The first time you run the mutt container, it will do an initial sync and
 tagging of emails based on maildir folders.
 
+Optionally, you can setup goobook in order to be able to query your GMail
+contacts. This can be done by executing the following command and following the
+on-screen prompts:
+```
+mutt setup_goobook
+```
+
 
 # Maintenance
 

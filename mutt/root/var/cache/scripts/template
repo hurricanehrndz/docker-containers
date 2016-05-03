@@ -106,7 +106,10 @@ prepare_docker_volume_parameters() {
   [ ! -d ~/Downloads ] && \
     echo "Making Downloads directory." && \
     mkdir -p ~/Downloads
-  VOLUMES+=" --volume=/home/${USER}/Downloads/${APP_USER}/Downloads"
+  VOLUMES+=" --volume=/home/${USER}/Downloads:/home/${APP_USER}/Downloads"
+
+  [ -f ~/.goobook_auth.json ] && \
+	  VOLUMES+=" --volume=/home/${USER}/.goobook_auth.json:/home/${APP_USER}/.goobook_auth.json"
 }
 
 prepare_docker_volume_display_parameters() {
@@ -123,7 +126,10 @@ prepare_docker_volume_display_parameters() {
 prog=$(basename $0)
 if [[ ${prog} == "${APP_NAME}" ]]; then
   [ "${1}" == "bash" ] && \
-    prog=bash && \
+    prog=${1} && \
+    shift
+  [ "${1}" == "setup_goobook" ] && \
+    prog=${1} && \
     shift
   [[ "${1}" == "help" ]] && list_options && exit 1
 fi
@@ -134,10 +140,26 @@ prepare_docker_env_display_parameters
 prepare_docker_volume_parameters
 prepare_docker_volume_display_parameters
 
-echo "Starting ${prog}..."
-${SUDO} docker run -it \
-  --rm \
-  ${ENV_VARS} \
-  ${VOLUMES} \
-  --name=${APP_NAME} \
-  ${APP_REPO}/${IMG_NAME}:${TAG_NAME} ${prog} $@
+if [ "$prog" == "setup_goobook" ]; then
+	if [[ ${running} != true ]]; then
+		${SUDO} docker run -it \
+		${ENV_VARS} \
+		${VOLUMES} \
+		--name=${APP_NAME} \
+		${APP_REPO}/${IMG_NAME}:${TAG_NAME} ${prog}
+	else
+		${SUDO} docker exec -it \
+		${APP_NAME} \
+		${prog}
+	fi
+
+	${SUDO} docker cp ${APP_NAME}:/home/$APP_USER/.goobook_auth.json /home/$USER/
+else
+	echo "Starting ${prog}..."
+	${SUDO} docker run -it \
+	--rm \
+	${ENV_VARS} \
+	${VOLUMES} \
+	--name=${APP_NAME} \
+	${APP_REPO}/${IMG_NAME}:${TAG_NAME} ${prog} $@
+fi

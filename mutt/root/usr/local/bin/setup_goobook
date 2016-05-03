@@ -1,0 +1,7 @@
+#!/bin/bash
+
+APP_UID=${APP_UID:-1000}
+APP_GID=${APP_GID:-1000}
+APP_USER=${APP_USER:-appuser}
+
+s6-applyuidgid -u $APP_UID -g $APP_GID goobook authenticate  --noauth_local_webserver

@@ -45,7 +45,7 @@ RUN zypper --non-interactive addrepo -f http://download.nvidia.com/opensuse/leap
 	noto-sans-fonts  \
 	noto-serif-fonts \
 	pulseaudio \
-	repo-namtrac:libfreetype6 \
+	repo-namtrac:freetype2 \
 	tar \
 	which \
  && expect -c 'set timeout -1;spawn zypper in --no-recommends x11-video-nvidiaG04;expect "Choose from above solutions by number or cancel*";send "2\n";expect "Continue*";send "y\n";expect eof; exit;' \
