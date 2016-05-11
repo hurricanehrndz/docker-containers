@@ -2,12 +2,10 @@ FROM opensuse:tumbleweed
 MAINTAINER Carlos Hernandez <carlos@techbyte.ca>
 ENV LANG="en_US.UTF-8" s6_overlay_version="1.17.1.2" APP_NAME="google-chrome" IMG_NAME="google-chrome" TAG_NAME="latest" S6_LOGGING="0"
 
-RUN zypper --non-interactive addrepo -f http://download.nvidia.com/opensuse/leap/42.1 nvidia \
- && zypper --non-interactive addrepo -f -c http://download.opensuse.org/tumbleweed/repo/non-oss repo-non-oss \
+RUN zypper --non-interactive addrepo -f -c http://download.opensuse.org/tumbleweed/repo/non-oss repo-non-oss \
  && zypper --non-interactive addrepo -f -c http://download.opensuse.org/update/tumbleweed repo-update \
- && zypper --non-interactive addrepo -f -c http://download.opensuse.org/repositories/home:/namtrac:/subpixel/openSUSE_Factory/ repo-namtrac \
  && zypper --non-interactive --gpg-auto-import-keys ref \
- && zypper --non-interactive up \
+ && zypper --non-interactive dup \
  && zypper --non-interactive in --no-recommends \
 	adwaita-icon-theme \
 	ca-certificates{-cacert,-mozilla} \
@@ -45,10 +43,9 @@ RUN zypper --non-interactive addrepo -f http://download.nvidia.com/opensuse/leap
 	noto-sans-fonts  \
 	noto-serif-fonts \
 	pulseaudio \
-	repo-namtrac:freetype2 \
+	libfreetype6 \
 	tar \
 	which \
- && expect -c 'set timeout -1;spawn zypper in --no-recommends x11-video-nvidiaG04;expect "Choose from above solutions by number or cancel*";send "2\n";expect "Continue*";send "y\n";expect eof; exit;' \
  && curl -skL https://dl.google.com/linux/linux_signing_key.pub -o /tmp/google-key.pub \
  && rpm --import /tmp/google-key.pub \
  && zypper --non-interactive addrepo -f http://dl.google.com/linux/chrome/rpm/stable/x86_64 google-chrome \
@@ -67,7 +64,6 @@ RUN zypper --non-interactive addrepo -f http://download.nvidia.com/opensuse/leap
 	`rpm -qa | grep aaa_base-` \
 	`rpm -qa | grep binutils` \
 	`rpm -qa | grep branding` \
-	`rpm -qa | grep branding` \
 	`rpm -qa | grep cpio` \
 	`rpm -qa | grep cpp` \
 	`rpm -qa | grep cron` \
@@ -85,8 +81,6 @@ RUN zypper --non-interactive addrepo -f http://download.nvidia.com/opensuse/leap
 	`rpm -qa | grep mapper` \
 	`rpm -qa | grep netcfg` \
 	`rpm -qa | grep networking` \
-	`rpm -qa | grep nvidia-computeG04` \
-	`rpm -qa | grep nvidia-gfxG04-kmp` \
 	`rpm -qa | grep openSUSE-release` \
 	`rpm -qa | grep perl` \
 	`rpm -qa | grep pigz` \
@@ -98,9 +92,8 @@ RUN zypper --non-interactive addrepo -f http://download.nvidia.com/opensuse/leap
 	`rpm -qa | grep systemd-presents` \
 	`rpm -qa | grep sysv` \
 	`rpm -qa | grep tcl` \
-	`rpm -qa | grep wayland` \
+	`rpm -qa | grep wicked` \
 	`rpm -qa | grep which` \
-	`rpm -qa | grep wicked-service` \
 	`rpm -qa | grep x11-tools` \
 	`rpm -qa | grep xz` \
  && zypper cc --all \
