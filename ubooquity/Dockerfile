@@ -1,4 +1,4 @@
-FROM hurricane/tumbleweed
+FROM opensuse/amd64:tumbleweed
 MAINTAINER Carlos Hernandez <carlos@techbyte.ca>
 ENV LANG="en_US.UTF-8" s6_overlay_version="1.17.2.0" APP_NAME="ubooquity" IMG_NAME="ubooquity" TAG_NAME="latest" S6_LOGGING="0"
 
