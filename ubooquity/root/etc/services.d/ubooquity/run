@@ -1,0 +1,29 @@
+#!/usr/bin/with-contenv bash
+# vim:set ft=sh sw=2 sts=2 st=2 et:
+#########################################################################
+# Shell script for starting Ubooquity                                   #
+#                                                                       #
+#########################################################################
+APP_UID=${APP_UID:-1000}
+APP_GID=${APP_GID:-1000}
+APP_CONFIG="/config"
+APP_USER=${APP_USER:-appuser}
+
+MAX_MEMORY=${MAX_MEM:-512}
+USER_DIR=$APP_CONFIG
+UBOOQUITY_PORT=2202
+
+# Use JAVA_HOME if set, otherwise assume java is in the path.
+JAVA=java
+if [ -e "${JAVA_HOME}" ]
+    then
+    JAVA=${JAVA_HOME}/bin/java
+fi
+
+cd /opt/ubooquity
+echo "Starting Ubooquity.."
+s6-applyuidgid -u $APP_UID -g $APP_GID ${JAVA} \
+                                        -Duser.dir=$USER_DIR \
+                                        -jar -Xmx${MAX_MEMORY}m /opt/ubooquity/Ubooquity.jar \
+                                        -port $UBOOQUITY_PORT \
+                                        -webadmin
