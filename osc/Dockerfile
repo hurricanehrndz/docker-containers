@@ -19,10 +19,6 @@ RUN zypper --gpg-auto-import-keys ref \
 	vim-data \
   && curl -skL https://github.com/just-containers/s6-overlay/releases/download/v${s6_overlay_version}/s6-overlay-amd64.tar.gz -o /tmp/s6-overlay-amd64.tar.gz \
   && tar xf /tmp/s6-overlay-amd64.tar.gz -C / \
-  && cd /usr/lib/locale \
-  && ls | grep -ve "en_CA*\|en_US*" | xargs rm -rf \
-  && cd /usr/share/locale \
-  &&  find -name '*.mo' | grep -ve "en_US*" | xargs rm \
   && git clone --depth 1 https://github.com/hurricanehrndz/vim /var/cache/.vim \
   && git clone --depth 1 https://github.com/altercation/vim-colors-solarized /var/cache/.vim/bundle/vim-colors-solarized \
   && rpm -e --nodeps --allmatches --noscripts \
