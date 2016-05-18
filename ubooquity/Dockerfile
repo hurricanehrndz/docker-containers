@@ -15,6 +15,7 @@ RUN zypper --gpg-auto-import-keys ref \
   && curl -skL https://github.com/just-containers/s6-overlay/releases/download/v${s6_overlay_version}/s6-overlay-amd64.tar.gz -o /tmp/s6-overlay-amd64.tar.gz \
   && tar xf /tmp/s6-overlay-amd64.tar.gz -C / \
   && APP_VERSION=$(curl -k http://vaemendis.net/ubooquity/feed/rss | grep -o "<title>.*</title>" | sed -e s%"<title>\(\w\+\s\([0-9]*\.\?[0-9]*\.\?[0-9]*\.\?[0-9]*\)\).*"%"Ubooquity-\2.zip"%  -e 'tx' -e 'd' -e ':x' | head -1 ) \
+  && echo "$APP_VERSION" > /ubooquity.version \
   && curl -kL http://vaemendis.net/ubooquity/downloads/$APP_VERSION -o /tmp/$APP_VERSION \
   && mkdir -p /opt/ubooquity \
   && unzip /tmp/$APP_VERSION -d /opt/ubooquity \
