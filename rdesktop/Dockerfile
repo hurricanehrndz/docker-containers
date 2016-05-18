@@ -13,8 +13,6 @@ RUN zypper --gpg-auto-import-keys ref \
   && curl -skL https://github.com/just-containers/s6-overlay/releases/download/v${s6_overlay_version}/s6-overlay-amd64.tar.gz -o /tmp/s6-overlay-amd64.tar.gz \
   && tar xf /tmp/s6-overlay-amd64.tar.gz -C / \
   && rpm -e --nodeps --allmatches --noscripts \
-	tar \
-	curl \
 	`rpm -qa | grep aaa_base` \
 	`rpm -qa | grep acl | grep -v lib` \
 	`rpm -qa | grep branding-openSUSE` \
@@ -35,6 +33,8 @@ RUN zypper --gpg-auto-import-keys ref \
 	`rpm -qa | grep qrencode` \
 	`rpm -qa | grep sg3_utils` \
 	`rpm -qa | grep systemd` \
+	curl \
+	tar \
   && ls /usr/lib/locale | grep -ve "en_CA*\|en_US*" | awk '{if(system("[ -f "$1" ]") == 0) {print $1} }' | xargs rm -rf \
   && find /usr/share/locale -type f -name '*.mo' | grep -ve "en_US*"  | awk '{if(system("[ -f "$1" ]") == 0) {print $1} }' | xargs rm \
   && zypper cc --all \

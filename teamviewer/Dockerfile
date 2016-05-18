@@ -40,26 +40,32 @@ RUN zypper --non-interactive addrepo -f -c http://download.opensuse.org/reposito
   && tar xf /tmp/teamviewer_i386.tar.xz -C /opt \
   && curl -skL https://github.com/just-containers/s6-overlay/releases/download/v${s6_overlay_version}/s6-overlay-amd64.tar.gz -o /tmp/s6-overlay-amd64.tar.gz \
   && tar xf /tmp/s6-overlay-amd64.tar.gz -C / \
-  && cd /usr/lib/locale \
-  && ls | grep -ve "en_CA*\|en_US*" | xargs rm -rf \
-  && cd /usr/share/locale \
-  &&  find -name '*.mo' | grep -ve "en_US*" | xargs rm \
   && rpm -e --nodeps --allmatches --noscripts \
+	`rpm -qa | grep aaa_base` \
+	`rpm -qa | grep acl | grep -v lib` \
+	`rpm -qa | grep branding-openSUSE` \
 	`rpm -qa | grep cpio` \
 	`rpm -qa | grep cryptsetup` \
+	`rpm -qa | grep dbus-1` \
+	`rpm -qa | grep dracut` \
+	`rpm -qa | grep fipscheck` \
 	`rpm -qa | grep kbd` \
 	`rpm -qa | grep kmod` \
 	`rpm -qa | grep mapper` \
+	`rpm -qa | grep ncurses-utils` \
 	`rpm -qa | grep openSUSE-release` \
 	`rpm -qa | grep perl` \
 	`rpm -qa | grep pigz` \
 	`rpm -qa | grep pinentry` \
-	`rpm -qa | grep pinentry` \
+	`rpm -qa | grep pkg-config` \
 	`rpm -qa | grep qrencode` \
+	`rpm -qa | grep sg3_utils` \
+	`rpm -qa | grep systemd` \
 	curl \
 	tar \
+  && ls /usr/lib/locale | grep -ve "en_CA*\|en_US*" | awk '{if(system("[ -f "$1" ]") == 0) {print $1} }' | xargs rm -rf \
+  && find /usr/share/locale -type f -name '*.mo' | grep -ve "en_US*"  | awk '{if(system("[ -f "$1" ]") == 0) {print $1} }' | xargs rm \
   && zypper cc --all \
-  && rm -rf /usr/lib64/gconv/* \
   && rm -rf /usr/share/{man,doc,info,gnome/help} \
   && rm -rf /var/cache/zypp* \
   && rm -rf /tmp/* \

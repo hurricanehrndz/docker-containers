@@ -17,10 +17,6 @@ RUN zypper --gpg-auto-import-keys ref \
 	znc-tcl \
   && curl -skL https://github.com/just-containers/s6-overlay/releases/download/v${s6_overlay_version}/s6-overlay-amd64.tar.gz -o /tmp/s6-overlay-amd64.tar.gz \
   && tar xf /tmp/s6-overlay-amd64.tar.gz -C / \
-  && cd /usr/lib/locale \
-  && ls | grep -ve "en_CA*\|en_US*" | xargs rm -rf \
-  && cd /usr/share/locale \
-  &&  find -name '*.mo' | grep -ve "en_US*" | xargs rm \
   && rpm -e --nodeps --allmatches --noscripts \
 	`rpm -qa | grep aaa_base` \
 	`rpm -qa | grep acl | grep -v lib` \
