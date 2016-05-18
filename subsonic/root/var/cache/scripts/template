@@ -81,7 +81,7 @@ prepare_user_volume_parameters() {
     declare -a user_volumes
     echo "No existing user defined data volumes found."
     echo "Please enter any directory paths you wish to be accessible "
-	echo "from the containerized environment, one entry per line."
+    echo "from the containerized environment, one entry per line."
     echo "Enter \"done\" when finished"
     while read mediapath; do
       if [ "$mediapath" == "done" ]; then
