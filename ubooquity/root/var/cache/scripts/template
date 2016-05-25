@@ -130,7 +130,7 @@ else
     ${SUDO} docker run -it \
       --rm \
       --net=bridge \
-      -p 2022:2022 \
+      -p 2202:2202 \
       ${ENV_VARS} \
       ${VOLUMES} \
       --name=${APP_NAME} \
@@ -138,7 +138,7 @@ else
   else
     ${SUDO} docker run -d \
       --net=bridge \
-      -p 2022:2022 \
+      -p 2202:2202 \
       ${ENV_VARS} \
       ${VOLUMES} \
       --name=${APP_NAME} \

@@ -14,11 +14,11 @@ RUN zypper --gpg-auto-import-keys ref \
 	xz \
   && curl -skL https://github.com/just-containers/s6-overlay/releases/download/v${s6_overlay_version}/s6-overlay-amd64.tar.gz -o /tmp/s6-overlay-amd64.tar.gz \
   && tar xf /tmp/s6-overlay-amd64.tar.gz -C / \
-  && APP_VERSION=$(curl -k http://vaemendis.net/ubooquity/feed/rss | grep -o "<title>.*</title>" | sed -e s%"<title>\(\w\+\s\([0-9]*\.\?[0-9]*\.\?[0-9]*\.\?[0-9]*\)\).*"%"Ubooquity-\2.zip"%  -e 'tx' -e 'd' -e ':x' | head -1 ) \
+  && APP_VERSION=$(curl -s http://vaemendis.net/ubooquity/static2/download | grep Version | awk -F\& '{print $1}' | sed s%"^\s\+Version "%Ubooquity-%g) \
   && echo "$APP_VERSION" > /ubooquity.version \
-  && curl -kL http://vaemendis.net/ubooquity/downloads/$APP_VERSION -o /tmp/$APP_VERSION \
+  && curl -kL http://vaemendis.net/ubooquity/downloads/${APP_VERSION}.zip -o /tmp/${APP_VERSION}.zip \
   && mkdir -p /opt/ubooquity \
-  && unzip /tmp/$APP_VERSION -d /opt/ubooquity \
+  && unzip /tmp/${APP_VERSION}.zip -d /opt/ubooquity \
   && rpm -e --nodeps --allmatches --noscripts \
 	`rpm -qa | grep aaa_base` \
 	`rpm -qa | grep acl | grep -v lib` \
@@ -40,7 +40,6 @@ RUN zypper --gpg-auto-import-keys ref \
 	`rpm -qa | grep qrencode` \
 	`rpm -qa | grep sg3_utils` \
 	`rpm -qa | grep systemd` \
-	curl \
   && ls /usr/lib/locale | grep -ve "en_CA*\|en_US*" | awk '{if(system("[ -f "$1" ]") == 0) {print $1} }' | xargs rm -rf \
   && find /usr/share/locale -type f -name '*.mo' | grep -ve "en_US*"  | awk '{if(system("[ -f "$1" ]") == 0) {print $1} }' | xargs rm \
   && zypper cc --all \
