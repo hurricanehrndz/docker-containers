@@ -11,12 +11,14 @@ RUN zypper --gpg-auto-import-keys ref \
 	glibc-locale \
 	gnome-keyring \
 	osc \
+	python-pip \
 	python-gnomekeyring \
 	python-keyring \
 	tar \
 	timezone \
 	vim \
 	vim-data \
+  && pip install keyrings.alt \
   && curl -skL https://github.com/just-containers/s6-overlay/releases/download/v${s6_overlay_version}/s6-overlay-amd64.tar.gz -o /tmp/s6-overlay-amd64.tar.gz \
   && tar xf /tmp/s6-overlay-amd64.tar.gz -C / \
   && git clone --depth 1 https://github.com/hurricanehrndz/vim /var/cache/.vim \
