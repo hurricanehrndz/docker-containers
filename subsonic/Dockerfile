@@ -1,4 +1,4 @@
-FROM opensuse/amd64:tumbleweed
+FROM opensuse:tumbleweed
 MAINTAINER Carlos Hernandez <carlos@techbyte.ca>
 ENV LANG="en_US.UTF-8" s6_overlay_version="1.17.1.2" APP_NAME="subsonic" IMG_NAME="subsonic" TAG_NAME="latest" S6_LOGGING="0"
 
@@ -40,7 +40,6 @@ RUN zypper --non-interactive ar -f -n packman http://ftp.gwdg.de/pub/linux/misc/
 	`rpm -qa | grep qrencode` \
 	`rpm -qa | grep sg3_utils` \
 	`rpm -qa | grep systemd` \
-	curl \
   && ls /usr/lib/locale | grep -ve "en_CA*\|en_US*" | awk '{if(system("[ -f "$1" ]") == 0) {print $1} }' | xargs rm -rf \
   && find /usr/share/locale -type f -name '*.mo' | grep -ve "en_US*"  | awk '{if(system("[ -f "$1" ]") == 0) {print $1} }' | xargs rm \
   && zypper cc --all \
