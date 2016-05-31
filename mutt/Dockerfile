@@ -1,13 +1,12 @@
-FROM opensuse:tumbleweed
+FROM opensuse/amd64:tumbleweed
 MAINTAINER Carlos Hernandez <carlos@techbyte.ca>
 ENV LANG="en_US.UTF-8" s6_overlay_version="1.17.1.2" APP_NAME="mutt" IMG_NAME="mutt" TAG_NAME="latest" S6_LOGGING="1" TERM=xterm-256color
 
 RUN zypper --non-interactive addrepo http://download.opensuse.org/repositories/home:hurricanehernandez/openSUSE_Tumbleweed/home:hurricanehernandez.repo \
- && zypper --non-interactive addrepo http://download.opensuse.org/repositories/home:AndnoVember:test/openSUSE_Factory/home:AndnoVember:test.repo \
  && zypper --non-interactive addrepo http://download.opensuse.org/repositories/server:mail/openSUSE_Tumbleweed/server:mail.repo \
- && zypper --non-interactive addrepo -f -c http://download.opensuse.org/repositories/home:/namtrac:/subpixel/openSUSE_Factory/ repo-namtrac \
+ && zypper --non-interactive addrepo http://download.opensuse.org/repositories/home:AndnoVember:test/openSUSE_Factory/home:AndnoVember:test.repo \
  && zypper --gpg-auto-import-keys ref \
- && zypper --non-interactive up \
+ && zypper --non-interactive dup \
  && zypper --non-interactive in --no-recommends \
 	adwaita-icon-theme \
 	ca-certificates{,-cacert,-mozilla} \
@@ -39,7 +38,6 @@ RUN zypper --non-interactive addrepo http://download.opensuse.org/repositories/h
 	python-base \
 	python-pip \
 	python-PyYAML \
-	repo-namtrac:freetype2 \
 	tar \
 	timezone \
 	vim-data \

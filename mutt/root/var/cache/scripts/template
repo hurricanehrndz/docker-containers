@@ -50,9 +50,7 @@ cleanup_stopped_instances() {
 prepare_docker_env_parameters() {
   ENV_VARS+=" --env=APP_UID=${APP_UID}"
   ENV_VARS+=" --env=APP_GID=${APP_GID}"
-  ENV_VARS+=" --env=TZ=$(cat /etc/timezone)"
   ENV_VARS+=" --env=APP_USER=${APP_USER}"
-  ENV_VARS+=" --env=DISPLAY"
   ENV_VARS+=" --env=DBUS_SESSION_BUS_ADDRESS=unix:path=/var/run/user/$APP_UID/bus"
 
 
@@ -63,10 +61,13 @@ prepare_docker_env_parameters() {
     exit 1
   fi
 
-  if [ -f /etc/timezone ]; then
+  if [[ -f /etc/timezone ]]; then
     ENV_VARS+=" --env=TZ=$(cat /etc/timezone)"
-  else
-    [ ! -z "${TIMEZONE}" ] && ENV_VARS+=" --env=TZ=${TIMEZONE}"
+  elif [[ ! -z "${TIMEZONE}" ]]; then
+    ENV_VARS+=" --env=TZ=${TIMEZONE}"
+  elif [[ -f /etc/localtime ]]; then
+    TZ=$(ls -la /etc/localtime| awk '{print $11}' | awk -F/ '{printf("%s/%s",$5,$6)}')
+    ENV_VARS+=" --env=TZ=${TZ}"
   fi
 }
 
