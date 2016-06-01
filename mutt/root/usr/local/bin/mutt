@@ -29,7 +29,7 @@ cd $HOME
 # Invoke GnuPG-Agent the first time we login.
 GPG_TTY=$(tty)
 export GPG_TTY=$(tty)
-echo " " | gpg2 -q -r ${GPGKEY} -ae | gpg2 -q --pinentry-mode=loopback
+echo " " | gpg2 -q -r ${GPGKEY} -ae | gpg2 -q
 
 echo "Setting up mutt with secrets..."
 s6-applyuidgid -u $APP_UID -g $APP_GID python /usr/lib/muttbot/muttbot.py -c /usr/lib/muttbot/revealmuttsecrets

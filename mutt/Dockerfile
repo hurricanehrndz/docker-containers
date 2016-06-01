@@ -33,6 +33,7 @@ RUN zypper --non-interactive addrepo http://download.opensuse.org/repositories/h
 	mirage \
 	msmtp \
 	notmuch \
+	pinentry-gtk2 \
 	python \
 	python-pyinotify \
 	python-base \
@@ -61,7 +62,7 @@ RUN zypper --non-interactive addrepo http://download.opensuse.org/repositories/h
 	`rpm -qa | grep branding-openSUSE` \
 	`rpm -qa | grep cpio` \
 	`rpm -qa | grep cryptsetup` \
-	`rpm -qa | grep dbus-1` \
+	`rpm -qa | grep dbus-1 | grep -v lib` \
 	`rpm -qa | grep dracut` \
 	`rpm -qa | grep fipscheck` \
 	`rpm -qa | grep kbd` \
@@ -71,11 +72,10 @@ RUN zypper --non-interactive addrepo http://download.opensuse.org/repositories/h
 	`rpm -qa | grep openSUSE-release` \
 	`rpm -qa | grep perl` \
 	`rpm -qa | grep pigz` \
-	`rpm -qa | grep pinentry` \
 	`rpm -qa | grep pkg-config` \
 	`rpm -qa | grep qrencode` \
 	`rpm -qa | grep sg3_utils` \
-	`rpm -qa | grep systemd` \
+	`rpm -qa | grep systemd | grep -v lib` \
 	curl \
 	tar \
   && ls /usr/lib/locale | grep -ve "en_CA*\|en_US*" | awk '{if(system("[ -f "$1" ]") == 0) {print $1} }' | xargs rm -rf \
