@@ -25,7 +25,6 @@ RUN zypper --non-interactive ar -f -n packman http://ftp.gwdg.de/pub/linux/misc/
 	`rpm -qa | grep branding-openSUSE` \
 	`rpm -qa | grep cpio` \
 	`rpm -qa | grep cryptsetup` \
-	`rpm -qa | grep dbus-1` \
 	`rpm -qa | grep dracut` \
 	`rpm -qa | grep fipscheck` \
 	`rpm -qa | grep kbd` \
