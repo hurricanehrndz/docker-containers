@@ -1,0 +1,21 @@
+#!/bin/bash
+
+CURRENT_VERSION=$(cat /subsonic.version)
+UPSTREAM_VERSION=$(curl -skL https://sourceforge.net/projects/subsonic/rss |grep link|grep download|grep tar.gz|sed -n s%"\s\+<link>\([^<]*\).*"%"\1"%p|head -1|awk -F/ '{print $8}')
+
+
+if [[ "$CURRENT_VERSION" != "$UPSTREAM_VERSION"  || "$1" == "-f" ]]; then
+  echo "Stopping ${APP_NAME}..."
+  s6-svc -d /var/run/s6/services/subsonic > /dev/null 2>&1
+  echo "Updating ${APP_NAME}..."
+  curl -skL $(curl -skL https://sourceforge.net/projects/subsonic/rss |grep link|grep download|grep tar.gz|sed -n s%"\s\+<link>\([^<]*\).*"%"\1"%p|head -1|sed s%/download$%%) -o /tmp/subsonic.tar.gz
+  rm -rf /opt/subsonic
+  mkdir -p /opt/subsonic
+  tar xf /tmp/subsonic.tar.gz -C /opt/subsonic
+  echo $UPSTREAM_VERSION > /subsonic.version
+  rm -rf /var/tmp
+  echo "Starting ${APP_NAME}..."
+  s6-svc -u /var/run/s6/services/subsonic > /dev/null 2>&1
+else
+  echo "No update required."
+fi

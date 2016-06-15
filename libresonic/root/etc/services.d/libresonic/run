@@ -1,0 +1,45 @@
+#!/usr/bin/with-contenv bash
+# vim:set ft=sh sw=2 sts=2 st=2 et:
+
+APP_UID=${APP_UID:-1000}
+APP_GID=${APP_GID:-1000}
+
+APP_USER=${APP_USER:-appuser}
+KEEP_TRANSCODE=${KEEP_TRANSCODE:-"false"}
+
+LIBRESONIC_HOME=/var/libresonic
+LIBRESONIC_CONTEXT_PATH=/
+LIBRESONIC_MAX_MEMORY=${MAX_MEM:-150}
+
+# Use JAVA_HOME if set, otherwise assume java is in the path.
+JAVACMD=/usr/bin/java
+export JAVACMD=/usr/bin/java
+
+# Use system install of ffmpeg for transcoding
+if [ "$KEEP_TRANSCODE" != "false" ]; then
+  [ ! -d $LIBRESONIC_HOME/transcode ] || rm -r $LIBRESONIC_HOME/transcode
+  mkdir -p $LIBRESONIC_HOME/transcode
+  ln -s "$(command -v ffmpeg)" $LIBRESONIC/transcode/ffmpeg
+fi
+
+if [ -d "${LIBRESONIC_HOME}" ]; then
+  CURR_SID=$(stat -c"%u:%g" ${LIBRESONIC_HOME})
+  if [ "$CURR_SID" != "$APP_UID:$APP_GID" ] ; then
+    chown -R $APP_UID:$APP_GID ${LIBRESONIC_HOME}
+  fi
+fi
+
+if [ -d "${LIBRESONIC_HOME}/transcode" ]; then
+  CURR_SID=$(stat -c"%u:%g" ${LIBRESONIC_HOME}/transcode)
+  if [ "$CURR_SID" != "$APP_UID:$APP_GID" ] ; then
+    chown -R $APP_UID:$APP_GID ${LIBRESONIC_HOME}/transcode
+  fi
+fi
+
+
+cd $LIBRESONIC_HOME
+LOG=${LIBRESONIC_HOME}/libresonic_sh.log
+sed -i -e "s/^JAVA_OPTS=\"\(.*\)\"$/JAVA_OPTS=\"-Djava.awt.headless=true -Djava.net.preferIPv4Stack=true -Djava.net.preferIPv4Addresses=true -Xmx${LIBRESONIC_MAX_MEMORY}m \1\"/" /etc/tomcat/tomcat.conf
+echo "Starting Libresonic.."
+#s6-applyuidgid -u $APP_UID -g $APP_GID \
+  /usr/lib/tomcat/server start > ${LOG}
