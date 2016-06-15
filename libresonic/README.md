@@ -1,4 +1,4 @@
-![Alt text](http://www.activeobjects.no/subsonic/forum/templates/subSilver/images/logo_phpBB.gif "")
+![Alt text](https://cloud.githubusercontent.com/assets/8325573/15113675/58de20c2-15bb-11e6-9fc6-47b310d92b5d.png "")
 
 - [Introduction](#introduction)
   - [Contributing](#contributing)
