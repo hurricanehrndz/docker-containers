@@ -15,8 +15,8 @@ RUN zypper --non-interactive ar -f -n packman http://ftp.gwdg.de/pub/linux/misc/
 	timezone \
   && curl -skL https://github.com/just-containers/s6-overlay/releases/download/v${s6_overlay_version}/s6-overlay-amd64.tar.gz -o /tmp/s6-overlay-amd64.tar.gz \
   && tar xf /tmp/s6-overlay-amd64.tar.gz -C / \
-  && echo $(curl -skL https://sourceforge.net/projects/subsonic/rss |grep link|grep download|grep tar.gz|sed -n s%"\s\+<link>\([^<]*\).*"%"\1"%p|head -1|awk -F/ '{print $8}') > /subsonic.version \
-  &&  curl -skL $(curl -skL https://sourceforge.net/projects/subsonic/rss |grep link|grep download|grep tar.gz|sed -n s%"\s\+<link>\([^<]*\).*"%"\1"%p|head -1|sed s%/download$%%) -o /tmp/subsonic.tar.gz \
+  && echo $(curl -skL https://sourceforge.net/projects/subsonic/rss |grep link|grep download|grep tar.gz|grep -iv beta|sed -n s%"\s\+<link>\([^<]*\).*"%"\1"%p|head -1|awk -F/ '{print $8}') > /subsonic.version \
+  &&  curl -skL $(curl -skL https://sourceforge.net/projects/subsonic/rss |grep link|grep download|grep tar.gz|grep -iv beta|sed -n s%"\s\+<link>\([^<]*\).*"%"\1"%p|head -1|sed s%/download$%%) -o /tmp/subsonic.tar.gz \
   && mkdir -p /opt/subsonic \
   && tar xf /tmp/subsonic.tar.gz -C /opt/subsonic \
   && rpm -e --nodeps --allmatches --noscripts \
