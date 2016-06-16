@@ -47,7 +47,7 @@ for volume in "${VOLUMES[@]}"; do
     mkdir -p ${volume}
   fi
   CURR_UID=$(stat -c%u ${volume})
-  CURR_GID=$(stat -c%u ${volume})
+  CURR_GID=$(stat -c%g ${volume})
   if [ "$CURR_UID" != "$APP_UID" ] || [ "$CURR_GID" != "$APP_GID" ]; then
     chown -R $APP_UID:$APP_GID ${volume}
   fi

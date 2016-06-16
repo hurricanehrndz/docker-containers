@@ -37,10 +37,10 @@ fi
 # fix configs permissions
 chown ${APP_UID}:${APP_GID} /home/${APP_USER}
 
-VOLUMES=("/var/libresonic/" \
-  "/var/music/" \
-  "/var/playlists/" \
-  "/var/music/Podcast/")
+VOLUMES=("/config/" \
+  "/music/" \
+  "/playlists/" \
+  "/podcasts/")
 
 for volume in "${VOLUMES[@]}"; do
   if [ ! -e ${volume} ]; then

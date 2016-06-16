@@ -1,6 +1,6 @@
 FROM opensuse/amd64:tumbleweed
 MAINTAINER Carlos Hernandez <carlos@techbyte.ca>
-ENV LANG="en_US.UTF-8" s6_overlay_version="1.17.1.2" APP_NAME="libresonic" IMG_NAME="libresonic" TAG_NAME="latest" S6_LOGGING="0"
+ENV LANG="en_US.UTF-8" s6_overlay_version="1.17.1.2" APP_NAME="libresonic" IMG_NAME="libresonic" TAG_NAME="latest" S6_LOGGING="0" JETTY_RUNNER_VER=9.3.9.v20160517
 
 RUN zypper --non-interactive ar -f -n packman http://ftp.gwdg.de/pub/linux/misc/packman/suse/openSUSE_Tumbleweed/ packman \
  && zypper --gpg-auto-import-keys ref \
@@ -13,11 +13,12 @@ RUN zypper --non-interactive ar -f -n packman http://ftp.gwdg.de/pub/linux/misc/
 	packman:ffmpeg \
 	tar \
 	timezone \
-	tomcat \
   && curl -skL https://github.com/just-containers/s6-overlay/releases/download/v${s6_overlay_version}/s6-overlay-amd64.tar.gz -o /tmp/s6-overlay-amd64.tar.gz \
   && tar xf /tmp/s6-overlay-amd64.tar.gz -C / \
+	&& mkdir -p /opt/libresonic \
   && echo $(curl -skL https://github.com/Libresonic/libresonic/releases.atom | grep -e 'link.*alternate' | grep tag | sed 's#.*href=\"\(.*\)\".*#\1#g' | head -1 | xargs -I{} curl -skL https://github.com\{\} | grep 'releases/download'|sed 's#.*href=\"\(.*war\)\".*#\1#g' | awk -F/ '{print $6}') > /libresonic.version \
-  && curl -skL https://github.com/Libresonic/libresonic/releases.atom | grep -e 'link.*alternate' | grep tag | sed 's#.*href=\"\(.*\)\".*#\1#g' | head -1 | xargs -I{} curl -skL https://github.com\{\} | grep 'releases/download'|sed 's#.*href=\"\(.*war\)\".*#\1#g' | xargs -I{} curl -kL https://github.com\{\} -o /usr/share/tomcat/webapps/ROOT.war \
+  && curl -skL https://github.com/Libresonic/libresonic/releases.atom | grep -e 'link.*alternate' | grep tag | sed 's#.*href=\"\(.*\)\".*#\1#g' | head -1 | xargs -I{} curl -skL https://github.com\{\} | grep 'releases/download'|sed 's#.*href=\"\(.*war\)\".*#\1#g' | xargs -I{} curl -kL https://github.com\{\} -o /opt/libresonic/libresonic.war \
+  && curl -skL http://central.maven.org/maven2/org/eclipse/jetty/jetty-runner/$JETTY_RUNNER_VER/jetty-runner-${JETTY_RUNNER_VER}.jar -o /opt/libresonic/jetty-runner.jar \
   && rpm -e --nodeps --allmatches --noscripts \
 	`rpm -qa | grep aaa_base` \
 	`rpm -qa | grep acl | grep -v lib` \

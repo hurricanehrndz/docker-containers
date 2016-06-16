@@ -99,11 +99,11 @@ configuration and database like so:
 ```
 docker run -it --rm -v /usr/local/bin:/target \
     -e "APP_USER=username" \
-    -e "APP_CONFIG=/var/libresonic" \
+    -e "APP_CONFIG=/config" \
     hurricane/libresonic instl
 ```
 Above, change the `username` to the name of the user you wish to run the daemon
-as, and adjust `/var/libresonic` to wherever it is you wish to store your
+as, and adjust `/config` to wherever it is you wish to store your
 libresonic database and information. Please verify that `$APP_USER` is the owner
 of `$APP_CONFIG`.
 
@@ -248,10 +248,10 @@ Please read Docker documentation on [environment variables](https://docs.docker.
 
 ## Volumes:
 
-* `/var/libresonic`    - Folder to store Libresonic's log, configuration and database.
-* `/var/music`         - Default music folder.
-* `/var/music/Podcast` - Default podcast folder.
-* `/var/playlists`     - Default playlists folder.
+* `/config`    - Folder to store Libresonic's log, configuration and database.
+* `/music`     - Default music folder.
+* `/podcasts`  - Default podcast folder.
+* `/playlists` - Default playlists folder.
 
 
 # Manual Run and Installation:
@@ -260,9 +260,9 @@ Of course you can always run docker image manually. Please be aware that if you
 wish your data to remain persistent you need to provide a location for the
 `/config` volume. For example,
 ```
-docker run -d --net=host -v /*your_libresonichome_location*:/var/libresonic \
-                         -v /*your_music_folder_location*:/var/music \
-                         -v /*your_podcast_folder_location*:/var/music/Podcast \
+docker run -d --net=host -v /*your_libresonichome_location*:/config \
+                         -v /*your_music_folder_location*:/music \
+                         -v /*your_podcast_folder_location*:/podcasts \
                          -e TZ=America/Edmonton
                          --name=libresonic hurricane/libresonic
 ```

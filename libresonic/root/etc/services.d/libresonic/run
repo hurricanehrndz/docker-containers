@@ -7,19 +7,28 @@ APP_GID=${APP_GID:-1000}
 APP_USER=${APP_USER:-appuser}
 KEEP_TRANSCODE=${KEEP_TRANSCODE:-"false"}
 
-LIBRESONIC_HOME=/var/libresonic
-LIBRESONIC_CONTEXT_PATH=/
 LIBRESONIC_MAX_MEMORY=${MAX_MEM:-150}
+LIBRESONIC_HOME=/config
+LIBRESONIC_HOST=0.0.0.0
+LIBRESONIC_PORT=${HTTP_PORT:-4040}
+LIBRESONIC_CONTEXT_PATH=${CONTEXT_PATH:-/}
+LIBRESONIC_MAX_MEMORY=${MAX_MEM:-150}
+LIBRESONIC_DEFAULT_MUSIC_FOLDER=/music
+LIBRESONIC_DEFAULT_PODCAST_FOLDER=/podcasts
+LIBRESONIC_DEFAULT_PLAYLIST_FOLDER=/playlists
 
 # Use JAVA_HOME if set, otherwise assume java is in the path.
-JAVACMD=/usr/bin/java
-export JAVACMD=/usr/bin/java
+JAVA=java
+if [ -e "${JAVA_HOME}" ]
+    then
+    JAVA=${JAVA_HOME}/bin/java
+fi
 
 # Use system install of ffmpeg for transcoding
-if [ "$KEEP_TRANSCODE" != "false" ]; then
+if [ "$KEEP_TRANSCODE" == "false" ]; then
   [ ! -d $LIBRESONIC_HOME/transcode ] || rm -r $LIBRESONIC_HOME/transcode
   mkdir -p $LIBRESONIC_HOME/transcode
-  ln -s "$(command -v ffmpeg)" $LIBRESONIC/transcode/ffmpeg
+  ln -s "$(command -v ffmpeg)" $LIBRESONIC_HOME/transcode/ffmpeg
 fi
 
 if [ -d "${LIBRESONIC_HOME}" ]; then
@@ -36,10 +45,13 @@ if [ -d "${LIBRESONIC_HOME}/transcode" ]; then
   fi
 fi
 
-
-cd $LIBRESONIC_HOME
-LOG=${LIBRESONIC_HOME}/libresonic_sh.log
-sed -i -e "s/^JAVA_OPTS=\"\(.*\)\"$/JAVA_OPTS=\"-Djava.awt.headless=true -Djava.net.preferIPv4Stack=true -Djava.net.preferIPv4Addresses=true -Xmx${LIBRESONIC_MAX_MEMORY}m \1\"/" /etc/tomcat/tomcat.conf
+cd /opt/libresonic/
 echo "Starting Libresonic.."
-#s6-applyuidgid -u $APP_UID -g $APP_GID \
-  /usr/lib/tomcat/server start > ${LOG}
+s6-applyuidgid -u $APP_UID -g $APP_GID ${JAVA} \
+  -Xmx${LIBRESONIC_MAX_MEMORY}m \
+  -Dlibresonic.home=${LIBRESONIC_HOME} \
+  -Dlibresonic.defaultMusicFolder=${LIBRESONIC_DEFAULT_MUSIC_FOLDER} \
+  -Dlibresonic.defaultPodcastFolder=${LIBRESONIC_DEFAULT_PODCAST_FOLDER} \
+  -Dlibresonic.defaultPlaylistFolder=${LIBRESONIC_DEFAULT_PLAYLIST_FOLDER} \
+  -verbose:gc \
+  -jar jetty-runner.jar --port $LIBRESONIC_PORT --host $LIBRESONIC_HOST --path $LIBRESONIC_CONTEXT_PATH libresonic.war

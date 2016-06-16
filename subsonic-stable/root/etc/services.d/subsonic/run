@@ -30,10 +30,10 @@ if [ -e "${JAVA_HOME}" ]
 fi
 
 # Use system install of ffmpeg for transcoding
-if [ "$KEEP_TRANSCODE" != "false" ]; then
-  [ ! -d /subsonic/transcode ] || rm -r /subsonic/transcode
-  mkdir -p /subsonic/transcode
-  ln -s "$(command -v ffmpeg)" /subsonic/transcode/ffmpeg
+if [ "$KEEP_TRANSCODE" == "false" ]; then
+  [ ! -d ${SUBSONIC_HOME}/transcode ] || rm -r ${SUBSONIC_HOME}/transcode
+  mkdir -p ${SUBSONIC_HOME}/transcode
+  ln -s "$(command -v ffmpeg)" ${SUBSONIC_HOME}/transcode/ffmpeg
 fi
 
 if [ -d "${SUBSONIC_HOME}/transcode" ]; then

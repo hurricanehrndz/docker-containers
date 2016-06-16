@@ -19,7 +19,6 @@ RUN zypper --non-interactive addrepo http://download.opensuse.org/repositories/h
 	hicolor-icon-theme \
 	home_hurricanehernandez:mutt-kz \
 	isync \
-	java-1_9_0-openjdk-headless \
 	krb5-mini \
 	libcrypto37 \
 	libgpgme11 \
