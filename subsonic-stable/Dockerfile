@@ -38,7 +38,6 @@ RUN zypper --non-interactive ar -f -n packman http://ftp.gwdg.de/pub/linux/misc/
 	`rpm -qa | grep pkg-config` \
 	`rpm -qa | grep qrencode` \
 	`rpm -qa | grep sg3_utils` \
-	`rpm -qa | grep systemd` \
   && ls /usr/lib/locale | grep -ve "en_CA*\|en_US*" | awk '{if(system("[ -f "$1" ]") == 0) {print $1} }' | xargs rm -rf \
   && find /usr/share/locale -type f -name '*.mo' | grep -ve "en_US*"  | awk '{if(system("[ -f "$1" ]") == 0) {print $1} }' | xargs rm \
   && zypper cc --all \
