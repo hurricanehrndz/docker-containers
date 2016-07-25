@@ -87,9 +87,12 @@ prepare_docker_volume_parameters() {
   [ ! -d ~/.gnupg ] && \
     echo "Please setup GnuPG." && \
     exit 1
-  VOLUMES+=" --volume=/home/${USER}/.gnupg/S.gpg-agent:/home/${APP_USER}/.gnupg/S.gpg-agent"
+  VOLUMES+=" --volume=/run/user/${APP_UID}/gnupg/S.gpg-agent:/home/${USER}/.gnupg/S.gpg-agent"
   VOLUMES+=" --volume=/home/${USER}/.gnupg/trustdb.gpg:/home/${APP_USER}/.gnupg/trustdb.gpg"
   VOLUMES+=" --volume=/home/${USER}/.gnupg/pubring.gpg:/home/${APP_USER}/.gnupg/pubring.gpg"
+  VOLUMES+=" --volume=/home/${USER}/.gnupg/secring.gpg:/home/${APP_USER}/.gnupg/secring.gpg"
+  VOLUMES+=" --volume=/home/${USER}/.gnupg/private-keys-v1.d:/home/${APP_USER}/.gnupg/private-keys-v1.d"
+  VOLUMES+=" --volume=/home/${USER}/.gnupg/.gpg-v21-migrated:/home/${APP_USER}/.gnupg/.gpg-v21-migrated"
 
   # make mail directory if it doesn't exist
   [ ! -d ~/.mail ] && \

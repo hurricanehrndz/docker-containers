@@ -1,6 +1,7 @@
-FROM opensuse/amd64:tumbleweed
+#FROM opensuse/amd64:tumbleweed
+FROM opensuse:tumbleweed
 MAINTAINER Carlos Hernandez <carlos@techbyte.ca>
-ENV LANG="en_US.UTF-8" s6_overlay_version="1.17.1.2" APP_NAME="mutt" IMG_NAME="mutt" TAG_NAME="latest" S6_LOGGING="1" TERM=xterm-256color
+ENV LANG="en_US.UTF-8" s6_overlay_version="1.18.1.3" APP_NAME="mutt" IMG_NAME="mutt" TAG_NAME="latest" S6_LOGGING="1" TERM=xterm-256color
 
 RUN zypper --non-interactive addrepo http://download.opensuse.org/repositories/home:hurricanehernandez/openSUSE_Tumbleweed/home:hurricanehernandez.repo \
  && zypper --non-interactive addrepo http://download.opensuse.org/repositories/server:mail/openSUSE_Tumbleweed/server:mail.repo \
@@ -19,15 +20,16 @@ RUN zypper --non-interactive addrepo http://download.opensuse.org/repositories/h
 	hicolor-icon-theme \
 	home_hurricanehernandez:mutt-kz \
 	isync \
+	java-1_9_0-openjdk-headless \
 	krb5-mini \
-	libcrypto37 \
+	libcrypto38 \
 	libgpgme11 \
 	libgtk-2_0-0 \
 	libidn11 \
 	libnotmuch4 \
 	libsasl2-3 \
 	libslang2 \
-	libssl38 \
+	libssl39 \
 	libtokyocabinet9 \
 	mirage \
 	msmtp \
@@ -46,7 +48,7 @@ RUN zypper --non-interactive addrepo http://download.opensuse.org/repositories/h
 	zathura \
   && curl -skL https://github.com/just-containers/s6-overlay/releases/download/v${s6_overlay_version}/s6-overlay-amd64.tar.gz -o /tmp/s6-overlay-amd64.tar.gz \
   && tar xf /tmp/s6-overlay-amd64.tar.gz -C / \
-  && curl -skL http://sourceforge.net/projects/davmail/files/davmail/4.7.1/davmail-linux-x86_64-4.7.1-2416.tgz -o /tmp/davmail.tgz \
+  && curl -skL http://sourceforge.net/projects/davmail/files/davmail/4.7.2/davmail-linux-x86_64-4.7.2-2427.tgz -o /tmp/davmail.tgz \
   && mkdir -p /usr/lib/davmail \
   && tar xf /tmp/davmail.tgz --strip-components=1  -C /usr/lib/davmail/ \
   && git clone --depth 1 https://github.com/hurricanehrndz/vim /var/cache/.vim \
@@ -69,7 +71,6 @@ RUN zypper --non-interactive addrepo http://download.opensuse.org/repositories/h
 	`rpm -qa | grep mapper` \
 	`rpm -qa | grep ncurses-utils` \
 	`rpm -qa | grep openSUSE-release` \
-	`rpm -qa | grep perl` \
 	`rpm -qa | grep pigz` \
 	`rpm -qa | grep pkg-config` \
 	`rpm -qa | grep qrencode` \

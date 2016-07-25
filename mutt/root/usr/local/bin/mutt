@@ -17,7 +17,6 @@ while [[ $# > 0 ]]; do
 		SETUP_ONLY=true
 		;;
 		*)
-				         # unknown option
 		;;
 	esac
 	shift                # past argument or value
@@ -29,7 +28,7 @@ cd $HOME
 # Invoke GnuPG-Agent the first time we login.
 GPG_TTY=$(tty)
 export GPG_TTY=$(tty)
-echo " " | gpg2 -q -r ${GPGKEY} -ae | gpg2 -q
+s6-setuidgid ${APP_USER} /usr/local/bin/load_secretkeys
 
 echo "Setting up mutt with secrets..."
 s6-applyuidgid -u $APP_UID -g $APP_GID python /usr/lib/muttbot/muttbot.py -c /usr/lib/muttbot/revealmuttsecrets
@@ -44,7 +43,7 @@ for i in $(find $HOME -name "*davmail.properties"); do
 	mkdir -p "$s6_davmail_dir"
 
 	cat <<-EOF > $s6_davmail_run
-	#!/usr/bin/with-contenv bash
+	#!/usr/bin/execlineb -P
 
 	/usr/lib/davmail/davmail.sh $i
 
@@ -71,6 +70,7 @@ if  ! $SETUP_ONLY ; then
 	mkdir -p "$s6_sync_dir"
 
 	# create s6 service to sync mail
+  # TODO edit exclineb to be interpreter
 	cat <<-'EOF' > $s6_sync_run
 	#!/usr/bin/with-contenv bash
 	APP_UID=${APP_UID:-1000}
@@ -78,24 +78,6 @@ if  ! $SETUP_ONLY ; then
 	APP_USER=${APP_USER:-appuser}
 	HOME=/home/$APP_USER
 
-	sleep 30
-
-	logfile="/home/$APP_USER/mail-sync.log"
-
-	while true
-	do
-	if [ -f $logfile ]; then
-		logsize=$(stat -c%s $logfile)
-	else
-		logsize=0
-	fi
-	if (($logsize > 10000000)) ; then
-		[ -f $logfile.1 ] && rm -f $logfile.1 > /dev/null 2>&1
-		s6-applyuidgid -u $APP_UID -g $APP_GID mv $logfile $logfile.1 > /dev/null 2>&1
-	fi
-	s6-applyuidgid -u $APP_UID -g $APP_GID /bin/bash -c "mail-sync >>/home/$APP_USER/mail-sync.log 2>&1"
-	sleep 90
-	done
 	EOF
 
 	chmod +x $s6_sync_run
