@@ -45,7 +45,10 @@ fi
 if [ -d /home/${APP_USER}/.gnupg ]; then
   chown -R ${APP_UID}:${APP_GID} \
   /home/${APP_USER}/.gnupg
+else
+  mkdir -p /home/${APP_USER}/.gnupg
 fi
+chmod 700 /home/${APP_USER}/.gnupg
 
 # vim config
 mv /var/cache/.vim /home/${APP_USER}/

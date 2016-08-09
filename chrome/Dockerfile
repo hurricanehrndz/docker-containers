@@ -4,6 +4,10 @@ ENV LANG="en_US.UTF-8" s6_overlay_version="1.17.1.2" APP_NAME="google-chrome" IM
 
 RUN zypper --non-interactive --gpg-auto-import-keys ref \
  && zypper --non-interactive dup \
+ && zypper --non-interactive in --no-recommends curl \
+ && curl -skL https://dl.google.com/linux/linux_signing_key.pub -o /tmp/google-key.pub \
+ && rpm --import /tmp/google-key.pub \
+ && zypper --non-interactive addrepo -f http://dl.google.com/linux/chrome/rpm/stable/x86_64 google-chrome \
  && zypper --non-interactive in --no-recommends \
 	adwaita-icon-theme \
 	ca-certificates{-cacert,-mozilla} \
@@ -14,6 +18,7 @@ RUN zypper --non-interactive --gpg-auto-import-keys ref \
 	gconf2 \
 	gdouros-symbola-fonts \
 	glibc-locale \
+	google-chrome-stable \
 	google-droid-fonts \
 	hicolor-icon-theme \
 	libappindicator3-1 \
@@ -21,6 +26,9 @@ RUN zypper --non-interactive --gpg-auto-import-keys ref \
 	libcanberra-gtk2-module \
 	liberation2-fonts \
 	libexif-devel \
+	libfreetype6 \
+	libGLEW1_13 \
+	libglut3 \
 	libpango-1_0-0 \
 	libv4l1-0 \
 	libva-drm1  \
@@ -34,6 +42,7 @@ RUN zypper --non-interactive --gpg-auto-import-keys ref \
 	Mesa-libEGL1 \
 	Mesa-libGL1 \
 	Mesa-libglapi0 \
+	Mesa-libGLESv1_CM1 \
 	Mesa-libGLESv2-2 \
 	Mesa-libva \
 	mozilla-nspr \
@@ -41,20 +50,11 @@ RUN zypper --non-interactive --gpg-auto-import-keys ref \
 	noto-sans-fonts  \
 	noto-serif-fonts \
 	pulseaudio \
-	libfreetype6 \
 	tar \
-	which \
- && curl -skL https://dl.google.com/linux/linux_signing_key.pub -o /tmp/google-key.pub \
- && rpm --import /tmp/google-key.pub \
- && zypper --non-interactive addrepo -f http://dl.google.com/linux/chrome/rpm/stable/x86_64 google-chrome \
- && zypper --non-interactive --gpg-auto-import-keys ref \
- && zypper --non-interactive in --no-recommends  google-chrome-stable \
- && curl -skL https://github.com/just-containers/s6-overlay/releases/download/v${s6_overlay_version}/s6-overlay-amd64.tar.gz -o /tmp/s6-overlay-amd64.tar.gz \
+	vaapi-intel-driver \
+	xf86-video-intel \
+ && curl -kL https://github.com/just-containers/s6-overlay/releases/download/v${s6_overlay_version}/s6-overlay-amd64.tar.gz -o /tmp/s6-overlay-amd64.tar.gz \
  && tar xf /tmp/s6-overlay-amd64.tar.gz -C / \
- && cd /usr/lib/locale \
- && ls | grep -ve "en_CA*\|en_US*" | xargs rm -rf \
- && cd /usr/share/locale \
- &&  find -name '*.mo' | grep -ve "en_US*" | xargs rm \
  && rpm -e --nodeps --allmatches --noscripts \
 	`rpm -qa | grep -e "^gcc.*"` \
 	`rpm -qa | grep -e "^systemd"` \
@@ -90,10 +90,12 @@ RUN zypper --non-interactive --gpg-auto-import-keys ref \
 	`rpm -qa | grep systemd-presents` \
 	`rpm -qa | grep sysv` \
 	`rpm -qa | grep tcl` \
-	`rpm -qa | grep wicked` \
 	`rpm -qa | grep which` \
+	`rpm -qa | grep wicked-service` \
 	`rpm -qa | grep x11-tools` \
 	`rpm -qa | grep xz` \
+ && ls /usr/lib/locale | grep -ve "en_CA*\|en_US*" | awk '{if(system("[ -f "$1" ]") == 0) {print $1} }' | xargs rm -rf \
+ && find /usr/share/locale -type f -name '*.mo' | grep -ve "en_US*"  | awk '{if(system("[ -f "$1" ]") == 0) {print $1} }' | xargs rm \
  && zypper cc --all \
  && rm -rf /usr/lib64/gconv/* \
  && rm -rf /usr/share/{man,doc,info,gnome/help} \
