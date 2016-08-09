@@ -1,10 +1,8 @@
-FROM opensuse:tumbleweed
+FROM opensuse/amd64:tumbleweed
 MAINTAINER Carlos Hernandez <carlos@techbyte.ca>
 ENV LANG="en_US.UTF-8" s6_overlay_version="1.17.1.2" APP_NAME="google-chrome" IMG_NAME="google-chrome" TAG_NAME="latest" S6_LOGGING="0"
 
-RUN zypper --non-interactive addrepo -f -c http://download.opensuse.org/tumbleweed/repo/non-oss repo-non-oss \
- && zypper --non-interactive addrepo -f -c http://download.opensuse.org/update/tumbleweed repo-update \
- && zypper --non-interactive --gpg-auto-import-keys ref \
+RUN zypper --non-interactive --gpg-auto-import-keys ref \
  && zypper --non-interactive dup \
  && zypper --non-interactive in --no-recommends \
 	adwaita-icon-theme \
