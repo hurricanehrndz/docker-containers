@@ -41,7 +41,7 @@ clean:
 build:
 	@docker build --rm=true --tag=${APP_REPO}/${IMG_NAME}:${TAG_NAME} .
 
-instl uninstl: clean build
+instl uninstl: build
 	@docker run -it --rm \
 		--volume=/usr/local/bin:/target \
 		${VOLUMES} \

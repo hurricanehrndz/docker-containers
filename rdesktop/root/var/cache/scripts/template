@@ -10,7 +10,7 @@ APP_CONFIG=${APP_CONFIG:-"/home/${APP_USER}/.${APP_NAME}"}
 XSOCK=/tmp/.X11-unix
 XAUTH=/tmp/.docker.xauth
 
-( id -Gn | grep -q docker ) || [ $EUID == 0 ] || SUDO=sudo
+( id -Gn | grep -q docker ) || [[ $EUID == 0 ]] || SUDO=sudo
 
 if [[ "${APP_USER}" != "appuser" ]]; then
   APP_UID=$(getent passwd $APP_USER | awk -F":" '{print $3}')
@@ -34,8 +34,7 @@ list_options() {
 }
 
 cleanup_stopped_instances() {
-  for c in $(${SUDO} docker ps -a -q)
-  do
+  for c in $(${SUDO} docker ps -a -q); do
     image=$(${SUDO} docker inspect --format="{{.Config.Image}}" ${c})
     if [[ "${image}" == "${APP_REPO}/${IMG_NAME}:${TAG_NAME}" ]]; then
       running=$(${SUDO} docker inspect --format="{{.State.Running}}" ${c})
@@ -58,9 +57,9 @@ prepare_docker_env_parameters() {
   ENV_VARS+=" --env=APP_UID=${APP_UID}"
   ENV_VARS+=" --env=APP_GID=${APP_GID}"
   ENV_VARS+=" --env=APP_USER=${APP_USER}"
-  if [ -f /etc/timezone ]; then
+  if [[ -f /etc/timezone ]]; then
     ENV_VARS+=" --env=TZ=$(cat /etc/timezone)"
-  elif [ ! -z "${TIMEZONE}" ]; then
+  elif [[ ! -z "${TIMEZONE}" ]]; then
     ENV_VARS+=" --env=TZ=${TIMEZONE}"
   elif [[ -f /etc/localtime ]]; then
     TZ=$(ls -la /etc/localtime| awk '{print $11}' | awk -F/ '{printf("%s/%s",$5,$6)}')
@@ -83,10 +82,15 @@ prepare_docker_volume_display_parameters() {
 
 prog=$(basename $0)
 if [[ ${prog} == "${APP_NAME}" ]]; then
-  [ "${1}" == "bash" ] && \
-    prog=bash && \
-    shift
-  [[ "${1}" == "help" ]] && list_options && exit 1
+  for arg in "$@"; do
+    if [[ "$arg" == "bash" ]]; then
+      prog=$arg
+      break
+    fi
+    if [[ "$arg" == "help" ]]; then
+      list_options && exit 1
+    fi
+  done
 fi
 
 cleanup_stopped_instances
@@ -107,7 +111,7 @@ else
       ${ENV_VARS} \
       ${VOLUMES} \
       --name=${APP_NAME} \
-      ${APP_REPO}/${IMG_NAME}:${TAG_NAME} ${prog} $@
+      ${APP_REPO}/${IMG_NAME}:${TAG_NAME} ${prog}
   else
     ${SUDO} docker run -d \
       --net=host \
