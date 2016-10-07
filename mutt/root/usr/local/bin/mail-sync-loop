@@ -13,8 +13,8 @@ else
 fi
 if (($logsize > 10000000)) ; then
   [ -f $logfile.1 ] && rm -f $logfile.1 > /dev/null 2>&1
-  s6-applyuidgid -u $APP_UID -g $APP_GID mv $logfile $logfile.1 > /dev/null 2>&1
+  mv $logfile $logfile.1 > /dev/null 2>&1
 fi
-s6-applyuidgid -u $APP_UID -g $APP_GID /bin/bash -c "mail-sync >>/home/$APP_USER/mail-sync.log 2>&1"
+mail-sync >>/home/$APP_USER/mail-sync.log 2>&1
 sleep 90
 done

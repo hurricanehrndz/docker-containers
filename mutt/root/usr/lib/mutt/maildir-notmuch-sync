@@ -5,7 +5,7 @@
 #
 # a script to sync up maildir folders with a cloud account using isync.
 # Additionally, it will sync up maildir folders (and thus gmail labels)
-# and notmuch tags via
+# with notmuch tags
 #
 # Ethan Schoonover / es@ethanschoonover / @ethanschoonover
 # Updated by: Carlos Hernandez / hurricanehrndz / carlos@techbyte.ca
@@ -360,7 +360,6 @@ Notmuch_State_To_Maildir__Move_To_Maildir ()
                     AND tag:"$THIS_ACCOUNT_NAME" \
                     AND path:"$THIS_ACCOUNT_NAME/**" \
                     NOT folder:"$THIS_NOTMUCH_FOLDER" \
-                    NOT folder:"$THIS_ACCOUNT_NAME/$TRASH" \
                     NOT tag:"$NEW_TAG" \
                     )"
 
@@ -429,9 +428,7 @@ Notmuch_State_To_Maildir__Remove_From_Maildir ()
                     AND tag:"$THIS_ACCOUNT_NAME" \
                     AND path:"$THIS_ACCOUNT_NAME/**" \
                     NOT tag:"$THIS_NOTMUCH_TAG" \
-                    NOT tag:"$NEW_TAG" \
-                    NOT folder:"$THIS_ACCOUNT_NAME/$TRASH" \
-                    )"
+                    NOT tag:"$NEW_TAG")"
 
   for THIS_MESSAGE_ID in $THESE_MESSAGE_IDS_TO_REMOVE; do
     local THIS_MESSAGE_PATH="$(notmuch search --output=files "$THIS_MESSAGE_ID" | \
@@ -522,8 +519,7 @@ Maildir_State_To_Notmuch__Remove_Tags_From_Notmuch ()
   local THIS_NOTMUCH_TAG="$(Notmuch_Tag_From_Full_Path $THIS_MAILDIR_FULL_PATH)"
   local THIS_NOTMUCH_QUERY="tag:\"$THIS_NOTMUCH_TAG\" \
                 AND path:\"$THIS_ACCOUNT_NAME/**\" \
-                NOT folder:\"$THIS_NOTMUCH_FOLDER\" \
-                NOT folder:\"$THIS_ACCOUNT_NAME/$TRASH\""
+                NOT folder:\"$THIS_NOTMUCH_FOLDER\""
   local THIS_COUNT="$(notmuch count $THIS_NOTMUCH_QUERY)"
 
   $DRYRUN || notmuch tag -"$THIS_NOTMUCH_TAG" -- $THIS_NOTMUCH_QUERY

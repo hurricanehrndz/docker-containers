@@ -147,22 +147,22 @@ prepare_docker_volume_display_parameters
 if [[ "$prog" == "setup_goobook" ]]; then
   if [[ ${running} != true ]]; then
     ${SUDO} docker run -it \
-    ${ENV_VARS} \
-    ${VOLUMES} \
-    --name=${APP_NAME} \
-    ${APP_REPO}/${IMG_NAME}:${TAG_NAME} ${prog}
+      ${ENV_VARS} \
+      ${VOLUMES} \
+      --name=${APP_NAME} \
+      ${APP_REPO}/${IMG_NAME}:${TAG_NAME} ${prog}
   else
     ${SUDO} docker exec -it \
-    ${APP_NAME} \
-    ${prog}
+      ${APP_NAME} \
+      ${prog}
   fi
   ${SUDO} docker cp ${APP_NAME}:/home/$APP_USER/.goobook_auth.json /home/$USER/
 else
   echo "Starting ${prog}..."
   ${SUDO} docker run -it \
-  --rm \
-  ${ENV_VARS} \
-  ${VOLUMES} \
-  --name=${APP_NAME} \
-  ${APP_REPO}/${IMG_NAME}:${TAG_NAME} ${prog} $@
+    --rm \
+    ${ENV_VARS} \
+    ${VOLUMES} \
+    --name=${APP_NAME} \
+    ${APP_REPO}/${IMG_NAME}:${TAG_NAME} ${prog} $@
 fi

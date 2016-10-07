@@ -1,13 +1,18 @@
 # Sidebar Patch --------------------------------------
+set mail_check_stats
 set sidebar_divider_char   = '│'
 set sidebar_visible = yes
 set sidebar_width   = 30
 set sidebar_short_path = yes
-set sidebar_refresh_time = 10
+set sidebar_folder_indent = yes
 set sidebar_sort_method = unsorted
+set sidebar_new_mail_only = no
+set sidebar_format = "%B%* %?N?%N/?%S"
+
 color sidebar_new green default
 
 # Sidebar Navigation ---------------------------------
 bind index,pager <down>   sidebar-next
 bind index,pager <up>     sidebar-prev
 bind index,pager <right>  sidebar-open
+

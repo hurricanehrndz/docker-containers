@@ -160,7 +160,7 @@ source ~/.mutt/muttrc.formats
 # hooks
 # ------------------------------------------------------------------------------
 # general folder hooks
-#set uncollapse_new=yes
+unset collapse_unread
 folder-hook . 'push <collapse-all>'    # collapse threads on folder entry
 
 # source the formats config file regularly to make sure that the relative dates

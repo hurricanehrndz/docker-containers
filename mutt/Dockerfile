@@ -1,11 +1,8 @@
-#FROM opensuse/amd64:tumbleweed
-FROM opensuse:tumbleweed
+FROM opensuse/amd64:tumbleweed
 MAINTAINER Carlos Hernandez <carlos@techbyte.ca>
 ENV LANG="en_US.UTF-8" s6_overlay_version="1.18.1.3" APP_NAME="mutt" IMG_NAME="mutt" TAG_NAME="latest" S6_LOGGING="1" TERM=xterm-256color
 
-RUN zypper --non-interactive addrepo http://download.opensuse.org/repositories/home:hurricanehernandez/openSUSE_Tumbleweed/home:hurricanehernandez.repo \
- && zypper --non-interactive addrepo http://download.opensuse.org/repositories/server:mail/openSUSE_Tumbleweed/server:mail.repo \
- && zypper --non-interactive addrepo http://download.opensuse.org/repositories/home:AndnoVember:test/openSUSE_Factory/home:AndnoVember:test.repo \
+RUN zypper --non-interactive ar -f -n Personal-Repo http://download.opensuse.org/repositories/home:/hurricanehernandez/openSUSE_Tumbleweed/ repo-hurricane \
  && zypper --gpg-auto-import-keys ref \
  && zypper --non-interactive dup \
  && zypper --non-interactive in --no-recommends \
@@ -17,11 +14,12 @@ RUN zypper --non-interactive addrepo http://download.opensuse.org/repositories/h
 	git-core \
 	glibc-i18ndata \
 	glibc-locale \
+	gnutls \
 	hicolor-icon-theme \
-	home_hurricanehernandez:mutt-kz \
 	isync \
 	java-1_9_0-openjdk-headless \
 	krb5-mini \
+	kyotocabinet \
 	libcrypto38 \
 	libgpgme11 \
 	libgtk-2_0-0 \
@@ -29,17 +27,15 @@ RUN zypper --non-interactive addrepo http://download.opensuse.org/repositories/h
 	libnotmuch4 \
 	libsasl2-3 \
 	libslang2 \
-	libssl39 \
-	libtokyocabinet9 \
-	mirage \
 	msmtp \
 	notmuch \
 	pinentry-gtk2 \
 	python \
-	python-pyinotify \
 	python-base \
 	python-pip \
+	python-pyinotify \
 	python-PyYAML \
+	repo-hurricane:neomutt \
 	tar \
 	timezone \
 	vim-data \

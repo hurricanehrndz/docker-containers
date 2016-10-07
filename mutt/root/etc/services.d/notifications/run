@@ -1,7 +1,11 @@
-#!/usr/bin/with-contenv bash
-#
-APP_UID=${APP_UID:-1000}
-APP_GID=${APP_GID:-1000}
-APP_USER=${APP_USER:-appuser}
+#!/usr/bin/execlineb -P
 
-s6-applyuidgid -u $APP_UID -g $APP_GID /usr/local/bin/email_notifier.py
+with-contenv
+multisubstitute
+{
+  import -D1000 APP_UID
+  import -D1000 APP_GID
+  import -D \"appuser\" APP_USER
+}
+
+s6-applyuidgid -u ${APP_UID} -g ${APP_GID} /usr/local/bin/email_notifier.py

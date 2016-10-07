@@ -13,4 +13,3 @@ macro index,pager u "<modify-labels-then-hide>+archive +INBOX -trash<enter><sync
 macro index,pager ! "<modify-labels-then-hide>-INBOX -archive -unread +spam<enter><sync-mailbox>" "Report spam"
 macro index,pager + "<modify-labels>+important<enter><sync-mailbox>" "Mark as Important"
 macro index,pager * "<modify-labels>+flagged<enter><sync-mailbox>" "Star Message"
-

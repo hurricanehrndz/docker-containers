@@ -28,10 +28,9 @@ cd $HOME
 # Invoke GnuPG-Agent the first time we login.
 GPG_TTY=$(tty)
 export GPG_TTY=$(tty)
-s6-setuidgid ${APP_USER} /usr/local/bin/load_secretkeys
-
-echo "Setting up mutt with secrets..."
+echo "Getting mutt secrets..."
 s6-applyuidgid -u $APP_UID -g $APP_GID python /usr/lib/muttbot/muttbot.py -c /usr/lib/muttbot/revealmuttsecrets
+echo "Configuring mutt..."
 
 # Start additional services
 for i in $(find $HOME -name "*davmail.properties"); do
@@ -42,12 +41,19 @@ for i in $(find $HOME -name "*davmail.properties"); do
   s6_davmail_run=${s6_davmail_dir}/run
   mkdir -p "$s6_davmail_dir"
 
-  cat <<-EOF > $s6_davmail_run
-  #!/usr/bin/execlineb -P
+  {
+    echo "#!/usr/bin/execlineb -P"
+    echo ""
+    echo "with-contenv"
+    echo "multisubstitute"
+    echo "{"
+    echo "  import -D1000 APP_UID"
+    echo "  import -D1000 APP_GID"
+    echo "  import -D \"appuser\" APP_USER"
+    echo "}"
+    echo "s6-applyuidgid -u ${APP_UID} -g ${APP_GID} /usr/lib/davmail/davmail.sh $i"
+  } > $s6_davmail_run
 
-  s6-applyuidgid -u $APP_UID -g $APP_GID /usr/lib/davmail/davmail.sh $i
-
-  EOF
   chmod +x $s6_davmail_run
   s6-svscanctl -a /var/run/s6/services
   s6-svc -u $s6_davmail_dir
@@ -69,24 +75,27 @@ if  ! $SETUP_ONLY ; then
 
   mkdir -p "$s6_sync_dir"
 
-  # create s6 service to sync mail
-  # TODO edit exclineb to be interpreter
-  cat <<-'EOF' > $s6_sync_run
-  #!/usr/bin/with-contenv bash
-  APP_UID=${APP_UID:-1000}
-  APP_GID=${APP_GID:-1000}
-  APP_USER=${APP_USER:-appuser}
-  HOME=/home/$APP_USER
-
-  EOF
+  # s6 service to sync mail
+  {
+    echo "#!/usr/bin/execlineb -P"
+    echo ""
+    echo "with-contenv"
+    echo "multisubstitute"
+    echo "{"
+    echo "  import -D1000 APP_UID"
+    echo "  import -D1000 APP_GID"
+    echo "  import -D \"appuser\" APP_USER"
+    echo "}"
+    echo "s6-applyuidgid -u ${APP_UID} -g ${APP_GID} mail-sync-loop"
+  } > $s6_sync_run
 
   chmod +x $s6_sync_run
 
   echo "Starting mutt..."
   s6-svscanctl -a /var/run/s6/services
   s6-svc -u $s6_sync_dir
-  cd /home/$APP_USER/Downloads
-  s6-applyuidgid -u $APP_UID -g $APP_GID /usr/bin/mutt
+  cd /home/${APP_USER}/Downloads
+  s6-applyuidgid -u ${APP_UID} -g ${APP_GID} /usr/bin/mutt
 fi
 
 
