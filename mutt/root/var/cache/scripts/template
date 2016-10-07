@@ -10,9 +10,9 @@ APP_CONFIG=${APP_CONFIG:-"/home/${APP_USER}/.${APP_NAME}"}
 XSOCK=/tmp/.X11-unix
 XAUTH=/tmp/.docker.xauth
 
-( id -Gn | grep -q docker ) || [ $EUID == 0 ] || SUDO=sudo
+( id -Gn | grep -q docker ) || [[ $EUID == 0 ]] || SUDO=sudo
 
-if [ ${APP_USER} != "appuser" ]; then
+if [[ ${APP_USER} != "appuser" ]]; then
   APP_UID=$(getent passwd $APP_USER | awk -F":" '{print $3}')
   APP_GID=$(getent passwd $APP_USER | awk -F":" '{print $4}')
 else
@@ -20,7 +20,7 @@ else
   APP_GID=$(id -g)
 fi
 
-if [ ${APP_USER} == "nobody" ]; then
+if [[ ${APP_USER} == "nobody" ]]; then
   APP_USER="appuser"
 fi
 
@@ -78,13 +78,13 @@ prepare_docker_env_display_parameters() {
 
 prepare_docker_volume_parameters() {
   # check to see if secrets exits
-  [ ! -f ~/.muttsecrets ] && \
+  [[ ! -f ~/.muttsecrets ]] && \
     echo "Error: file .muttsecrets is missing." && \
     exit 1
   VOLUMES+=" --volume=/home/${USER}/.muttsecrets:/home/${APP_USER}/.muttsecrets:ro"
 
   # check to see if user has gnupg
-  [ ! -d ~/.gnupg ] && \
+  [[ ! -d ~/.gnupg ]] && \
     echo "Please setup GnuPG." && \
     exit 1
   VOLUMES+=" --volume=/run/user/${APP_UID}/gnupg/S.gpg-agent:/home/${USER}/.gnupg/S.gpg-agent"
@@ -95,25 +95,25 @@ prepare_docker_volume_parameters() {
   VOLUMES+=" --volume=/home/${USER}/.gnupg/.gpg-v21-migrated:/home/${APP_USER}/.gnupg/.gpg-v21-migrated"
 
   # make mail directory if it doesn't exist
-  [ ! -d ~/.mail ] && \
+  [[ ! -d ~/.mail ]] && \
     echo "Making mail directory." && \
     mkdir -p ~/.mail
   VOLUMES+=" --volume=/home/${USER}/.mail:/home/${APP_USER}/.mail"
 
   # make mutt directory if it doesn't exist
-  [ ! -d ~/.mutt/cache ] && \
+  [[ ! -d ~/.mutt/cache ]] && \
     echo "Making mutt cache directory." && \
     mkdir -p ~/.mutt/cache
   VOLUMES+=" --volume=/home/${USER}/.mutt/cache:/home/${APP_USER}/.mutt/cache"
 
   # make downloads directory if doesn't exist
-  [ ! -d ~/Downloads ] && \
+  [[ ! -d ~/Downloads ]] && \
     echo "Making Downloads directory." && \
     mkdir -p ~/Downloads
   VOLUMES+=" --volume=/home/${USER}/Downloads:/home/${APP_USER}/Downloads"
 
-  [ -f ~/.goobook_auth.json ] && \
-	  VOLUMES+=" --volume=/home/${USER}/.goobook_auth.json:/home/${APP_USER}/.goobook_auth.json"
+  [[ -f ~/.goobook_auth.json ]] && \
+    VOLUMES+=" --volume=/home/${USER}/.goobook_auth.json:/home/${APP_USER}/.goobook_auth.json"
 }
 
 prepare_docker_volume_display_parameters() {
@@ -129,10 +129,10 @@ prepare_docker_volume_display_parameters() {
 
 prog=$(basename $0)
 if [[ ${prog} == "${APP_NAME}" ]]; then
-  [ "${1}" == "bash" ] && \
+  [[ "${1}" == "bash" ]] && \
     prog=${1} && \
     shift
-  [ "${1}" == "setup_goobook" ] && \
+  [[ "${1}" == "setup_goobook" ]] && \
     prog=${1} && \
     shift
   [[ "${1}" == "help" ]] && list_options && exit 1
@@ -144,26 +144,25 @@ prepare_docker_env_display_parameters
 prepare_docker_volume_parameters
 prepare_docker_volume_display_parameters
 
-if [ "$prog" == "setup_goobook" ]; then
-	if [[ ${running} != true ]]; then
-		${SUDO} docker run -it \
-		${ENV_VARS} \
-		${VOLUMES} \
-		--name=${APP_NAME} \
-		${APP_REPO}/${IMG_NAME}:${TAG_NAME} ${prog}
-	else
-		${SUDO} docker exec -it \
-		${APP_NAME} \
-		${prog}
-	fi
-
-	${SUDO} docker cp ${APP_NAME}:/home/$APP_USER/.goobook_auth.json /home/$USER/
+if [[ "$prog" == "setup_goobook" ]]; then
+  if [[ ${running} != true ]]; then
+    ${SUDO} docker run -it \
+    ${ENV_VARS} \
+    ${VOLUMES} \
+    --name=${APP_NAME} \
+    ${APP_REPO}/${IMG_NAME}:${TAG_NAME} ${prog}
+  else
+    ${SUDO} docker exec -it \
+    ${APP_NAME} \
+    ${prog}
+  fi
+  ${SUDO} docker cp ${APP_NAME}:/home/$APP_USER/.goobook_auth.json /home/$USER/
 else
-	echo "Starting ${prog}..."
-	${SUDO} docker run -it \
-	--rm \
-	${ENV_VARS} \
-	${VOLUMES} \
-	--name=${APP_NAME} \
-	${APP_REPO}/${IMG_NAME}:${TAG_NAME} ${prog} $@
+  echo "Starting ${prog}..."
+  ${SUDO} docker run -it \
+  --rm \
+  ${ENV_VARS} \
+  ${VOLUMES} \
+  --name=${APP_NAME} \
+  ${APP_REPO}/${IMG_NAME}:${TAG_NAME} ${prog} $@
 fi

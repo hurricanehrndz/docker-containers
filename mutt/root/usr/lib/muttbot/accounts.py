@@ -238,9 +238,9 @@ class AccountsSetuper(object):
         self._gmail_remote_folders=['[Gmail]/Trash', 'INBOX', '[Gmail]/Drafts', '[Gmail]/Sent Mail', '[Gmail]/Important', '[Gmail]/Starred', '[Gmail]/All Mail', '[Gmail]/Spam']
         self._gmail_local_folders=['trash', 'INBOX', 'drafts', 'sent', 'important', 'flagged',  'archive', 'spam']
         self._gmail_ignore_folders=[]
-        self._exchange_remote_folders=['Deleted Items', 'INBOX', 'Drafts', 'Sent', 'Junk']
-        self._exchange_local_folders=['trash', 'INBOX', 'drafts', 'sent', 'spam']
-        self._exchange_ignore_folders=['"Unsent Messages"', '"Your feeds"', '"Sync Issues*"', 'Trash']
+        self._exchange_remote_folders=['Trash', 'Deleted Items', 'INBOX', 'Drafts', 'Sent', 'Junk']
+        self._exchange_local_folders=['trash', 'deleted', 'INBOX', 'drafts', 'sent', 'spam']
+        self._exchange_ignore_folders=['"Unsent Messages"', '"Your feeds"', '"Sync Issues*"']
         self._home_dir = os.path.expanduser('~')
         self._mail_dir = os.path.join(self._home_dir, '.mail')
         self._mutt_dir = os.path.join(self._home_dir, '.mutt/')
