@@ -19,9 +19,8 @@ if [[ ! -f "${APP_CONFIG}/configs/znc.conf" ]]; then
   # setup random password for default admin
   echo "Generating random password..."
   RANDOM_PASS=$(date +%s | sha256sum | base64 | cut -c1-32 | head -1)
-  ZNC_MAKEPASS_OUTPUT=$(new_znc_pass $RANDOM_PASS)
-  HASH=$(echo $ZNC_MAKEPASS_OUTPUT | awk -F '{print $9}' | sed -e s%" Hash = "%%g)
-  SALT=$(echo $ZNC_MAKEPASS_OUTPUT | awk -F '{print $10}' | sed -e s%" Salt = "%%g)
+  SALT="$(dd if=/dev/urandom bs=16c count=1 | md5sum | awk '{print $1}')"
+  HASH="$(echo -n ${ZNC_PASS}${ZNC_SALT} | sha256sum | awk '{print $1}')"
   sed -i -e s%"\(\s\+Pass\s\+=\).*"%"\1 sha256#${HASH}#${SALT}#"% ${APP_CONFIG}/configs/znc.conf
   echo "Admin password is ${RANDOM_PASS}"
   if [[ -n "$znc_user" ]] && [[ -n "$znc_nick" ]] && [[ -n "$znc_name" ]]; then
