@@ -1,0 +1,14 @@
+#!/usr/bin/execlineb -P
+# vim:set ft=sh sw=2 sts=2 st=2 et:
+
+with-contenv
+multisubstitute
+{
+  import -D1000 APP_UID
+  import -D1000 APP_GID
+  import -D"appuser" APP_USER
+  import -D"/config" APP_CONFIG
+}
+s6-mkdir -p /run/bitlbee
+chown -R ${APP_UID}:${APP_GID} /run/bitlbee
+s6-applyuidgid -u ${APP_UID} -g ${APP_GID} bitlbee -c ${APP_CONFIG}/bitlbee/bitlbee.conf -n -v -D

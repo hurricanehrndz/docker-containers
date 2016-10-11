@@ -1,0 +1,6 @@
+[settings]
+User = bitlbee
+AuthMode = Closed
+AuthPassword =
+ConfigDir = /config/bitlbee/accounts
+DaemonPort = 6667

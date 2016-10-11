@@ -1,19 +1,53 @@
-<Listener l>
-	Port = 6660
-	IPv4 = true
-	IPv6 = false
-	SSL = true
-</Listener>
+AnonIPLimit = 10
+ConnectDelay = 5
 LoadModule = webadmin
 LoadModule = partyline
+LoadModule = fail2ban 30 3
+MaxBufferSize = 1000
+ProtectWebSessions = true
+SSLCertFile = /config/configs/znc.pem
+ServerThrottle = 30
+
+<Listener l>
+  Port = 6660
+  IPv4 = true
+  IPv6 = false
+  SSL = true
+</Listener>
 
 <User admin>
-	Pass       = none
-	Admin      = true
-	Nick       = admin
-	AltNick    = admin_
-	Ident      = admin
-	RealName   = Temorary Admin
-	LoadModule = chansaver
-	LoadModule = controlpanel
+  Admin      = true
+  AltNick    = admin_
+  Ident      = admin
+  Nick       = admin
+  Pass       = none
+  RealName   = Temorary Admin
+  AppendTimestamp = false
+  AutoClearChanBuffer = false
+  Buffer = 1000
+  ChanModes = +stn
+  DenyLoadMod = false
+  DenySetBindHost = false
+  JoinTries = 3
+  LoadModule = chansaver
+  LoadModule = clientaway
+  LoadModule = controlpanel
+  LoadModule = perform
+  LoadModule = push
+  LoadModule = sasl
+  LoadModule = webadmin
+  MaxJoins = 3
+  PrependTimestamp = true
+  QuitMsg = Goodbye
+  StatusPrefix = *
+
+    <Network bitlbee>
+        FloodBurst = 4
+        FloodRate = 1.00
+        IRCConnectEnabled = true
+        LoadModule = simple_away
+        Server = localhost 6667 BITLBEE_PASS
+        <Chan &bitlbee>
+        </Chan>
+    </Network>
 </User>

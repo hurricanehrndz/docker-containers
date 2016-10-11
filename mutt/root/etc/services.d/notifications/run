@@ -5,7 +5,7 @@ multisubstitute
 {
   import -D1000 APP_UID
   import -D1000 APP_GID
-  import -D \"appuser\" APP_USER
+  import -D "appuser" APP_USER
 }
 
 s6-applyuidgid -u ${APP_UID} -g ${APP_GID} /usr/local/bin/email_notifier.py
