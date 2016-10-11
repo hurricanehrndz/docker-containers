@@ -1,5 +1,0 @@
-#!/bin/bash
-
-/etc/cont-init.d/01-app_user-onetime
-
-$@

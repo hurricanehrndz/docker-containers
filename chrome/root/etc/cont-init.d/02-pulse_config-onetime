@@ -1,8 +1,0 @@
-#!/usr/bin/with-contenv bash
-# vim:set ft=sh sw=2 sts=2 st=2 et:
-
-# Pulse edit for version 7.0 and up
-sed -i -e s%"\(load-module module-native-protocol-unix\).*$"%"\1 srbchannel=no"% /etc/pulse/default.pa
-echo "autospawn = no" >> /etc/pulse/client.conf
-echo "daemon-binary = /bin/true" >> /etc/pulse/client.conf
-echo "cookie-file = /home/${APP_USER}/.pulse-cookie" >> /etc/pulse/client.conf
