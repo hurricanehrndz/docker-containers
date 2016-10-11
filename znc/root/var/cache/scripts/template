@@ -99,14 +99,14 @@ else
   echo "Starting ${prog}..."
   if [[ "${prog}" != "${APP_NAME}" ]]; then
     ${SUDO} docker run -it \
-      -p 6660:6660 \
+      -p 5000:5000 \
       ${ENV_VARS} \
       ${VOLUMES} \
       --name=${APP_NAME} \
       ${APP_REPO}/${IMG_NAME}:${TAG_NAME} ${prog} $@
   else
     ${SUDO} docker run -d \
-      -p 6660:6660 \
+      -p 5000:5000 \
       ${ENV_VARS} \
       ${VOLUMES} \
       --name=${APP_NAME} \

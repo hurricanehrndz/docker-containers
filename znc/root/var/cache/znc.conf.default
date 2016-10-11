@@ -9,7 +9,7 @@ SSLCertFile = /config/configs/znc.pem
 ServerThrottle = 30
 
 <Listener l>
-  Port = 6660
+  Port = 5000
   IPv4 = true
   IPv6 = false
   SSL = true
