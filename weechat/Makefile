@@ -1,7 +1,7 @@
 all: build
 
-APP_NAME="znc"
-IMG_NAME="znc"
+APP_NAME="weechat"
+IMG_NAME="weechat"
 TAG_NAME="latest"
 
 ifndef APP_REPO
@@ -14,7 +14,7 @@ ENV_VARS= \
 	--env="APP_UID=$(shell id -u)" \
 	--env="APP_GID=$(shell id -g)" \
 	--env="IMG_NAME=${IMG_NAME}" \
-	--env="TAG_NAME=${TAG_NAME}"
+	--env="TAG_NAME=${TAG_NAME}" \
 
 help:
 	@echo ""
