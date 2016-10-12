@@ -1,6 +1,6 @@
 FROM opensuse/amd64:tumbleweed
 MAINTAINER Carlos Hernandez <carlos@techbyte.ca>
-ENV LANG="en_US.UTF-8" s6_overlay_version="1.18.1.5" APP_NAME="weechat" IMG_NAME="weechat" TAG_NAME="latest" S6_LOGGING="1" TERM=screen-256color
+ENV LANG="en_US.UTF-8" s6_overlay_version="1.18.1.5" APP_NAME="weechat" IMG_NAME="weechat" TAG_NAME="latest" S6_LOGGING="1" TERM=xterm-256color
 
 RUN zypper --gpg-auto-import-keys ref \
  && zypper --non-interactive up \
