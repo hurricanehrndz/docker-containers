@@ -16,30 +16,29 @@ ServerThrottle = 30
 </Listener>
 
 <User admin>
-  Admin      = true
-  AltNick    = admin_
-  Ident      = admin
-  Nick       = admin
-  Pass       = none
-  RealName   = Temorary Admin
-  AppendTimestamp = false
-  AutoClearChanBuffer = false
-  Buffer = 1000
-  ChanModes = +stn
-  DenyLoadMod = false
-  DenySetBindHost = false
-  JoinTries = 3
-  LoadModule = chansaver
-  LoadModule = clientaway
-  LoadModule = controlpanel
-  LoadModule = perform
-  LoadModule = push
-  LoadModule = sasl
-  LoadModule = webadmin
-  MaxJoins = 3
-  PrependTimestamp = true
-  QuitMsg = Goodbye
-  StatusPrefix = *
+    Admin      = true
+    AltNick    = admin_
+    Ident      = admin
+    Nick       = admin
+    RealName   = Temorary Admin
+    AppendTimestamp = false
+    AutoClearChanBuffer = false
+    Buffer = 1000
+    ChanModes = +stn
+    DenyLoadMod = false
+    DenySetBindHost = false
+    JoinTries = 3
+    LoadModule = chansaver
+    LoadModule = clientaway
+    LoadModule = controlpanel
+    LoadModule = perform
+    LoadModule = push
+    LoadModule = sasl
+    LoadModule = webadmin
+    MaxJoins = 3
+    PrependTimestamp = true
+    QuitMsg = Goodbye
+    StatusPrefix = *
 
     <Network bitlbee>
         FloodBurst = 4
@@ -50,4 +49,9 @@ ServerThrottle = 30
         <Chan &bitlbee>
         </Chan>
     </Network>
+    <Pass password>
+        Hash = none
+        Method = sha256
+        Salt = none
+    </Pass>
 </User>
