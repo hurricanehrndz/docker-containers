@@ -9,4 +9,4 @@ multisubstitute
   import -D"appuser" APP_USER
   import -D"/config" APP_CONFIG
 }
-s6-applyuidgid -u ${APP_UID} -g ${APP_GID} bitlbee -c ${APP_CONFIG}/bitlbee/bitlbee.conf -n -v -D
+s6-applyuidgid -u ${APP_UID} -g ${APP_GID} bitlbee -c ${APP_CONFIG}/bitlbee/bitlbee.conf -F
