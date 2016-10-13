@@ -32,6 +32,7 @@ install_service() {
   sed -i -e s%"/IMG_NAME"%"/${IMG_NAME}"%1 /target/${APP_NAME}.service
   sed -i -e s%"APP_NAME"%"${APP_NAME}"%1 /target/${APP_NAME}.service
   sed -i -e s%"APP_REPO"%"${APP_REPO}"%1 /target/${APP_NAME}.service
+  sed -i -e s%"APP_USER"%"${APP_USER}"%1 /target/${APP_NAME}.service
   echo "Please run: sudo systemctl daemon-reload"
   echo "To start run: sudo systemctl start ${APP_NAME}"
 }

@@ -86,10 +86,11 @@ prepare_docker_volume_parameters() {
 
 prog=$(basename $0)
 if [[ ${prog} == "${APP_NAME}" ]]; then
+  prog=""
   [[ "${1}" == "bash" ]] && \
-    RUN_MODE="-it" &&  prog=bash &&  shift
+    RUN_MODE="-it" &&  prog="bash" &&  shift
   [[ "${1}" == "service" ]] && \
-    RUN_MODE="-a" && shift
+    RUN_MODE="" && shift
   [[ "${1}" == "help" ]] && list_options && exit 1
 fi
 
