@@ -1,0 +1,5 @@
+#!/usr/bin/execlineb -S1
+# vim:set ft=sh sw=2 sts=2 st=2 et:
+
+if { s6-test ${1} -eq 256 }
+killall bitlbee

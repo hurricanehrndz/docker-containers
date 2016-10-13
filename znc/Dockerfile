@@ -10,7 +10,6 @@ RUN zypper --non-interactive ar -f -n Personal-Repo http://download.opensuse.org
 	bitlbee \
 	ca-certificates{-cacert,-mozilla} \
 	curl \
-	expect \
 	gcc-c++ \
 	glibc-locale \
 	libicu-devel \
@@ -20,6 +19,7 @@ RUN zypper --non-interactive ar -f -n Personal-Repo http://download.opensuse.org
 	libpurple \
 	libpurple-plugin-hangouts \
 	make \
+	psmisc \
 	tar \
 	telegram-purple \
 	timezone \

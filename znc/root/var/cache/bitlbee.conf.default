@@ -1,6 +1,8 @@
 [settings]
+RunMode = ForkDaemon
+DaemonInterface = 127.0.0.1
+DaemonPort = 6667
 User = bitlbee
 AuthMode = Closed
 AuthPassword =
 ConfigDir = /config/bitlbee/accounts
-DaemonPort = 6667
