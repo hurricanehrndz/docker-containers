@@ -1,14 +1,15 @@
 [Unit]
 Description=Containerized APP_NAME
+Requires=docker.service
 After=docker.service
 
 [Service]
-Type=forking
-ExecStartPre=-/usr/bin/docker pull APP_REPO/IMG_NAME:TAG_NAME
-ExecStart=/usr/local/bin/APP_NAME
-ExecStop=/usr/bin/docker stop APP_NAME
+Type=simple
+ExecStart=/usr/local/bin/APP_NAME service
+ExecStop=/usr/bin/docker stop -t 2 APP_NAME
+ExecStopPost=/usr/bin/docker rm -f APP_NAME
 Restart=on-abort
 TimeoutSec=20
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=defaul.target

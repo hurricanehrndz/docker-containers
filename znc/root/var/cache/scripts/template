@@ -7,6 +7,7 @@ APP_NAME="APP_NAME"
 APP_USER=${APP_USER:-$USER}
 APP_REPO=${APP_REPO:-hurricane}
 APP_CONFIG=${APP_CONFIG:-"/home/${APP_USER}/.${APP_NAME}"}
+RUN_MODE="-d"
 
 ( id -Gn | grep -q docker ) || [[ $EUID == 0 ]] || SUDO=sudo
 
@@ -85,10 +86,10 @@ prepare_docker_volume_parameters() {
 
 prog=$(basename $0)
 if [[ ${prog} == "${APP_NAME}" ]]; then
-  echo "$1"
   [[ "${1}" == "bash" ]] && \
-    prog=bash && \
-    shift
+    RUN_MODE="-it" &&  prog=bash &&  shift
+  [[ "${1}" == "service" ]] && \
+    RUN_MODE="-a" && shift
   [[ "${1}" == "help" ]] && list_options && exit 1
 fi
 
@@ -101,19 +102,11 @@ if [[ "${running}" == "ture" ]]; then
   exit 0
 else
   echo "Starting ${prog}..."
-  if [[ "${prog}" != "${APP_NAME}" ]]; then
-    ${SUDO} docker run -it \
-      -p 5000:5000 \
-      ${ENV_VARS} \
-      ${VOLUMES} \
-      --name=${APP_NAME} \
-      ${APP_REPO}/${IMG_NAME}:${TAG_NAME} ${prog} $@
-  else
-    ${SUDO} docker run -d \
-      -p 5000:5000 \
-      ${ENV_VARS} \
-      ${VOLUMES} \
-      --name=${APP_NAME} \
-      ${APP_REPO}/${IMG_NAME}:${TAG_NAME} > /dev/null
-  fi
+  ${SUDO} docker run \
+    ${RUN_MODE} \
+    -p 5000:5000 \
+    ${ENV_VARS} \
+    ${VOLUMES} \
+    --name=${APP_NAME} \
+    ${APP_REPO}/${IMG_NAME}:${TAG_NAME} ${prog} $@
 fi
