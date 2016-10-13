@@ -10,6 +10,7 @@ APP_REPO=${APP_REPO:-hurricane}
 APP_CONFIG=${APP_CONFIG:-"/home/${APP_USER}/.${APP_NAME}"}
 XSOCK=/tmp/.X11-unix
 XAUTH=/tmp/.docker.xauth
+RUN_MODE="-it"
 
 ( id -Gn | grep -q docker ) || [[ $EUID == 0 ]] || SUDO=sudo
 
@@ -89,8 +90,9 @@ prepare_docker_volume_display_parameters() {
 prog=$(basename $0)
 if [[ ${prog} == "${APP_NAME}" ]]; then
   [[ "${1}" == "bash" ]] && \
-    prog=bash && \
-    shift
+    RUN_MODE="-it" &&  prog="bash" &&  shift
+  [[ "${1}" == "service" ]] && \
+    RUN_MODE="" && shift
   [[ "${1}" == "help" ]] && list_options && exit 1
 fi
 
@@ -105,17 +107,10 @@ if [[ "${running}" == "true" ]]; then
   exit 0
 else
   echo "Starting ${prog}..."
-  if [[ "${prog}" != "${APP_NAME}" ]]; then
-    ${SUDO} docker run -it \
-      ${ENV_VARS} \
-      ${VOLUMES} \
-      --name=${APP_NAME} \
-      ${APP_REPO}/${IMG_NAME}:${TAG_NAME} ${prog} $@
-  else
-    ${SUDO} docker run -it \
-      ${ENV_VARS} \
-      ${VOLUMES} \
-      --name=${APP_NAME} \
-      ${APP_REPO}/${IMG_NAME}:${TAG_NAME} ${APP_NAME} $@
-  fi
+  ${SUDO} docker run \
+    ${RUN_MODE} \
+    ${ENV_VARS} \
+    ${VOLUMES} \
+    --name=${APP_NAME} \
+    ${APP_REPO}/${IMG_NAME}:${TAG_NAME} ${prog} $@
 fi
