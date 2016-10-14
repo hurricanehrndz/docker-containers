@@ -86,7 +86,7 @@ if  ! $SETUP_ONLY ; then
     echo "  import -D1000 APP_GID"
     echo "  import -D \"appuser\" APP_USER"
     echo "}"
-    echo "s6-applyuidgid -u ${APP_UID} -g ${APP_GID} mail-sync-loop"
+    echo "s6-applyuidgid -u ${APP_UID} -g ${APP_GID}  mail-sync-loop"
   } > $s6_sync_run
 
   chmod +x $s6_sync_run

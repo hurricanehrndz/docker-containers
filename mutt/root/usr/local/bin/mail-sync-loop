@@ -2,7 +2,8 @@
 
 sleep 30
 
-logfile="/home/$APP_USER/mail-sync.log"
+export HOME=/home/$APP_USER
+logfile="$HOME/mail-sync.log"
 
 while true
 do
@@ -15,6 +16,6 @@ if (($logsize > 10000000)) ; then
   [ -f $logfile.1 ] && rm -f $logfile.1 > /dev/null 2>&1
   mv $logfile $logfile.1 > /dev/null 2>&1
 fi
-mail-sync >>/home/$APP_USER/mail-sync.log 2>&1
+mail-sync >> $HOME/mail-sync.log 2>&1
 sleep 90
 done

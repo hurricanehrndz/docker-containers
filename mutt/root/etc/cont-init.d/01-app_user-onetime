@@ -58,3 +58,4 @@ chown -R ${APP_UID}:${APP_GID} \
 
 # fix configs permissions
 chown ${APP_UID}:${APP_GID} /home/${APP_USER}
+export HOME=/home/${APP_USER}
