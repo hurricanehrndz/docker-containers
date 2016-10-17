@@ -9,6 +9,8 @@
 #
 # Ethan Schoonover / es@ethanschoonover / @ethanschoonover
 # Updated by: Carlos Hernandez / hurricanehrndz / carlos@techbyte.ca
+# Style adheres to google's bash style guide:
+# https://google.github.io/styleguide/shell.xml
 # ----------------------------------------------------------------------
 
 # ----------------------------------------------------------------------
@@ -41,10 +43,10 @@
 # Maildir Information
 # ----------------------------------
 
-INBOX="INBOX"      # (mutt's spool dir) - both the tag and folder
-SENT="sent"        # (mutt's record dir) - both the tag and folder
-ARCHIVE="archive"  # (mutt's mbox/received) - both the tag and folder
-TRASH="trash"      # trash maildir, gmail requires for real deletion
+inbox="INBOX"      # (mutt's spool dir) - both the tag and folder
+sent="sent"        # (mutt's record dir) - both the tag and folder
+archive="archive"  # (mutt's mbox/received) - both the tag and folder
+trash="trash"      # trash maildir, gmail requires for real deletion
 
 # Note that the tag/folder values (INBOX/SENT/etc) must match
 # your local maildir names, after any nametrans by offlineimap. For
@@ -60,21 +62,21 @@ TRASH="trash"      # trash maildir, gmail requires for real deletion
 
 # if multiple new.tags in notmuch, identify transient tag here
 # this tag is only used as a temporary tag during script run
-NEW_TAG="new"
+new_tag="new"
 
 # the tag notmuch uses to keep track of unread status
 # also used by mutt-kz (be careful! assigning this in mutt-kz
 # and then removing an unread tag really does mark mail as read,
 # possibly in bulk!)
-UNREAD_TAG="unread"
+unread_tag="unread"
 
 # if true, convert "new" tag to "unread" at end of script run
 # otherwise new tag is simple removed
-MAKE_NEW_UNREAD=false
+make_new_unread=false
 
 # convert infix slashes to dashes in tags,
 # e.g. "clients/bob" becomes "clients-bob"
-SLASHES_TO_DASHES=false
+slashes_to_dashes=false
 
 # shorter, trimmed tags; see description below
 TRIM_ACCOUNT_PREFIX_IN_TAGS=true
@@ -98,14 +100,14 @@ while [[ $# > 0 ]]; do
       echo "usage: $(basename $0) [--dry-run]"; exit;
       ;;
     -d|--dry-run)
-      RUNCMD=echo
-      DRYRUN=true
-      DRYRUN_MSG="- DRYRUN (no changes will be made)"
+      runcmd=echo
+      dryrun=true
+      dryrun_msg="- dryrun (no changes will be made)"
       ;;
     *)
-      RUNCMD=${RUNCMD:-eval}
-      DRYRUN=${DRYRUN:-false}
-      LAST_ARG="$opt";
+      runcmd=${runcmd:-eval}
+      dryrun=${dryrun:-false}
+      last_arg="$opt";
       ;;
   esac
 shift
@@ -130,13 +132,13 @@ configuration values.
 EOF
   exit 1;
 else # get the current notmuch new.tags value
-  NM_NEW_TAGS="$(notmuch config list | grep 'new.tags' | cut -f2 -d'=')"
+  nm_new_tags="$(notmuch config list | grep 'new.tags' | cut -f2 -d'=')"
 fi
 
 
 # confirm that the "new.tags" value in notmuch is not empty
 # ----------------------------------
-if [[ -z "$NM_NEW_TAGS" ]]; then
+if [[ -z "$nm_new_tags" ]]; then
 cat <<-EOF
 ------------------------------------
 The "new.tags" value in your notmuch config is set to an empty value.
@@ -157,8 +159,8 @@ exit 1; fi
 # confirm that the "new.tags" value in notmuch is singlular, or request
 # that the user set a manual value here in the script
 # ----------------------------------
-if [[ "$NM_NEW_TAGS" != "${NM_NEW_TAGS#*;}" ]] && \
-  [[ "$NM_NEW_TAGS" == "${NM_NEW_TAGS#*${NEW_TAG:-}*}" ]];
+if [[ "$nm_new_tags" != "${nm_new_tags#*;}" ]] && \
+  [[ "$nm_new_tags" == "${nm_new_tags#*${new_tag:-}*}" ]];
 then
 cat <<-EOF
 ------------------------------------
@@ -171,7 +173,7 @@ truly new messages.
 Please identify this tag in the GLOBAL VARIABLES section of this script
 ($0) by adding/uncommenting a value such as:
 
-  NEW_TAG=new
+  new_tag=new
 
 If you did not intend to set multiple tags in your notmuch config, please
 correct it by running:
@@ -187,8 +189,8 @@ or your desired set of new tags.
 ------------------------------------
 EOF
 exit 1;
-elif [[ "$NM_NEW_TAGS" == "${NM_NEW_TAGS#*;}" ]] && \
-  [[ "$NM_NEW_TAGS" != "${NEW_TAG}" ]]; then
+elif [[ "$nm_new_tags" == "${nm_new_tags#*;}" ]] && \
+  [[ "$nm_new_tags" != "${new_tag}" ]]; then
 cat <<-EOF
 ------------------------------------
 You have the notmuch config value "new.tags" set to a value that does
@@ -215,10 +217,10 @@ exit 1; fi
 # we use this to locate and identify maildir folders
 
 # Source from existing notmuch config
-NOTMUCH_ROOT="$(notmuch config list | grep 'database.path' | cut -f2 -d'=')"
+notmuch_root="$(notmuch config list | grep 'database.path' | cut -f2 -d'=')"
 
 # Normalize path by trimming trailing slash, if any, and then adding trailing slash
-NOTMUCH_ROOT="${NOTMUCH_ROOT%/}"
+notmuch_root="${notmuch_root%/}"
 
 
 # ----------------------------------------------------------------------
@@ -228,12 +230,24 @@ NOTMUCH_ROOT="${NOTMUCH_ROOT%/}"
 
 # Normalize path by trimming trailing slash, if any
 # (use eval in case user quoted a path with ~ in it, though they shouldn't have)
-eval "MAILDIR_ROOT=${LAST_ARG%/}"
+eval "maildir_root=${last_arg%/}"
 
 # ----------------------------------------------------------------------
 # Helper Functions
 # ----------------------------------------------------------------------
-Notmuch_Tag_From_Full_Path ()
+construct_new_filename ()
+{
+# Maildir sync programs require filenames to be unique, so when moving emails
+# it is best to construct new names.
+  local old_filename="$1"
+  local rand_unint64=$(od -vAn -N8 -tu8 < /dev/urandom | tr -d ' ')
+  local time_stamp=$(date +%s)
+  local hostname=$(echo $HOSTNAME)
+  local flags=$(sed -e "s/.*:2,\(.*\)/\1/" <<< ${old_filename})
+  echo "${timestamp}.R${rand_unint4}.${hostname}:2,${flags}"
+}
+
+notmuch_tag_from_full_path ()
 {
 # This take a path such as: /work/INBOX
 # and converts it to a tag: work-INBOX or INBOX
@@ -241,26 +255,26 @@ Notmuch_Tag_From_Full_Path ()
 # A nested maildir such as: /work/clients/bob
 # is converted to a tag:    work/clients/bob
 #
-# If the TRIM_ACCOUNT_PREFIX_IN_TAGS variable is set to true, then
+# If the trim_account_prefix_in_tags variable is set to true, then
 # a nested maildir such as: /work/clients/bob
 # is converted to a tag:    clients/bob
 #
-# If SLASHES_TO_DASHES is true, infix slashes will be converted to
+# If slashes_to_dashes is true, infix slashes will be converted to
 # dashes, e.g. "client/bob" becomes "client-bob"
 
-case $TRIM_ACCOUNT_PREFIX_IN_TAGS in
-    true|TRUE|yes|YES|y|Y)  local TRIMMER="$MAILDIR_ACCOUNT_ROOT" ;;
-    *)            local TRIMMER="$NOTMUCH_ROOT"     ;;
+case $trim_account_prefix_in_tags in
+    true|TRUE|yes|YES|y|Y)  local trimmer="$maildir_account_root" ;;
+    *)            local trimmer="$notmuch_root"     ;;
 esac
 
-case $SLASHES_TO_DASHES in
-    true|TRUE|yes|YES|y|Y)  echo "${1#$TRIMMER/}" | sed "s+/+-+g" ;;
-    *)            echo "${1#$TRIMMER/}"         ;;
+case $slashes_to_dashes in
+    true|TRUE|yes|YES|y|Y)  echo "${1#$trimmer/}" | sed "s+/+-+g" ;;
+    *)            echo "${1#$trimmer/}"         ;;
 esac
 
 }
 
-Notmuch_Folder_From_Full_Path ()
+notmuch_folder_from_full_path ()
 {
 # Takes argument:
 #
@@ -273,10 +287,10 @@ Notmuch_Folder_From_Full_Path ()
 # which is the full form searchable from notmuch using a query such as:
 #
 #    notmuch search folder:/work/INBOX
-  echo "${1#$NOTMUCH_ROOT/}"
+  echo "${1#$notmuch_root/}"
 }
 
-Maildir_Account_Folder_From_Full_Path ()
+maildir_account_folder_from_full_path ()
 {
 # Takes argument:
 #
@@ -289,14 +303,14 @@ Maildir_Account_Folder_From_Full_Path ()
 # which is the full form searchable from notmuch using a query such as:
 #
 #    notmuch search folder:/work/INBOX
-  echo "${1#$MAILDIR_ACCOUNT_ROOT}"
+  echo "${1#$maildir_account_root}"
 }
 
 # ----------------------------------------------------------------------
 # PRE Notmuch DB Sync Functions
 # ----------------------------------------------------------------------
 # executed prior to 'notmuch new'
-Notmuch_State_To_Maildir__Create_Maildir ()
+notmuch_state_to_maildir__create_maildir ()
 {
 # Scenario:
 # NOTMUCH State:
@@ -309,29 +323,29 @@ Notmuch_State_To_Maildir__Create_Maildir ()
 # The number of folders within the root maildir does not match the number of
 # tags in the notmuch db. This indicates that we need create folder for those
 # tags.
-  local THIS_MAILDIR_FULL_PATH="$1"
-  local THIS_ACCOUNT_NAME="$2"
-  local THESE_NOTMUCH_TAGS="$( \
+  local this_maildir_full_path="$1"
+  local this_account_name="$2"
+  local these_notmuch_tags="$( \
                 notmuch search --output=tags \
-                tag:\"$THIS_ACCOUNT_NAME\" \
+                tag:\"$this_account_name\" \
                 )"
 
-  for THIS_NOTMUCH_TAG in $THESE_NOTMUCH_TAGS; do
-    if [[ ! " ${MAILDIR_ACCOUNTS[@]} " =~ " ${THIS_NOTMUCH_TAG} " ]]; then
-      if [ ! -d "$THIS_MAILDIR_FULL_PATH/$THIS_NOTMUCH_TAG" ]; then
-        [[ "$THIS_NOTMUCH_TAG" != "$THIS_ACCOUNT_NAME" ]] && \
-          [[ "$THIS_NOTMUCH_TAG" != "new" ]] && \
-          [[ "$THIS_NOTMUCH_TAG" != "unread" ]] && \
-          [[ "$THIS_NOTMUCH_TAG" != "replied" ]] && \
-          [[ "$THIS_NOTMUCH_TAG" != "signed" ]] && \
-          [[ "$THIS_NOTMUCH_TAG" != "attachment" ]] && \
-          $RUNCMD "mkdir -p $THIS_MAILDIR_FULL_PATH/$THIS_NOTMUCH_TAG/{cur,new,tmp}" || true
+  for this_notmuch_tag in $these_notmuch_tags; do
+    if [[ ! " ${maildir_accounts[@]} " =~ " ${this_notmuch_tag} " ]]; then
+      if [ ! -d "$this_maildir_full_path/$this_notmuch_tag" ]; then
+        [[ "$this_notmuch_tag" != "$this_account_name" ]] && \
+          [[ "$this_notmuch_tag" != "new" ]] && \
+          [[ "$this_notmuch_tag" != "unread" ]] && \
+          [[ "$this_notmuch_tag" != "replied" ]] && \
+          [[ "$this_notmuch_tag" != "signed" ]] && \
+          [[ "$this_notmuch_tag" != "attachment" ]] && \
+          $runcmd "mkdir -p $this_maildir_full_path/$this_notmuch_tag/{cur,new,tmp}" || true
       fi
     fi
   done
 }
 
-Notmuch_State_To_Maildir__Move_To_Maildir ()
+notmuch_state_to_maildir__move_to_maildir ()
 {
 # Scenario:
 #
