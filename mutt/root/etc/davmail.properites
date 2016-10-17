@@ -2,5 +2,5 @@ davmail.server=true
 davmail.allowRemote=false
 davmail.bindAddress=127.0.0.1
 davmail.enableEws=auto
-davmail.imapPort=993
-davmail.smtpPort=465
+davmail.imapPort=1993
+davmail.smtpPort=1465

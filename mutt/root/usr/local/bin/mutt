@@ -36,11 +36,17 @@ echo "Configuring mutt..."
 for i in $(find $HOME -name "*davmail.properties"); do
   davmail_service_name=${i%-davmail.properties}
   davmail_service_name=${davmail_service_name#$HOME/}
+  {
+    # log file path, leave empty for default path
+    echo "davmail.logFilePath=$HOME/${davmail_service_name}-davmail.log"
+    # maximum log file size, use Log4J syntax, set to 0 to use an external rotation mechanism, e.g. logrotate
+    echo "davmail.logFileSize=1MB"
+  } >> $i
+
   echo "Setting up davmail for ${davmail_service_name}..."
   s6_davmail_dir=/var/run/s6/services/${davmail_service_name}_davmail
   s6_davmail_run=${s6_davmail_dir}/run
   mkdir -p "$s6_davmail_dir"
-
   {
     echo "#!/usr/bin/execlineb -P"
     echo ""
@@ -56,8 +62,8 @@ for i in $(find $HOME -name "*davmail.properties"); do
 
   chmod +x $s6_davmail_run
   s6-svscanctl -a /var/run/s6/services
-  s6-svc -u $s6_davmail_dir
   sleep 1
+  s6-svc -u $s6_davmail_dir
 done
 
 # do initial sync
