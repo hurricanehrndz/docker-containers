@@ -104,7 +104,11 @@ prepare_docker_volume_parameters() {
   [[ ! -d ~/.mutt/cache ]] && \
     echo "Making mutt cache directory." && \
     mkdir -p ~/.mutt/cache
+  [[ ! -d ~/.mutt/addons ]] && \
+    echo "Making mutt addons directory." && \
+    mkdir -p ~/.mutt/addons
   VOLUMES+=" --volume=/home/${USER}/.mutt/cache:/home/${APP_USER}/.mutt/cache"
+  VOLUMES+=" --volume=/home/${USER}/.mutt/addons:/home/${APP_USER}/.mutt/addons"
 
   # make downloads directory if doesn't exist
   [[ ! -d ~/Downloads ]] && \

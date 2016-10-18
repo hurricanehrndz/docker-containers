@@ -66,6 +66,11 @@ for i in $(find $HOME -name "*davmail.properties"); do
   s6-svc -u $s6_davmail_dir
 done
 
+# setup complementry services
+for f in $(find $HOME/.mutt/addons -type f); do
+  cp $f $HOME/
+done
+
 # do initial sync
 if  ! $SETUP_ONLY ; then
   s6-applyuidgid -u $APP_UID -g $APP_GID /usr/local/bin/init_sync

@@ -53,6 +53,7 @@ RUN zypper --non-interactive ar -f -n Personal-Repo http://download.opensuse.org
   && pip install --upgrade pip \
   && pip install goobook \
   && pip install mutt_ics \
+  && pip install gcalcli \
   && rpm -e --nodeps --allmatches --noscripts \
 	`rpm -qa | grep aaa_base` \
 	`rpm -qa | grep acl | grep -v lib` \
