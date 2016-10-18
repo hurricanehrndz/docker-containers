@@ -90,9 +90,9 @@ def get_mutt_command(ical, email_address, accept_decline, icsfile):
         sender = "NO SENDER"
     summary = ical.vevent.contents['summary'][0].value.encode()
     command = ["/usr/bin/mutt", "-a", icsfile,
+            "-e", 'set sendmail=\'ical_reply_sendmail_wrapper.sh\'',
             "-s", "'%s: %s'" % (accept_decline, summary), "--", sender]
             #Uncomment the below line, and move it above the -s line to enable the wrapper
-            #"-e", 'set sendmail=\'ical_reply_sendmail_wrapper.sh\'',
     return command
 
 def execute(command, mailtext):
@@ -181,7 +181,7 @@ if __name__=="__main__":
     set_accept_state(attendees,accept_decline)
     ans.vevent.add('attendee')
     ans.vevent.attendee_list.pop()
-    flag = 1
+    flag = 0
     for attendee in attendees:
         if hasattr(attendee,'EMAIL_param'):
             if attendee.EMAIL_param == email_address:

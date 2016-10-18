@@ -68,7 +68,7 @@ done
 
 # setup complementry services
 for f in $(find $HOME/.mutt/addons -type f); do
-  cp $f $HOME/
+  s6-applyuidgid -u ${APP_UID} -g ${APP_GID} cp $f $HOME/
 done
 
 # do initial sync

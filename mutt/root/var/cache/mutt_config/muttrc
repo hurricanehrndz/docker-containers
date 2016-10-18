@@ -91,7 +91,7 @@ alternative_order text/calendar text/plain text/html * # preferred view order
 auto_view text/html text/calendar
 
 # reply to calendar invites
-macro pager \Ck "<enter-command>source /usr/local/bin/reply-ics |<return>" "reply to calendar invite"
+macro pager \Ck "<enter-command>source '/usr/local/bin/reply-ics |'<return>" "reply to calendar invite"
 
 # ------------------------------------------------------------------------------
 # Pager Generic Key Bindings

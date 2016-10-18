@@ -4,6 +4,7 @@
 
 if [[ -f ~/.mutt/temp/caldata ]]; then
   caldata="~/.mutt/temp/caldata"
+else
   exit 0
 fi
 
@@ -27,8 +28,8 @@ case $answer in
 esac
 
 # if accepted and gcalcli setup add to calendar
-if [[ "$ans" == "a" ]] && [[ ! -f "~/.gcalcli_auth.json" ]]; then
-  gcalcli --import $caldata > /dev/null 2>&1
+if [[ "$ans" == "a" || "$ans" == "t" ]] && [[ -f "~/.gcalcli_auth.json" ]]; then
+  gcalcli --calendar $email --import $caldata > /dev/null 2>&1
 fi
 
 /usr/local/bin/mutt-ical.py -e $email -$ans $caldata > /dev/null 2>&1

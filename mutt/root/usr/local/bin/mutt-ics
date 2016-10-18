@@ -4,4 +4,5 @@ if [[ ! -d ~/.mutt/temp ]]; then
   mkdir -p ~/.mutt/temp
 fi
 
-/usr/bin/mutt-ics $1 | tee ~/.mutt/temp/caldata
+cp $1 ~/.mutt/temp/caldata
+/usr/bin/mutt-ics $1
