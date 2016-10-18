@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# vim:set ft=sh
+
+
+if [[ -f ~/.mutt/temp/caldata ]]; then
+  caldata="~/.mutt/temp/caldata"
+  exit 0
+fi
+
+# get current address
+email=$(/usr/bin/mutt -D | sed -n "s/^from=\(.*\)/\1/p")
+
+
+echo "Reply to calendar invite? [accept]/decline/tentatively :" >&2
+read answer
+
+answer=$(sed -e "s/^\(\w\).*/\1/" <<< ${answer})
+
+ans=a
+case $answer in
+  a|A)
+    ans=a;;
+  d|D)
+    ans=d;;
+  t|T)
+    ans=t;;
+esac
+
+# if accepted and gcalcli setup add to calendar
+if [[ "$ans" == "a" ]] && [[ ! -f "~/.gcalcli_auth.json" ]]; then
+  gcalcli --import $caldata > /dev/null 2>&1
+fi
+
+/usr/local/bin/mutt-ical.py -e $email -$ans $caldata > /dev/null 2>&1
+rm $caldata > /dev/null 2>&1
+printf "push <return>"
