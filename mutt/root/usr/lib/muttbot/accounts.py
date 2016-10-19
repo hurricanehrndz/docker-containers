@@ -131,8 +131,8 @@ class AccountsSetuper(object):
         account_muttrc.write('set mbox = "+' + account_name + '/archive"\n')
         account_muttrc.write('set postponed = "+' + account_name + '/drafts"\n')
         account_muttrc.write('set signature = ~/.mutt/' + account_name + '.sig\n')
-        account_muttrc.write('set pgp_sign_as = ' + str(account_info['gpg']) + '\n')
-        account_muttrc.write('my_hdr OpenPGP: id=' + str(account_info['gpg'])[2:] + ' \n')
+        account_muttrc.write('set pgp_sign_as = ' + str(account_info['gpg_sign_as']) + '\n')
+        account_muttrc.write('my_hdr OpenPGP: id=' + str(account_info['gpg_id'])[2:] + ' \n')
         account_muttrc.write('set sendmail = "/usr/bin/msmtp -a ' + account_name +  '"\n')
         account_muttrc.write('set sendmail_wait = -1\n')
         account_muttrc.write('unset record\n')
@@ -140,6 +140,7 @@ class AccountsSetuper(object):
         account_muttrc.write('set message_cachedir = ~/.mutt/cache/' + account_name +'/bodies\n')
         account_muttrc.write('set certificate_file = ~/.mutt/cache/' + account_name +'/certificates\n')
         account_muttrc.write('set nm_hidden_tags = "unread,drafts,flagged,INBOX,archive,important,signed,replied,attachment,' + account_name +'"\n')
+        account_muttrc.write('set my_dummy = `echo active_account="' + account_name + '" > ~/.active_acc`\n')
         account_muttrc.write('set my_account_tag = ' + account_name + '\n')
         account_muttrc.write('source ~/.mutt/muttrc.folder.bindings\n')
         # add goobookrc if type is gmail
