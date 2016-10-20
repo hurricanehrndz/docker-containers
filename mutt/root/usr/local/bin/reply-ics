@@ -1,20 +1,22 @@
 #!/usr/bin/env bash
 # vim:set ft=sh
+HOME=/home/$APP_USER
+logfile="$HOME/mail-sync.log"
 
-if [[ -f ~/.mutt/temp/caldata ]]; then
-  caldata="~/.mutt/temp/caldata"
+if [[ -f $HOME/.mutt/temp/caldata ]]; then
+  caldata="$HOME/.mutt/temp/caldata"
 else
   exit 0
 fi
 
-if [[ -f ~/.active_acc ]]; then
-  source ~/.active_acc
+if [[ -f $HOME/.active_account ]]; then
+  active_account=$(cat $HOME/.active_account)
 else
   exit 0
 fi
 
 # get current address
-email=$(cat ~/.mutt/$active_account | sed -n "s/^set\sfrom\s=\s\(.*\)/\1/p")
+email=$(cat $HOME/.mutt/$active_account | sed -n "s/^set\sfrom\s=\s\(.*\)/\1/p" | sed -s 's/"//g')
 
 echo "Reply to calendar invite? [accept]/decline/tentatively :" >&2
 read answer
@@ -32,10 +34,9 @@ case $answer in
 esac
 
 # if accepted and gcalcli setup add to calendar
-if [[ "$ans" == "a" || "$ans" == "t" ]] && [[ -f "~/.gcalcli_auth.json" ]]; then
-  gcalcli --calendar $email --import $caldata > /dev/null 2>&1
+if [[ "$ans" == "a" || "$ans" == "t" ]] && [[ -f "$HOME/.gcalcli_oauth" ]]; then
+  gcalcli --calendar $email import $caldata >> $logfile 2>&1
 fi
 
-/usr/local/bin/mutt-ical.py -e $email -$ans $caldata > /dev/null 2>&1
-rm $caldata > /dev/null 2>&1
+/usr/local/bin/mutt-ical.py -e $email -$ans $caldata >> $logfile 2>&1
 printf "push <return>"

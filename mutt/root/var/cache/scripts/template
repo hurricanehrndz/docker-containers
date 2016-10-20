@@ -53,14 +53,6 @@ prepare_docker_env_parameters() {
   ENV_VARS+=" --env=APP_USER=${APP_USER}"
   ENV_VARS+=" --env=DBUS_SESSION_BUS_ADDRESS=unix:path=/var/run/user/$APP_UID/bus"
 
-
-  if [ ! -z ${GPGKEY} ]; then
-    ENV_VARS+=" --env=GPGKEY=${GPGKEY}"
-  else
-    echo "You need to export your default GPGKEY i.e. export GPGKEY=0x0000."
-    exit 1
-  fi
-
   if [[ -f /etc/timezone ]]; then
     ENV_VARS+=" --env=TZ=$(cat /etc/timezone)"
   elif [[ ! -z "${TIMEZONE}" ]]; then

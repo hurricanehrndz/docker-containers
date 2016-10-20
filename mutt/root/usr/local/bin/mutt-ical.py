@@ -79,8 +79,18 @@ def write_to_tempfile(ical):
         f.write(ical.serialize())
     return icsfile, tempdir
 
-def get_mutt_command(ical, email_address, accept_decline, icsfile):
+def get_active_account():
+    active_account_file = home_dir+"/.active_account"
+    with open(active_account_file,"r") as f:
+        active_account = f.readline()
+        print "active account is: %s" % active_account
+        f.close()
+        return active_account.strip()
+
+def get_mutt_command(ical, email_address, accept_decline, icsfile, active_account):
     accept_decline = accept_decline.capitalize()
+    std_mutt_config = home_dir+"/.mutt/muttrc"
+    acc_mutt_config = home_dir+"/.mutt/%s" %  active_account
     if ical.vevent.contents.has_key('organizer'):
         if hasattr(ical.vevent.organizer,'EMAIL_param'):
             sender = ical.vevent.organizer.EMAIL_param
@@ -89,10 +99,9 @@ def get_mutt_command(ical, email_address, accept_decline, icsfile):
     else:
         sender = "NO SENDER"
     summary = ical.vevent.contents['summary'][0].value.encode()
-    command = ["/usr/bin/mutt", "-a", icsfile,
-            "-e", 'set sendmail=\'ical_reply_sendmail_wrapper.sh\'',
+    command = ["/usr/bin/mutt", "-F", acc_mutt_config, "-a", icsfile,
+            "-e", 'set sendmail=\'ical_reply_sendmail_wrapper.sh %s\'' % active_account,
             "-s", "'%s: %s'" % (accept_decline, summary), "--", sender]
-            #Uncomment the below line, and move it above the -s line to enable the wrapper
     return command
 
 def execute(command, mailtext):
@@ -148,6 +157,8 @@ def display(ical):
     sys.stdout.write(description + "\n")
 
 if __name__=="__main__":
+    home_dir = os.path.expanduser('~')
+    account = get_active_account()
     email_address = None
     accept_decline = 'ACCEPTED'
     opts, args=getopt(sys.argv[1:],"e:aidt")
@@ -158,7 +169,7 @@ if __name__=="__main__":
 
     invitation = openics(args[0])
     #print(invitation)
-    display(invitation)
+    #display(invitation)
 
     for opt,arg in opts:
         if opt == '-e':
@@ -197,7 +208,7 @@ if __name__=="__main__":
 
     icsfile, tempdir = write_to_tempfile(ans)
 
-    mutt_command = get_mutt_command(ans, email_address, accept_decline, icsfile)
+    mutt_command = get_mutt_command(ans, email_address, accept_decline, icsfile, account)
     mailtext = "'%s has %s'" % (email_address, accept_decline.lower())
     execute(mutt_command, mailtext)
 
