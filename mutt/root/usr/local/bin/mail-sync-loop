@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sleep 30
+sleep 1
 
 export HOME=/home/$APP_USER
 logfile="$HOME/mail-sync.log"
