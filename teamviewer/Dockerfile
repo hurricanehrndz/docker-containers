@@ -1,6 +1,6 @@
 FROM opensuse:tumbleweed
 MAINTAINER Carlos Hernandez <carlos@techbyte.ca>
-ENV LANG="en_US.UTF-8" s6_overlay_version="1.17.1.2" APP_NAME="teamviewer" IMG_NAME="teamviewer" TAG_NAME="latest" S6_LOGGING="1"
+ENV LANG="en_US.UTF-8" s6_overlay_version="1.18.1.5" APP_NAME="teamviewer" IMG_NAME="teamviewer" TAG_NAME="latest" S6_LOGGING="1"
 
 RUN zypper --non-interactive addrepo -f -c http://download.opensuse.org/repositories/home:/namtrac:/subpixel/openSUSE_Factory/ repo-namtrac \
  && zypper --gpg-auto-import-keys ref \
@@ -46,7 +46,6 @@ RUN zypper --non-interactive addrepo -f -c http://download.opensuse.org/reposito
 	`rpm -qa | grep branding-openSUSE` \
 	`rpm -qa | grep cpio` \
 	`rpm -qa | grep cryptsetup` \
-	`rpm -qa | grep dbus-1` \
 	`rpm -qa | grep dracut` \
 	`rpm -qa | grep fipscheck` \
 	`rpm -qa | grep kbd` \
@@ -60,7 +59,6 @@ RUN zypper --non-interactive addrepo -f -c http://download.opensuse.org/reposito
 	`rpm -qa | grep pkg-config` \
 	`rpm -qa | grep qrencode` \
 	`rpm -qa | grep sg3_utils` \
-	`rpm -qa | grep systemd` \
 	curl \
 	tar \
   && ls /usr/lib/locale | grep -ve "en_CA*\|en_US*" | awk '{if(system("[ -f "$1" ]") == 0) {print $1} }' | xargs rm -rf \

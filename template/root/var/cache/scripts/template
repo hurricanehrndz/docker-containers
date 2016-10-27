@@ -103,11 +103,11 @@ if [[ "${running}" == "true" ]]; then
   exit 0
 else
   echo "Starting ${prog}..."
-  if [[ "${prog}" != "${APP_NAME}" ]]; then
-    ${SUDO} docker run \
-      ${RUN_MODE} \
-      ${ENV_VARS} \
-      ${VOLUMES} \
-      --name=${APP_NAME} \
-      ${APP_REPO}/${IMG_NAME}:${TAG_NAME} ${prog} $@
+  ${SUDO} docker run \
+    ${RUN_MODE} \
+    --security-opt seccomp:unconfined \
+    ${ENV_VARS} \
+    ${VOLUMES} \
+    --name=${APP_NAME} \
+    ${APP_REPO}/${IMG_NAME}:${TAG_NAME} ${prog} $@
 fi

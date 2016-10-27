@@ -55,8 +55,12 @@ XAUTH=/tmp/.docker.xauth
 touch ${XAUTH}
 xauth nlist :0 | sed -e 's/^..../ffff/' | xauth -f ${XAUTH} nmerge -
 docker run -d -e DISPLAY \
+    -e APP_UID=$(getent passwd $USER | awk -F: '{print $3}') \
+    -e APP_GID=$(getent passwd $USER | awk -F: '{print $4}') \
+    -e APP_USER=$USER \
     -e XAUTHORITY=${XAUTHORITY} \
     -v /tmp/.X11-unix:/tmp/.X11-unix \
+    -v /tmp/.docker.xauth:/tmp/.docker.xauth \
     hurricane/teamviewer
 ```
 
