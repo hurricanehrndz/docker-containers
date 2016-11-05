@@ -154,11 +154,16 @@ if [[ "$prog" == "setup_goobook" ]]; then
   fi
   ${SUDO} docker cp ${APP_NAME}:/home/$APP_USER/.goobook_auth.json /home/$USER/
 else
-  echo "Starting ${prog}..."
-  ${SUDO} docker run -it \
+  cmd="${SUDO} docker run -it \
     --rm \
     ${ENV_VARS} \
     ${VOLUMES} \
     --name=${APP_NAME} \
-    ${APP_REPO}/${IMG_NAME}:${TAG_NAME} ${prog} $@
+    ${APP_REPO}/${IMG_NAME}:${TAG_NAME} ${prog} $@"
+  if [[ "$TERMINAL" == "termite" ]] && [[ ${prog} == "${APP_NAME}" ]]; then
+    echo "Starting ${prog}..."
+    $TERMINAL --title=$APP_NAME-docker --exec="$cmd" &
+  else
+    $cmd
+  fi
 fi
