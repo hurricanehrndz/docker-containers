@@ -13,4 +13,4 @@ Restart=on-abort
 TimeoutSec=20
 
 [Install]
-WantedBy=defaul.target
+WantedBy=multi-user.target
