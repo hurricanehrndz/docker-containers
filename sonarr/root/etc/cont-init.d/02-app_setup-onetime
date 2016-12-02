@@ -11,9 +11,9 @@ if [[ ${EDGE} -eq 1 ]]; then
   mkdir -p /tmp/${APP_NAME}
   curl -sSL http://update.sonarr.tv/v2/master/mono/NzbDrone.master.tar.gz | tar -C /tmp/${APP_NAME} -xz --strip-components=1
   if [[ $? -eq 0 ]]; then
-    chown -R ${APP_UID}:${APP_GID} /tmp/${APP_NAME}
     rm -rf /opt/${APP_NAME}
     mv /tmp/${APP_NAME} /opt
+    chown -R ${APP_UID}:${APP_GID} /opt/${APP_NAME}
     echo "Update successful!"
   else
     echo "Update failed!"

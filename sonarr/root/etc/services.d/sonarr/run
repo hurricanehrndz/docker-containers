@@ -15,6 +15,7 @@ multisubstitute
 }
 
 define HOME "/home/${APP_USER}"
+define APP_DIR "/opt/${APP_NAME}"
 define SONARR "/opt/${APP_NAME}/NzbDrone.exe"
 
 cd $APP_DIR

@@ -7,8 +7,8 @@
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
     - [Docker Hub](#docker-hub)
-        - [Installation as current-user](#Installation-as-current-user)
-        - [Installation as other user](#Installation-as-other-user)
+        - [Installation as current user](#installation-as-current-user)
+        - [Installation as other user](#installation-as-other-user)
     - [GitHub](#github)
     - [Initial Configuration](#initial-configuration)
 - [Maintenance](#maintenance)
@@ -94,7 +94,7 @@ To enable the systemd service for `sonarr` execute the following:
 sudo systemctl enable sonarr@${USERNAME}
 ```
 
-### Installation as another user:
+### Installation as other user:
 In the following instructions adjust each command replacing `username` with the
 name of the user you wish to install and run the container as.
 
