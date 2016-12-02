@@ -1,0 +1,19 @@
+#!/usr/bin/execlineb -P
+# vim:set ft=sh sw=2 sts=2 st=2 et:
+
+with-contenv
+multisubstitute
+{
+  import -D   1000                 APP_UID
+  import -D   1000                 APP_GID
+  import -D   "appuser"            APP_USER
+  import -D   "/config"            APP_CONFIG
+  import -D   "002"                UMASK
+  import APP_NAME
+}
+
+define HOME "/home/${APP_USER}"
+define APP_DIR "/usr/lib/${APP_NAME}"
+
+cd ${APP_DIR}
+s6-applyuidgid -u ${APP_UID} -g ${APP_GID} umask ${UMASK} python CouchPotato.py --config_file=${APP_CONFIG}/config.ini --data_dir=${APP_CONFIG}/data
