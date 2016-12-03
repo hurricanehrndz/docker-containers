@@ -19,3 +19,12 @@ if [[ ${EDGE} -eq 1 ]]; then
     echo "Update failed!"
   fi
 fi
+
+# enable update script
+CONFIG_FILE="/config/config.xml"
+sed -i 's%<UpdateMechanism>.*</UpdateMechanism>%<UpdateMechanism>Script</UpdateMechanism>%' ${CONFIG_FILE}
+sed -i 's%<UpdateScriptPath>.*</UpdateScriptPath>%<UpdateScriptPath>/bin/sonarr-update.sh</UpdateScriptPath>%' ${CONFIG_FILE}
+if [[ $(grep -c "UpdateScriptPath" ${CONFIG_FILE}) -eq 0 ]]; then
+  sed -i 's%\(^</Config>$\)%  <UpdateScriptPath>/bin/sonarr-update.sh</UpdateScriptPath>%' ${CONFIG_FILE}
+  echo -n "</Config>" >> $CONFIG_FILE
+fi

@@ -1,0 +1,11 @@
+#!/usr/bin/with-contenv bash
+# vim:set ft=sh sw=2 sts=2 st=2 et:
+
+CONFIG_FILE="/config/config.xml"
+APP_PORT=${APP_PORT:-8989}
+APP_SSL_PORT=${APP_SSL_PORT:-9898}
+
+if [[ -f ${CONFIG_FILE} ]]; then
+  sed -i s/"\(<Port>\)[0-9]*\(.*\)$"/"\1${APP_PORT}\2"/ ${CONFIG_FILE}
+  sed -i s/"\(<SslPort>\)[0-9]*\(.*\)$"/"\1${APP_SSL_PORT}\2"/ ${CONFIG_FILE}
+fi

@@ -9,12 +9,17 @@ APP_USER=${APP_USER:-appuser}
 if [[ ${EDGE} -eq 1 ]]; then
   rm -rf /tmp/${APP_NAME}
   mkdir -p /tmp/${APP_NAME}
-  tag=$(curl -sSL https://github.com/sabnzbd/sabnzbd/tags.atom | sed -n -e '/releases\/tag/{s/.*tag\/\([0-9.]*\).*/\1/p}' | head -1)
-  git clone -b "${tag}" --single-branch --depth 1 https://github.com/sabnzbd/sabnzbd.git /tmp/${APP_NAME}
+  TAG=$(curl -sSL https://github.com/sabnzbd/sabnzbd/tags.atom | sed -n -e '/releases\/tag/{s/.*tag\/\([0-9.]*\).*/\1/p}' | head -1)
+  git clone -b "${TAG}" --single-branch --depth 1 https://github.com/sabnzbd/sabnzbd.git /tmp/${APP_NAME}
   if [[ $? -eq 0 ]]; then
     chown -R ${APP_UID}:${APP_GID} /tmp/${APP_NAME}
     rm -rf /usr/lib/${APP_NAME}
     mv /tmp/${APP_NAME} /usr/lib/
+    pushd /usr/lib/${APP_NAME}
+    COMMITSH=$(git rev-list ${TAG})
+    popd
+    sed -i s/"\(__baseline__\s[=]\s\).*"/"\1\"${COMMITSH}\""/ /usr/lib/${APP_NAME}/${APP_NAME}/version.py
+    sed -i s/"\(__version__\s[=]\s\).*"/"\1\"${TAG}\""/ /usr/lib/${APP_NAME}/${APP_NAME}/version.py
     echo "Update successful!"
   else
     echo "Update failed!"

@@ -7,6 +7,8 @@ APP_NAME="APP_NAME"
 APP_USER=${APP_USER:-$USER}
 APP_REPO=${APP_REPO:-hurricane}
 APP_CONFIG=${APP_CONFIG:-"/home/${APP_USER}/.${APP_NAME}"}
+APP_PORT=${APP_PORT:-8080}
+APP_SSL_PORT=${APP_SSL_PORT:-9090}
 EDGE=${EDGE:-0}
 RUN_MODE="-d"
 
@@ -76,17 +78,17 @@ prepare_user_volume_parameters() {
     exit 1
   fi
 
-  if [ ! -e "${APP_CONFIG}/.${APP_NAME}.volumes" ]; then
+  if [[ ! -e "${APP_CONFIG}/.${APP_NAME}.volumes" ]]; then
     declare -a user_volumes
     echo "No existing user volumes for: ${APP_NAME}."
     echo "Pleae enter full paths you want accessible from within the container"
     echo "Enter one entry per line."
     echo "Enter \"done\" or "Ctrl+D" when finished"
     while read hostpath; do
-      if [ "$hostpath" == "done" ]; then
+      if [[ "$hostpath" == "done" ]]; then
         break
       fi
-      if [ ! -d "$hostpath" ]; then
+      if [[ ! -d "$hostpath" ]]; then
         echo "Sorry, $hostpath is not a valid path."
       else
         user_volumes+=("$hostpath")
@@ -137,7 +139,8 @@ if [[ "${running}" != "true" ]]; then
 
   echo "${msg}..."
   ${SUDO} docker run \
-    -p 8989:8989 \
+    -p ${APP_PORT}:${APP_PORT} \
+    -p ${APP_SSL_PORT}:${APP_SSL_PORT} \
     ${RUN_MODE} \
     ${ENV_VARS} \
     ${VOLUMES} \
@@ -162,7 +165,8 @@ else
       docker exec -it ${APP_NAME} bash
       ;;
     *)
-      echo "Already running." ;;
+      echo "Already running."
+      ;;
   esac
   exit 0
 fi

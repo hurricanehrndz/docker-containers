@@ -34,6 +34,9 @@ if ! getent passwd ${APP_USER} > /dev/null; then
     --comment 'Container application user.' ${APP_USER} > /dev/null 2>&1
 fi
 
+groupadd -r -g 44444 csonarr
+gpasswd -a ${APP_USER} csonarr group
+
 # fix configs permissions
 chown -R ${APP_UID}:${APP_GID} /home/${APP_USER}
 chown -R ${APP_UID}:${APP_GID} /opt/${APP_NAME}

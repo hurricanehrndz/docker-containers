@@ -1,6 +1,6 @@
 FROM opensuse/amd64:tumbleweed
 MAINTAINER Carlos Hernandez <carlos@techbyte.ca>
-ENV LANG="en_US.UTF-8" s6_overlay_version="1.18.1.5" APP_NAME="sabnzbd" IMG_NAME="sabnzbd" TAG_NAME="latest" S6_LOGGING="0" PYTHONIOENCODING="UTF-8" EDGE=0
+ENV LANG="en_US.UTF-8" s6_overlay_version="1.18.1.5" APP_NAME="sabnzbd" IMG_NAME="sabnzbd" TAG_NAME="latest" S6_LOGGING="0" PYTHONIOENCODING="UTF-8" UMASK=002 EDGE=0
 
 RUN zypper --gpg-auto-import-keys ref \
  && zypper --non-interactive up \
@@ -8,23 +8,34 @@ RUN zypper --gpg-auto-import-keys ref \
 	ca-certificates{-cacert,-mozilla} \
 	curl \
 	git-core \
+	gcc \
 	glibc-locale \
 	p7zip \
 	par \
 	python \
 	python-Cheetah \
+	python-devel \
 	python-lxml \
+	python-pip \
 	python-pyOpenSSL \
 	python-pysqlite \
 	tar \
 	timezone \
 	unrar \
-	zip \
+	unzip \
+  && pip install --upgrade pip \
+  && pip install http://www.golug.it/pub/yenc/yenc-0.4.0.tar.gz \
+  && zypper rm -y -u --force-resolution gcc python-devel python-pip \
   && curl -skL https://github.com/just-containers/s6-overlay/releases/download/v${s6_overlay_version}/s6-overlay-amd64.tar.gz -o /tmp/s6-overlay-amd64.tar.gz \
   && tar xf /tmp/s6-overlay-amd64.tar.gz -C / \
   && mkdir -p /usr/lib/${APP_NAME} \
-  && tag=$(curl -sSL https://github.com/sabnzbd/sabnzbd/tags.atom | sed -n -e '/releases\/tag/{s/.*tag\/\([0-9.]*\).*/\1/p}' | head -1) \
-  && git clone -b "${tag}" --single-branch --depth 1 https://github.com/sabnzbd/sabnzbd.git /usr/lib/${APP_NAME} \
+  && TAG=$(curl -sSL https://github.com/sabnzbd/sabnzbd/tags.atom | sed -n -e '/releases\/tag/{s/.*tag\/\([0-9.]*\).*/\1/p}' | head -1) \
+  && git clone -b "${TAG}" --single-branch --depth 1 https://github.com/sabnzbd/sabnzbd.git /usr/lib/${APP_NAME} \
+  && pushd /usr/lib/${APP_NAME} \
+  && COMMITSH=$(git rev-list ${TAG}) \
+  && popd \
+  && sed -i s/"\(__baseline__\s[=]\s\).*"/"\1\"${COMMITSH}\""/ /usr/lib/${APP_NAME}/${APP_NAME}/version.py \
+  && sed -i s/"\(__version__\s[=]\s\).*"/"\1\"${TAG}\""/ /usr/lib/${APP_NAME}/${APP_NAME}/version.py \
   && rpm -e --nodeps --allmatches --noscripts \
 	`rpm -qa | grep aaa_base` \
 	`rpm -qa | grep acl | grep -v lib` \

@@ -1,6 +1,6 @@
 FROM opensuse/amd64:tumbleweed
 MAINTAINER Carlos Hernandez <carlos@techbyte.ca>
-ENV LANG="en_US.UTF-8" s6_overlay_version="1.18.1.5" APP_NAME="sonarr" IMG_NAME="sonarr" TAG_NAME="latest" S6_LOGGING="0" PYTHONIOENCODING="UTF-8" EDGE=0
+ENV LANG="en_US.UTF-8" s6_overlay_version="1.18.1.5" APP_NAME="sonarr" IMG_NAME="sonarr" TAG_NAME="latest" S6_LOGGING="0" UMASK=0 EDGE=0
 
 RUN zypper --non-interactive ar -f -n packman http://ftp.gwdg.de/pub/linux/misc/packman/suse/openSUSE_Tumbleweed/ packman \
  && zypper --gpg-auto-import-keys ref \
@@ -17,6 +17,7 @@ RUN zypper --non-interactive ar -f -n packman http://ftp.gwdg.de/pub/linux/misc/
 	mono-core \
 	mono-devel \
 	sqlite3 \
+	sudo \
 	tar \
 	timezone \
 	zip \

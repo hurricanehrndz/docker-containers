@@ -21,6 +21,7 @@
   - [Automatic Upgrades](#unraid-automatic-upgrades)
 - [Technical Information](#technical-information)
   - [Environment Variables](#environment-variables)
+     - [Adjusting Variables](#adjusting-variables)
   - [Volumes](#volumes)
 - [Manual Run and Installation](#manual-run-and-installation)
 - [License](#license)
@@ -153,7 +154,7 @@ make service
 
 Once the sabnzbd wrapper script for docker has been installed you just need to
 execute the wrapper script from within a terminal:
-```
+```sh
 sabnzbd
 ```
 On the first run the wrapper script will prompt for system paths that
@@ -176,43 +177,25 @@ Otherwise at:
 
 You can upgrade the version of sabnzbd found within the container by executing
 one of the following commands:
-```
+```sh
 sabnzbd update
 ```
 
 Or by executing:
-```
+```sh
 docker exec sabnzbd update
 ```
 
 You can update the container itself by executing:
-```
+```sh
 docker pull hurricane/sabnzbd
 docker stop sabnzbd
 sabnzbd
 ```
 
-If you wish to have the docker container automatically update sabnzbd upon
-creation set the environment variable `EDGE` to `1` like in one of the examples
-below:
-
-From the commandline when calling the wrapper script:
-```
-EDGE=1 sabnzbd
-```
-
-By adjusting the systemd service:
-```ini
-[Service]
-Type=simple
-Environment=EDGE=1
-...
-```
-
-Or by adding to the docker run command:
-```sh
---env=EDGE=1
-```
+If you wish the docker container to automatically update upon creation, set the
+environment variable `EDGE` to `1`. Please read the `Technical Details` section
+for the various ways this can be achieved.
 
 ## Automatic Upgrades:
 
@@ -245,12 +228,12 @@ sabnzbd console
 ```
 
 ## Logs
-```
+```sh
 sabnzbd logs
 ```
 
 ## Status of service within container
-```
+```sh
 sabnzbd status
 ```
 
@@ -290,14 +273,54 @@ can be override by the end user.
 
 ## Environment Variables:
 
-You may overwrite the default settings by passing the appropriate environment variable:
-* APP_USER   - Name of user the serive will runas, UID, GID are more important.
-* APP_UID    - UID assigned to APP_USER upon creation.
-* APP_GID    - GID assigned to APP_USER upon creation.
-* APP_CONFIG - directory for storing metadata and configuration on host.
-* UMASK      - umask assigned to service, default 002
+You can adjust some of the default settings set for container/application by
+passing any or all of the following environment variable:
+* APP_USER     - Name of user the service will run as.<sup>[3](#allenv)</sup>
+* APP_UID      - UID assigned to APP_USER upon creation, or will query APP_USER's ID.<sup>[3](#runenv)</sup>
+* APP_GID      - GID assigned to APP_USER upon creation, or will query APP_USER's GID.<sup>[3](#runenv)</sup>
+* APP_CONFIG   - Location where application will store it's settings and database on host.<sup>[1](#instlenv)</sup>
+* APP_PORT     - App's Web UI port used to configure and access the service.<sup>[2](#instlrunenv)</sup>
+* APP_SSL_PORT - App's Web UI SSL port used to configure and access the
+service.<sup>[2](#instlrunenv)</sup>
+* UMASK        - umask assigned to service, default set to 002.<sup>[4](#allenv)</sup>
+* EDGE         - Update the containerized service, default set to 0(Off).<sup>[4](#allenv)</sup>
 
-Please read Docker documentation on [environment variables](https://docs.docker.com/engine/reference/run/#env-environment-variables) for more information.
+<a name="instlenv">1</a>: Variable is applicable only during install.
+<a name="instlrunenv">2</a>: Variable is applicable during install, when
+invoking installed wrapper script or systemd service.
+<a name="runenv">3</a>: Variable is applicable only when invoking docker run directly.
+<a name="allenv">4</a>: Variable is applicable in all scenarios.
+
+### Adjusting Variables:
+
+In order to pass any of the applicable variables during install or when
+invoking `docker run` directly  please read Docker's documentation on [environment variables](https://docs.docker.com/engine/reference/run/#env-environment-variables) for clarification if the following examples are not clear.
+
+In the following examples will use the environment variable `EDGE`. `EDGE` has
+been chosen since it is applicable during all scenarios.
+
+To pass the `EDGE` variable will invoking `docker run` append the following
+prior to the image name. Any and all other applicable variables can be done in
+the same manner.
+```sh
+--env=EDGE=1
+```
+
+To pass the environment variable during the other scenarios do so like in one
+of the examples below:
+
+From the commandline when calling the wrapper script:
+```
+EDGE=1 sabnzbd
+```
+
+By adjusting the systemd service:
+```ini
+[Service]
+Type=simple
+Environment=EDGE=1
+...
+```
 
 ## Volumes:
 
