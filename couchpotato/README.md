@@ -280,11 +280,11 @@ service.<sup>[2](#instlrunenv)</sup>
 * UMASK        - umask assigned to service, default set to 002.<sup>[4](#allenv)</sup>
 * EDGE         - Update the containerized service, default set to 0(Off).<sup>[4](#allenv)</sup>
 
-<a name="instlenv">1</a>: Variable is applicable only during install.
+<a name="instlenv">1</a>: Variable is applicable only during install.  
 <a name="instlrunenv">2</a>: Variable is applicable during install, when
-invoking installed wrapper script or systemd service.
-<a name="runenv">3</a>: Variable is applicable only when invoking docker run directly.
-<a name="allenv">4</a>: Variable is applicable in all scenarios.
+invoking installed wrapper script or systemd service.  
+<a name="runenv">3</a>: Variable is applicable only when invoking docker run directly.  
+<a name="allenv">4</a>: Variable is applicable in all scenarios.  
 
 ### Adjusting Variables:
 
