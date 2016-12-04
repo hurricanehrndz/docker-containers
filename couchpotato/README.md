@@ -1,5 +1,5 @@
+# CouchPotatoServer
 ![Alt text](https://couchpota.to/favicon.ico "")
-
 - [Introduction](#introduction)
   - [Contributing](#contributing)
   - [Issues](#issues)
@@ -304,7 +304,7 @@ of the examples below:
 
 From the commandline when calling the wrapper script:
 ```
-EDGE=1 sabnzbd
+EDGE=1 couchpotato
 ```
 
 By adjusting the systemd service:

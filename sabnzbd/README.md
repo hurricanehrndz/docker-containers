@@ -1,5 +1,5 @@
+SABnzbd
 ![Alt text](https://usenetreviewz.com/wp-content/uploads/sabnzbd11.png "")
-
 - [Introduction](#introduction)
   - [Contributing](#contributing)
   - [Issues](#issues)
@@ -275,21 +275,19 @@ can be override by the end user.
 
 You can adjust some of the default settings set for container/application by
 passing any or all of the following environment variable:
-* APP_USER     - Name of user the service will run as.<sup>[3](#allenv)</sup>
-* APP_UID      - UID assigned to APP_USER upon creation, or will query APP_USER's ID.<sup>[3](#runenv)</sup>
-* APP_GID      - GID assigned to APP_USER upon creation, or will query APP_USER's GID.<sup>[3](#runenv)</sup>
-* APP_CONFIG   - Location where application will store it's settings and database on host.<sup>[1](#instlenv)</sup>
-* APP_PORT     - App's Web UI port used to configure and access the service.<sup>[2](#instlrunenv)</sup>
-* APP_SSL_PORT - App's Web UI SSL port used to configure and access the
-service.<sup>[2](#instlrunenv)</sup>
-* UMASK        - umask assigned to service, default set to 002.<sup>[4](#allenv)</sup>
-* EDGE         - Update the containerized service, default set to 0(Off).<sup>[4](#allenv)</sup>
+* APP_USER     - Name of user the service will run as.\[4\]
+* APP_UID      - UID assigned to APP_USER upon creation, or will query APP_USER's ID.\[3\]
+* APP_GID      - GID assigned to APP_USER upon creation, or will query APP_USER's GID.\[3\]
+* APP_CONFIG   - Location where application will store it's settings and database on host.\[1\]
+* APP_PORT     - App's Web UI port used to configure and access the service.\[2\]
+* APP_SSL_PORT - App's Web UI SSL port used to configure and access the service.\[2\]  
+* UMASK        - umask assigned to service, default set to 002.\[4\]
+* EDGE         - Update the containerized service, default set to 0(Off).\[4\]
 
-<a name="instlenv">1</a>: Variable is applicable only during install.
-<a name="instlrunenv">2</a>: Variable is applicable during install, when
-invoking installed wrapper script or systemd service.
-<a name="runenv">3</a>: Variable is applicable only when invoking docker run directly.
-<a name="allenv">4</a>: Variable is applicable in all scenarios.
+\[1\]: Variable is applicable only during install.  
+\[2\]: Variable is applicable during install, when invoking installed wrapper script or systemd service.  
+\[3\]: Variable is applicable only when invoking docker run directly.  
+\[4\]: Variable is applicable in all scenarios.  
 
 ### Adjusting Variables:
 
@@ -347,5 +345,4 @@ Code released under the [MIT license](./LICENSE).
 
 
 # Donation
-
-[@hurricanehrndz](https://github.com/hurricanehrndz): <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=74S5RK533DD6C"><img src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" alt="[paypal]" /></a>
+[@hurricanehrndz](https://github.com/hurricanehrndz): [![PayPal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=74S5RK533DD6C)
