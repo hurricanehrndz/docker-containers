@@ -279,10 +279,10 @@ passing any or all of the following environment variable:
 * UMASK        - umask assigned to service, default set to 002.\[4\]
 * EDGE         - Update the containerized service, default set to 0(Off).\[4\]
 
-\[1\]: Variable is applicable only during install.
-\[2\]: Variable is applicable during install, when invoking installed wrapper script or systemd service.
-\[3\]: Variable is applicable only when invoking docker run directly.
-\[4\]: Variable is applicable in all scenarios.
+\[1\]: Variable is applicable only during install.  
+\[2\]: Variable is applicable during install, when invoking installed wrapper script or systemd service.  
+\[3\]: Variable is applicable only when invoking docker run directly.  
+\[4\]: Variable is applicable in all scenarios.  
 
 ### Adjusting Variables:
 
