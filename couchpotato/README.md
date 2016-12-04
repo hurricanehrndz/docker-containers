@@ -271,7 +271,7 @@ can be override by the end user.
 
 You can adjust some of the default settings set for container/application by
 passing any or all of the following environment variable:
-* APP_USER     - Name of user the service will run as.<sup>[3](#allenv)</sup>
+* APP_USER     - Name of user the service will run as.<sup>[4](#allenv)</sup>
 * APP_UID      - UID assigned to APP_USER upon creation, or will query APP_USER's ID.<sup>[3](#runenv)</sup>
 * APP_GID      - GID assigned to APP_USER upon creation, or will query APP_USER's GID.<sup>[3](#runenv)</sup>
 * APP_CONFIG   - Location where application will store it's settings and database on host.<sup>[1](#instlenv)</sup>
@@ -281,8 +281,7 @@ service.<sup>[2](#instlrunenv)</sup>
 * EDGE         - Update the containerized service, default set to 0(Off).<sup>[4](#allenv)</sup>
 
 <a name="instlenv">1</a>: Variable is applicable only during install.  
-<a name="instlrunenv">2</a>: Variable is applicable during install, when
-invoking installed wrapper script or systemd service.  
+<a name="instlrunenv">2</a>: Variable is applicable during install, when invoking installed wrapper script or systemd service.  
 <a name="runenv">3</a>: Variable is applicable only when invoking docker run directly.  
 <a name="allenv">4</a>: Variable is applicable in all scenarios.  
 
