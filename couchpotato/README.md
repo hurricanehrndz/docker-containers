@@ -276,7 +276,6 @@ passing any or all of the following environment variable:
 * APP_GID      - GID assigned to APP_USER upon creation, or will query APP_USER's GID.<sup>[3](#runenv)</sup>
 * APP_CONFIG   - Location where application will store it's settings and database on host.<sup>[1](#instlenv)</sup>
 * APP_PORT     - App's Web UI port used to configure and access the service.<sup>[2](#instlrunenv)</sup>
-service.<sup>[2](#instlrunenv)</sup>
 * UMASK        - umask assigned to service, default set to 002.<sup>[4](#allenv)</sup>
 * EDGE         - Update the containerized service, default set to 0(Off).<sup>[4](#allenv)</sup>
 
