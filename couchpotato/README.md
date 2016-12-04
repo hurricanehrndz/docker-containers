@@ -6,7 +6,7 @@
 - [Getting started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
-    - [Docker Store](#docker-store)
+    - [Docker Hub](#docker-hub)
         - [Installation as current user](#installation-as-current-user)
         - [Installation as other user](#installation-as-other-user)
     - [GitHub](#github)
@@ -63,8 +63,8 @@ If the above recommendations do not help then [report your issue](../../issues/n
 
 ## Installation:
 
-### [Docker Store](https://store.docker.com/community/images/hurricane/couchpotato):
-It is recommended you install directly from the [Docker Store](https://store.docker.com/community/images/hurricane/couchpotato).
+### [Docker Hub](https://hub.docker.com/r/hurricane/couchpotato/):
+It is recommended you install directly from the [Docker Hub](https://hub.docker.com/r/hurricane/couchpotato/).
 
 The installation process and scripts are very versatile and can be adjusted by
 passing the right combination of variables and arguments to each of the
