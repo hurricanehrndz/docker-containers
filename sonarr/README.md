@@ -1,4 +1,4 @@
-#Sonarr
+# Sonarr
 ![Alt text](https://cdn.rawgit.com/Sonarr/Sonarr/develop/Logo/256.png "")
 - [Introduction](#introduction)
   - [Contributing](#contributing)
