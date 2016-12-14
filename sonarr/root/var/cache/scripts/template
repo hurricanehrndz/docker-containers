@@ -11,6 +11,7 @@ APP_GCONFIG=${APP_GCONFIG:-"/config"}
 APP_PORT=${APP_PORT:-8989}
 APP_SSL_PORT=${APP_SSL_PORT:-9898}
 EDGE=${EDGE:-0}
+UMASK=${UMASK:-002}
 RUN_MODE="-d"
 
 ( id -Gn | grep -q docker ) || [[ $EUID == 0 ]] || SUDO=sudo
@@ -67,7 +68,12 @@ prepare_docker_volume_parameters() {
   if [[ ! -d "${APP_CONFIG}" ]]; then
     mkdir -p ${APP_CONFIG}
   fi
-  chown -R ${APP_UID}:${APP_GID} ${APP_CONFIG}
+
+  CURR_SID=$(stat -c"%u:%g" ${APP_CONFIG})
+  if [ "$CURR_SID" != "$APP_UID:$APP_GID" ] ; then
+    chown -R $APP_UID:$APP_GID ${APP_CONFIG}
+  fi
+
   # prepare local filesystems
   VOLUMES+=" --volume=${APP_CONFIG}:${APP_GCONFIG}"
 }

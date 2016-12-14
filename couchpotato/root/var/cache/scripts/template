@@ -7,8 +7,10 @@ APP_NAME="APP_NAME"
 APP_USER=${APP_USER:-$USER}
 APP_REPO=${APP_REPO:-hurricane}
 APP_CONFIG=${APP_CONFIG:-"/home/${APP_USER}/.${APP_NAME}"}
+APP_GCONFIG=${APP_GCONFIG:-"/config"}
 APP_PORT=${APP_PORT:-5050}
 EDGE=${EDGE:-0}
+UMASK=${UMASK:-002}
 RUN_MODE="-d"
 
 ( id -Gn | grep -q docker ) || [[ $EUID == 0 ]] || SUDO=sudo
@@ -65,14 +67,19 @@ prepare_docker_volume_parameters() {
   if [[ ! -d "${APP_CONFIG}" ]]; then
     mkdir -p ${APP_CONFIG}
   fi
-  chown -R ${APP_UID}:${APP_GID} ${APP_CONFIG}
+
+  CURR_SID=$(stat -c"%u:%g" ${APP_CONFIG})
+  if [ "$CURR_SID" != "$APP_UID:$APP_GID" ] ; then
+    chown -R $APP_UID:$APP_GID ${APP_CONFIG}
+  fi
+
   # prepare local filesystems
-  VOLUMES+=" --volume=${APP_CONFIG}:/config"
+  VOLUMES+=" --volume=${APP_CONFIG}:${APP_GCONFIG}"
 }
 
 prepare_user_volume_parameters() {
   # Ensure app config directory exist.
-  if [ ! -d "${APP_CONFIG}" ]; then
+  if [[ ! -d "${APP_CONFIG}" ]]; then
     echo "Error, ${APP_NAME} data directory: ${APP_CONFIG} does not exist."
     exit 1
   fi
@@ -139,6 +146,8 @@ if [[ "${running}" != "true" ]]; then
   echo "${msg}..."
   ${SUDO} docker run \
     -p ${APP_PORT}:${APP_PORT} \
+    --log-opt max-size=2m \
+    --log-opt max-file=2 \
     ${RUN_MODE} \
     ${ENV_VARS} \
     ${VOLUMES} \
