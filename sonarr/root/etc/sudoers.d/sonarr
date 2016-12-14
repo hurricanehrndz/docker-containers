@@ -1,6 +1,5 @@
 #Allow csonarr group to restart itself
-Cmnd_Alias RESTARTSERVER_SYSV = /bin/s6-svc -t /var/run/services/sonarr
-
+Cmnd_Alias RESTARTSERVER = /bin/s6-svc -t /var/run/s6/services/sonarr
 
 %csonarr ALL=(ALL) NOPASSWD: RESTARTSERVER
 

@@ -7,6 +7,7 @@ APP_NAME="APP_NAME"
 APP_USER=${APP_USER:-$USER}
 APP_REPO=${APP_REPO:-hurricane}
 APP_CONFIG=${APP_CONFIG:-"/home/${APP_USER}/.${APP_NAME}"}
+APP_GCONFIG=${APP_GCONFIG:-"/config"}
 APP_PORT=${APP_PORT:-8989}
 APP_SSL_PORT=${APP_SSL_PORT:-9898}
 EDGE=${EDGE:-0}
@@ -68,7 +69,7 @@ prepare_docker_volume_parameters() {
   fi
   chown -R ${APP_UID}:${APP_GID} ${APP_CONFIG}
   # prepare local filesystems
-  VOLUMES+=" --volume=${APP_CONFIG}:/config"
+  VOLUMES+=" --volume=${APP_CONFIG}:${APP_GCONFIG}"
 }
 
 prepare_user_volume_parameters() {
@@ -141,6 +142,8 @@ if [[ "${running}" != "true" ]]; then
   ${SUDO} docker run \
     -p ${APP_PORT}:${APP_PORT} \
     -p ${APP_SSL_PORT}:${APP_SSL_PORT} \
+    --log-opt max-size=2m \
+    --log-opt max-file=2 \
     ${RUN_MODE} \
     ${ENV_VARS} \
     ${VOLUMES} \

@@ -165,7 +165,7 @@ If the wrapper script was installed as the executing user the volume
 configuration file can be found at:
 `${HOME}/.sonarr/.sonarr.volumes`
 Otherwise at:
-`${APP_CONFIG}/.sonarr/.volumes`
+`${APP_CONFIG}/.sonarr.volumes`
 
 # Maintenance
 
@@ -271,14 +271,15 @@ can be override by the end user.
 
 You can adjust some of the default settings set for container/application by
 passing any or all of the following environment variable:
-* APP_USER     - Name of user the service will run as.\[4\]
-* APP_UID      - UID assigned to APP_USER upon creation, or will query APP_USER's ID.\[3\]
+* APP_USER     - Name of user the service will run as.\[4\]  
+* APP_UID      - UID assigned to APP_USER upon creation, or will query APP_USER's ID.\[3\]  
 * APP_GID      - GID assigned to APP_USER upon creation, or will query APP_USER's GID.\[3\]
-* APP_CONFIG   - Location where application will store it's settings and database on host.\[1\]
-* APP_PORT     - App's Web UI port used to configure and access the service.\[2\]
+* APP_CONFIG   - Location where application will store settings and database on host.\[1\]  
+* APP_GCONFIG  - Location where application will store settings and database within guest.\[4\]  
+* APP_PORT     - App's Web UI port used to configure and access the service.\[2\]  
 * APP_SSL_PORT - App's Web UI SSL port used to configure and access the service.\[2\]  
-* UMASK        - umask assigned to service, default set to 002.\[4\]
-* EDGE         - Update the containerized service, default set to 0(Off).\[4\]
+* UMASK        - umask assigned to service, default set to 002.\[4\]  
+* EDGE         - Update the containerized service, default set to 0(Off).\[4\]  
 
 \[1\]: Variable is applicable only during install.  
 \[2\]: Variable is applicable during install, when invoking installed wrapper script or systemd service.  
