@@ -274,7 +274,7 @@ can be override by the end user.
 ## Environment Variables:
 
 You can adjust some of the default settings set for container/application by
-passing any or all of the following environment variable:
+passing any or all of the following environment variable:  
 | ENV VAR      | Definition                                                                     |
 | ---          | ---                                                                            |
 | APP_USER     | Name of user the service will run as.\[4\]                                     |
