@@ -74,7 +74,7 @@ prepare_docker_volume_parameters() {
 
 prepare_user_volume_parameters() {
   # Ensure app config directory exist.
-  if [ ! -d "${APP_CONFIG}" ]; then
+  if [[ ! -d "${APP_CONFIG}" ]]; then
     echo "Error, ${APP_NAME} data directory: ${APP_CONFIG} does not exist."
     exit 1
   fi
@@ -168,7 +168,8 @@ else
       docker exec -it ${APP_NAME} bash
       ;;
     *)
-      echo "Already running." ;;
+      echo "Already running."
+      ;;
   esac
   exit 0
 fi
