@@ -1,4 +1,4 @@
-FROM hurricane/base:${ARCH}
+FROM hurricane/base:ARCH
 ENV  APP_NAME="couchpotato" IMG_NAME="couchpotato" TAG_NAME="${ARCH}" S6_LOGGING="0" PYTHONIOENCODING="UTF-8" UMASK=002 EDGE=0
 
 RUN zypper --gpg-auto-import-keys ref \
