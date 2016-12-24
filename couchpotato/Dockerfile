@@ -1,6 +1,5 @@
-FROM opensuse/amd64:tumbleweed
-MAINTAINER Carlos Hernandez <carlos@techbyte.ca>
-ENV LANG="en_US.UTF-8" s6_overlay_version="1.18.1.5" APP_NAME="couchpotato" IMG_NAME="couchpotato" TAG_NAME="latest" S6_LOGGING="0" PYTHONIOENCODING="UTF-8" UMASK=002 EDGE=0
+FROM hurricane/base:${ARCH}
+ENV  APP_NAME="couchpotato" IMG_NAME="couchpotato" TAG_NAME="${ARCH}" S6_LOGGING="0" PYTHONIOENCODING="UTF-8" UMASK=002 EDGE=0
 
 RUN zypper --gpg-auto-import-keys ref \
  && zypper --non-interactive up \
