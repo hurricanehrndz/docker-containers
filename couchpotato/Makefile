@@ -1,14 +1,16 @@
 #!/usr/bin/make -f
 
 SHELL := /bin/bash
-IMG_NAME := "couchpotato"
-IMG_REPO := "hurricane"
+IMG_NAME := couchpotato
+IMG_REPO := hurricane
 
-repo := "http://download.opensuse.org/tumbleweed/repo/oss/suse/x86_64"
-all: armv7l aarch64 x86_64
+current_dir := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+repo := http://download.opensuse.org/tumbleweed/repo/oss/suse/x86_64
+
 .PHONY: all armv7l aarch64 x86_64 end
+all: armv7l aarch64 x86_64
 
-x86_64: ARCH := "x86_64"
+x86_64: ARCH := x86_64
 x86_64:
 	@echo "Building $(ARCH)"
 	@ if  [[ -d /var/tmp/$(IMG_NAME)_$(ARCH) ]]; then \
@@ -17,14 +19,14 @@ x86_64:
 	mkdir -p /var/tmp/$(IMG_NAME)_$(ARCH)
 	cp Dockerfile /var/tmp/$(IMG_NAME)_$(ARCH)/
 	cp -R root /var/tmp/$(IMG_NAME)_$(ARCH)/
-	pushd /var/tmp/$(IMG_NAME)_$(ARCH)/
-	sed -i '/\(base[:]\).*/\1$(ARCH)/' Dockerfile
+	cd /var/tmp/$(IMG_NAME)_$(ARCH)/
+	sed -i s'/\(base[:]\).*/\1$(ARCH)/' Dockerfile
 	docker build --build-arg ARCH=$(ARCH) --rm=true --tag=$(IMG_REPO)/$(IMG_NAME):$(ARCH) .
-	popd
+	cd $(current_dir)
 	rm -rf /var/tmp/$(IMG_NAME)*
 
-armv7l: ARCH := "armv7l"
-aarch64: ARCH := "aarch64"
+armv7l: ARCH := armv7l
+aarch64: ARCH := aarch64
 armv7l aarch64:
 	@ echo "Building ffmpeg for $(ARCH)"
 	@ if  [[ -d /var/tmp/$(IMG_NAME)_$(ARCH) ]]; then \

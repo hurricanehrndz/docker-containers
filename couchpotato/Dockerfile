@@ -1,4 +1,5 @@
-FROM hurricane/base:ARCH
+FROM hurricane/base:x86_64
+ARG ARCH=x86_64
 ENV  APP_NAME="couchpotato" IMG_NAME="couchpotato" TAG_NAME="${ARCH}" S6_LOGGING="0" PYTHONIOENCODING="UTF-8" UMASK=002 EDGE=0
 
 RUN zypper --gpg-auto-import-keys ref \
@@ -7,15 +8,12 @@ RUN zypper --gpg-auto-import-keys ref \
 	ca-certificates{-cacert,-mozilla} \
 	curl \
 	git-core \
-	glibc-locale \
 	python \
 	python-lxml \
 	python-pysqlite \
 	python-pyOpenSSL \
 	tar \
 	timezone \
-  && curl -skL https://github.com/just-containers/s6-overlay/releases/download/v${s6_overlay_version}/s6-overlay-amd64.tar.gz -o /tmp/s6-overlay-amd64.tar.gz \
-  && tar xf /tmp/s6-overlay-amd64.tar.gz -C / \
   && mkdir -p /usr/lib/${APP_NAME} \
   && git clone --depth=1 https://github.com/CouchPotato/CouchPotatoServer.git /usr/lib/${APP_NAME} \
   && rpm -e --nodeps --allmatches --noscripts \
@@ -40,8 +38,6 @@ RUN zypper --gpg-auto-import-keys ref \
 	`rpm -qa | grep sg3_utils` \
 	`rpm -qa | grep systemd | grep -v lib` \
 	tar \
-  && ls /usr/lib/locale | grep -ve "en_CA*\|en_US*" | awk '{if(system("[ -f "$1" ]") == 0) {print $1} }' | xargs rm -rf \
-  && find /usr/share/locale -type f -name '*.mo' | grep -ve "en_US*"  | awk '{if(system("[ -f "$1" ]") == 0) {print $1} }' | xargs rm \
   && zypper cc --all \
   && rm -rf /usr/share/{man,doc,info,gnome/help} \
   && rm -rf /var/cache/zypp* \
@@ -49,4 +45,6 @@ RUN zypper --gpg-auto-import-keys ref \
   && rm -rf /var/log/*
 
 COPY root /
+VOLUME [ "/config" ]
+EXPOSE 5050
 ENTRYPOINT ["/init"]
