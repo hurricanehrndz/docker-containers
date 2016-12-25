@@ -35,7 +35,7 @@ armv7l aarch64:
 	mkdir -p /var/tmp/$(IMG_NAME)_$(ARCH)
 	cp Dockerfile /var/tmp/$(IMG_NAME)_$(ARCH)/
 	cp -R root /var/tmp/$(IMG_NAME)_$(ARCH)/
-	pushd /var/tmp/$(IMG_NAME)_$(ARCH)/
+	cd /var/tmp/$(IMG_NAME)_$(ARCH)/
 	sed -i '/\(base[:]\).*/\1$(ARCH)/' Dockerfile
 	$(eval rpm_name := $(shell curl -s $(repo)/ --list-only | grep qemu-linux | sed -n s%".*>\(qemu-linux-.*rpm\)</a>.*"%"\1"%p))
 	curl -L $(repo)/$(rpm_name) -o qemu-linux-user.rpm
@@ -57,7 +57,7 @@ armv7l aarch64:
 			docker run --rm --privileged emby/qemu-builder:register; \
 	  fi
 	docker build --build-arg ARCH=$(ARCH) --rm=true --tag=$(IMG_REPO)/$(IMG_NAME):$(ARCH) .
-	popd
+	cd $(current_dir)
 	rm -rf /var/tmp/$(IMG_NAME)*
 
 end:
