@@ -37,10 +37,10 @@ armv7l aarch64:
 	$(eval rpm_name := $(shell curl -s $(repo)/ --list-only | grep qemu-linux | sed -n s%".*>\(qemu-linux-.*rpm\)</a>.*"%"\1"%p))
 	curl -L $(repo)/$(rpm_name) -o /var/tmp/$(IMG_NAME)_$(ARCH)/qemu-linux-user.rpm
 	@ if [[ $(ARCH) ==  "armv7l" ]]; then \
-		rpm2cpio qemu-linux-user.rpm | cpio -D /var/tmp/$(IMG_NAME)_$(ARCH)/ -idmv "*qemu-arm*"; \
+		rpm2cpio /var/tmp/$(IMG_NAME)_$(ARCH)/qemu-linux-user.rpm | cpio -D /var/tmp/$(IMG_NAME)_$(ARCH)/ -idmv "*qemu-arm*"; \
 	  fi
 	@ if [[ $(ARCH) ==  "aarch64" ]]; then \
-		rpm2cpio qemu-linux-user.rpm | cpio -D /var/tmp/$(IMG_NAME)_$(ARCH)/ -idmv "*qemu-aarch*"; \
+		rpm2cpio /var/tmp/$(IMG_NAME)_$(ARCH)/qemu-linux-user.rpm | cpio -D /var/tmp/$(IMG_NAME)_$(ARCH)/ -idmv "*qemu-aarch*"; \
 	  fi
 	sed -i '/ENV/,/RUN/ {s/^$$/COPY usr \/usr/}' /var/tmp/$(IMG_NAME)_$(ARCH)/Dockerfile
 	@ if [[ -d "/proc/sys/fs/binfmt_misc/" ]]; then \
