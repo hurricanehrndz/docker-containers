@@ -4,7 +4,6 @@ SHELL := /bin/bash
 IMG_NAME := couchpotato
 IMG_REPO := hurricane
 
-current_dir := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 repo := http://download.opensuse.org/tumbleweed/repo/oss/suse/x86_64
 
 .PHONY: all armv7l aarch64 x86_64 end
@@ -19,10 +18,9 @@ x86_64:
 	mkdir -p /var/tmp/$(IMG_NAME)_$(ARCH)
 	cp Dockerfile /var/tmp/$(IMG_NAME)_$(ARCH)/
 	cp -R root /var/tmp/$(IMG_NAME)_$(ARCH)/
-	cd /var/tmp/$(IMG_NAME)_$(ARCH)/
-	sed -i s'/\(base[:]\).*/\1$(ARCH)/' Dockerfile
-	docker build --build-arg ARCH=$(ARCH) --rm=true --tag=$(IMG_REPO)/$(IMG_NAME):$(ARCH) .
-	cd $(current_dir)
+	sed -i s'/\(base[:]\).*/\1$(ARCH)/' /var/tmp/$(IMG_NAME)_$(ARCH)/Dockerfile
+	cd /var/tmp/$(IMG_NAME)_$(ARCH)/ && \
+		docker build --build-arg ARCH=latest --rm=true --tag=$(IMG_REPO)/$(IMG_NAME):latest .
 	rm -rf /var/tmp/$(IMG_NAME)*
 
 armv7l: ARCH := armv7l
@@ -35,17 +33,16 @@ armv7l aarch64:
 	mkdir -p /var/tmp/$(IMG_NAME)_$(ARCH)
 	cp Dockerfile /var/tmp/$(IMG_NAME)_$(ARCH)/
 	cp -R root /var/tmp/$(IMG_NAME)_$(ARCH)/
-	cd /var/tmp/$(IMG_NAME)_$(ARCH)/
-	sed -i '/\(base[:]\).*/\1$(ARCH)/' Dockerfile
+	sed -i s'/\(base[:]\).*/\1$(ARCH)/' /var/tmp/$(IMG_NAME)_$(ARCH)/Dockerfile
 	$(eval rpm_name := $(shell curl -s $(repo)/ --list-only | grep qemu-linux | sed -n s%".*>\(qemu-linux-.*rpm\)</a>.*"%"\1"%p))
-	curl -L $(repo)/$(rpm_name) -o qemu-linux-user.rpm
+	curl -L $(repo)/$(rpm_name) -o /var/tmp/$(IMG_NAME)_$(ARCH)/qemu-linux-user.rpm
 	@ if [[ $(ARCH) ==  "armv7l" ]]; then \
-		rpm2cpio qemu-linux-user.rpm | cpio -idmv "*qemu-arm*"; \
+		rpm2cpio qemu-linux-user.rpm | cpio -D /var/tmp/$(IMG_NAME)_$(ARCH)/ -idmv "*qemu-arm*"; \
 	  fi
 	@ if [[ $(ARCH) ==  "aarch64" ]]; then \
-		rpm2cpio qemu-linux-user.rpm | cpio -idmv "*qemu-aarch*"; \
+		rpm2cpio qemu-linux-user.rpm | cpio -D /var/tmp/$(IMG_NAME)_$(ARCH)/ -idmv "*qemu-aarch*"; \
 	  fi
-	sed -i '/ENV/,/RUN/ {s/^$/COPY usr \/usr/}' Dockerfile
+	sed -i '/ENV/,/RUN/ {s/^$$/COPY usr \/usr/}' /var/tmp/$(IMG_NAME)_$(ARCH)/Dockerfile
 	@ if [[ -d "/proc/sys/fs/binfmt_misc/" ]]; then \
 		if [[ "enabled" != $(shell cat /proc/sys/fs/binfmt_misc/status) ]]; then \
 			docker run --rm --privileged emby/qemu-builder:register; \
@@ -56,8 +53,8 @@ armv7l aarch64:
 	  else \
 			docker run --rm --privileged emby/qemu-builder:register; \
 	  fi
-	docker build --build-arg ARCH=$(ARCH) --rm=true --tag=$(IMG_REPO)/$(IMG_NAME):$(ARCH) .
-	cd $(current_dir)
+	cd /var/tmp/$(IMG_NAME)_$(ARCH)/ && \
+		docker build --build-arg ARCH=$(ARCH) --rm=true --tag=$(IMG_REPO)/$(IMG_NAME):$(ARCH) .
 	rm -rf /var/tmp/$(IMG_NAME)*
 
 end:
