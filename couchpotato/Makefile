@@ -20,7 +20,7 @@ x86_64:
 	cp -R root /var/tmp/$(IMG_NAME)_$(ARCH)/
 	sed -i s'/\(base[:]\).*/\1$(ARCH)/' /var/tmp/$(IMG_NAME)_$(ARCH)/Dockerfile
 	cd /var/tmp/$(IMG_NAME)_$(ARCH)/ && \
-		docker build --build-arg ARCH=latest --rm=true --tag=$(IMG_REPO)/$(IMG_NAME):latest .
+		docker build --no-cache=true --build-arg ARCH=latest --rm=true --tag=$(IMG_REPO)/$(IMG_NAME):latest .
 	rm -rf /var/tmp/$(IMG_NAME)*
 
 armv7l: ARCH := armv7l
@@ -54,7 +54,7 @@ armv7l aarch64:
 			docker run --rm --privileged emby/qemu-builder:register; \
 	  fi
 	cd /var/tmp/$(IMG_NAME)_$(ARCH)/ && \
-		docker build --build-arg ARCH=$(ARCH) --rm=true --tag=$(IMG_REPO)/$(IMG_NAME):$(ARCH) .
+		docker build --no-cache=true --build-arg ARCH=$(ARCH) --rm=true --tag=$(IMG_REPO)/$(IMG_NAME):$(ARCH) .
 	rm -rf /var/tmp/$(IMG_NAME)*
 
 end:
