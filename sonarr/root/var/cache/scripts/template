@@ -165,7 +165,7 @@ else
       ;;
     "status")
       echo "${APP_NAME} is running."
-      echo "UpTime: $(ps -p $(pgrep -f mono-sgen) -o etime=)"
+      echo "UpTime: $(docker exec -it ${APP_NAME} status)"
       ;;
     "logs")
       docker logs ${APP_NAME}

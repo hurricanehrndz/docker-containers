@@ -1,0 +1,3 @@
+#!/bin/bash
+
+ps -p $(pgrep -f mono-sgen) -o etime=

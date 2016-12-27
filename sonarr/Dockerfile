@@ -1,8 +1,8 @@
-FROM opensuse/amd64:tumbleweed
-MAINTAINER Carlos Hernandez <carlos@techbyte.ca>
-ENV LANG="en_US.UTF-8" s6_overlay_version="1.18.1.5" APP_NAME="sonarr" IMG_NAME="sonarr" TAG_NAME="latest" S6_LOGGING="0" UMASK=0 EDGE=0
+FROM hurricane/base:x86_64
+ARG ARCH=latest
+ENV APP_NAME="sonarr" IMG_NAME="sonarr" TAG_NAME="${ARCH}" S6_LOGGING="0" UMASK=0 EDGE=0
 
-RUN zypper --non-interactive ar -f -n packman http://ftp.gwdg.de/pub/linux/misc/packman/suse/openSUSE_Tumbleweed/ packman \
+RUN zypper --non-interactive ar -f -n repo-mediainfo http://download.opensuse.org/repositories/home:/MediaArea_net:/snapshots/openSUSE_Tumbleweed repo-mediainfo \
  && zypper --gpg-auto-import-keys ref \
  && zypper --non-interactive up \
  && zypper --non-interactive in -f --no-recommends \
@@ -21,8 +21,6 @@ RUN zypper --non-interactive ar -f -n packman http://ftp.gwdg.de/pub/linux/misc/
 	tar \
 	timezone \
 	zip \
-  && curl -skL https://github.com/just-containers/s6-overlay/releases/download/v${s6_overlay_version}/s6-overlay-amd64.tar.gz -o /tmp/s6-overlay-amd64.tar.gz \
-  && tar xf /tmp/s6-overlay-amd64.tar.gz -C / \
   && mkdir -p /opt/${APP_NAME} \
   && curl -sSL http://update.sonarr.tv/v2/master/mono/NzbDrone.master.tar.gz | tar -C /opt/${APP_NAME} -xzv --strip-components=1 \
   && rpm -e --nodeps --allmatches --noscripts \
@@ -46,8 +44,6 @@ RUN zypper --non-interactive ar -f -n packman http://ftp.gwdg.de/pub/linux/misc/
 	`rpm -qa | grep qrencode` \
 	`rpm -qa | grep sg3_utils` \
 	`rpm -qa | grep systemd | grep -v lib` \
-  && ls /usr/lib/locale | grep -ve "en_CA*\|en_US*" | awk '{if(system("[ -f "$1" ]") == 0) {print $1} }' | xargs rm -rf \
-  && find /usr/share/locale -type f -name '*.mo' | grep -ve "en_US*"  | awk '{if(system("[ -f "$1" ]") == 0) {print $1} }' | xargs rm \
   && zypper cc --all \
   && rm -rf /usr/share/{man,doc,info,gnome/help} \
   && rm -rf /var/cache/zypp* \
@@ -55,4 +51,6 @@ RUN zypper --non-interactive ar -f -n packman http://ftp.gwdg.de/pub/linux/misc/
   && rm -rf /var/log/*
 
 COPY root /
+VOLUME [ "/config" ]
+EXPOSE 8989
 ENTRYPOINT ["/init"]

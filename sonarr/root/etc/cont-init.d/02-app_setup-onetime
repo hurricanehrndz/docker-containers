@@ -3,7 +3,7 @@
 
 APP_UID=${APP_UID:-1000}
 APP_GID=${APP_GID:-1000}
-
+APP_GCONFIG=${APP_GCONFIG:-/config}
 APP_USER=${APP_USER:-appuser}
 
 if [[ ${EDGE} -eq 1 ]]; then
@@ -21,10 +21,29 @@ if [[ ${EDGE} -eq 1 ]]; then
 fi
 
 # enable update script
-CONFIG_FILE="/config/config.xml"
-sed -i 's%<UpdateMechanism>.*</UpdateMechanism>%<UpdateMechanism>Script</UpdateMechanism>%' ${CONFIG_FILE}
-sed -i 's%<UpdateScriptPath>.*</UpdateScriptPath>%<UpdateScriptPath>/bin/sonarr-update.sh</UpdateScriptPath>%' ${CONFIG_FILE}
-if [[ $(grep -c "UpdateScriptPath" ${CONFIG_FILE}) -eq 0 ]]; then
-  sed -i 's%\(^</Config>$\)%  <UpdateScriptPath>/bin/sonarr-update.sh</UpdateScriptPath>%' ${CONFIG_FILE}
-  echo -n "</Config>" >> $CONFIG_FILE
+CONFIG_FILE="${APP_GCONFIG}/config.xml"
+if [[ -f $CONFIG_FILE ]]; then
+  sed -i 's%<UpdateMechanism>.*</UpdateMechanism>%<UpdateMechanism>Script</UpdateMechanism>%' ${CONFIG_FILE}
+  sed -i 's%<UpdateScriptPath>.*</UpdateScriptPath>%<UpdateScriptPath>/bin/sonarr-update.sh</UpdateScriptPath>%' ${CONFIG_FILE}
+  if [[ $(grep -c "UpdateScriptPath" ${CONFIG_FILE}) -eq 0 ]]; then
+    sed -i 's%\(^</Config>$\)%  <UpdateScriptPath>/bin/sonarr-update.sh</UpdateScriptPath>%' ${CONFIG_FILE}
+    echo -n "</Config>" >> $CONFIG_FILE
+  fi
+else
+  {
+    echo "<Config>"
+    echo "  <LogLevel>Info</LogLevel>"
+    echo "  <Port>8989</Port>"
+    echo "  <UrlBase></UrlBase>"
+    echo "  <BindAddress>*</BindAddress>"
+    echo "  <SslPort>9898</SslPort>"
+    echo "  <EnableSsl>False</EnableSsl>"
+    echo "  <AuthenticationMethod>None</AuthenticationMethod>"
+    echo "  <Branch>master</Branch>"
+    echo "  <LaunchBrowser>True</LaunchBrowser>"
+    echo "  <SslCertHash></SslCertHash>"
+    echo "  <UpdateMechanism>Script</UpdateMechanism>"
+    echo "  <UpdateScriptPath>/bin/sonarr-update.sh</UpdateScriptPath>"
+    echo "</Config>"
+  } > $CONFIG_FILE
 fi
