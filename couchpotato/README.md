@@ -1,6 +1,7 @@
 # CouchPotatoServer
 ![Alt text](https://couchpota.to/favicon.ico "")
 - [Introduction](#introduction)
+  - [Supported Tags](#supported-tags)
   - [Contributing](#contributing)
   - [Issues](#issues)
 - [Getting started](#getting-started)
@@ -36,6 +37,12 @@ every X hours. Once a movie is found, it will send it to SABnzbd or download
 the torrent to a specified directory.
 
 This subfolder contains all necessary files to build a [Docker](https://www.docker.com/) image for [CouchPotatoServer](https://github.com/CouchPotato/CouchPotatoServer).
+
+## Supported Tags:
+
+* latest - latest tagged release for x86_64  
+* armv7l - latest tagged release for armv7 or armhf  
+* aarch64 - latest tagged release for armv8 or aarch64  
 
 ## Contributing
 
@@ -137,14 +144,11 @@ following:
 ```sh
 git clone https://github.com/hurricane/docker-containers
 cd docker-containers/couchpotato
-make instl
+make
 ```
 
-Additionally, you can install the systemd service file after executing the
-above by issuing the following:
-```sh
-make service
-```
+Then proceed by following any of the docker run commands described in the
+docker hub installation instructions.
 
 ### Initial Configuration:
 

@@ -1,6 +1,7 @@
 # Sonarr
 ![Alt text](https://cdn.rawgit.com/Sonarr/Sonarr/develop/Logo/256.png "")
 - [Introduction](#introduction)
+  - [Supported Tags](#supported-tags)
   - [Contributing](#contributing)
   - [Issues](#issues)
 - [Getting started](#getting-started)
@@ -36,6 +37,12 @@ them. It can also be configured to automatically upgrade the quality of files
 already downloaded when a better quality format becomes available.
 
 This subfolder contains all necessary files to build a [Docker](https://www.docker.com/) image for [sonarr](https://github.com/sonarr/sonarr).
+
+## Supported Tags:
+
+* latest - latest tagged release for x86_64  
+* armv7l - latest tagged release for armv7 or armhf  
+* aarch64 - latest tagged release for armv8 or aarch64  
 
 ## Contributing
 
@@ -133,24 +140,21 @@ sudo systemctl enable sonarr@username.service
 ### [GitHub](https://github.com/hurricane/docker-containers/sonarr):
 Installation from GitHub is recommended only for the purposes of
 troubleshooting and development. To install from GitHub execute the
-following:
+following to build the image:
 ```sh
 git clone https://github.com/hurricane/docker-containers
 cd docker-containers/sonarr
-make instl
+make
 ```
 
-Additionally, you can install the systemd service file after executing the
-above by issuing the following:
-```sh
-make service
-```
+Then proceed by following any of the docker run commands described in the
+docker hub installation instructions.
 
 ### Initial Configuration:
 
 Once the sonarr wrapper script for docker has been installed you just need to
 execute the wrapper script from within a terminal:
-```
+```sh
 sonarr
 ```
 On the first run the wrapper script will prompt for system paths that
