@@ -37,7 +37,7 @@ armv7l aarch64:
 	$(eval rpm_name := $(shell curl -s $(repo)/ --list-only | grep qemu-linux | sed -n s%".*>\(qemu-linux-.*rpm\)</a>.*"%"\1"%p))
 	curl -L $(repo)/$(rpm_name) -o /var/tmp/$(IMG_NAME)_$(ARCH)/qemu-linux-user.rpm
 	@ if [[ $(ARCH) ==  "armv7l" ]]; then \
-		rpm2cpio /var/tmp/$(IMG_NAME)_$(ARCH)/qemu-linux-user.rpm | cpio -D /var/tmp/$(IMG_NAME)_$(ARCH)/ -idmv "*qemu-arm*"; \
+		rpm2cpio /var/tmp/$(IMG_NAME)_$(ARCH)/qemu-linux-user.rpm | cpio -D /var/tmp/$(IMG_NAME)_$(ARCH)/ -idmv "*qemu-arm" "*qemu-arm-*"; \
 	  fi
 	@ if [[ $(ARCH) ==  "aarch64" ]]; then \
 		rpm2cpio /var/tmp/$(IMG_NAME)_$(ARCH)/qemu-linux-user.rpm | cpio -D /var/tmp/$(IMG_NAME)_$(ARCH)/ -idmv "*qemu-aarch*"; \
