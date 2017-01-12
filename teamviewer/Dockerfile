@@ -1,4 +1,4 @@
-FROM opensuse:tumbleweed
+FROM opensuse/amd64:tumbleweed
 MAINTAINER Carlos Hernandez <carlos@techbyte.ca>
 ENV LANG="en_US.UTF-8" s6_overlay_version="1.18.1.5" APP_NAME="teamviewer" IMG_NAME="teamviewer" TAG_NAME="latest" S6_LOGGING="1"
 

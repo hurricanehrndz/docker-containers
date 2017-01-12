@@ -16,4 +16,4 @@ define HOME "/home/${APP_USER}"
 define APP_DIR "/usr/lib/${APP_NAME}"
 
 cd ${APP_DIR}
-s6-applyuidgid -u ${APP_UID} -g ${APP_GID} umask ${UMASK} python CouchPotato.py --config_file=${APP_GCONFIG}/config.ini --data_dir=${APP_GCONFIG}/data
+s6-applyuidgid -u ${APP_UID} -g ${APP_GID} umask ${UMASK} python CouchPotato.py --console_log --config_file=${APP_GCONFIG}/config.ini --data_dir=${APP_GCONFIG}/data

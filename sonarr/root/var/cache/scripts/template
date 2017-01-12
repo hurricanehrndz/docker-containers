@@ -59,8 +59,10 @@ prepare_docker_env_parameters() {
   ENV_VARS+=" --env=EDGE=${EDGE}"
   if [[ -f /etc/timezone ]]; then
     ENV_VARS+=" --env=TZ=$(cat /etc/timezone)"
+  elif [[ ! -z "${TIMEZONE}" ]]; then
+    ENV_VARS+=" --env=TZ=${TIMEZONE}"
   else
-    [[ ! -z "${TIMEZONE}" ]] && ENV_VARS+=" --env=TZ=${TIMEZONE}"
+    ENV_VARS+=" --env=TZ=$(date "+%Z")"
   fi
 }
 

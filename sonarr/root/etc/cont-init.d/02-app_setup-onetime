@@ -46,4 +46,5 @@ else
     echo "  <UpdateScriptPath>/bin/sonarr-update.sh</UpdateScriptPath>"
     echo "</Config>"
   } > $CONFIG_FILE
+  chown $APP_UID:$APP_GID $CONFIG_FILE
 fi

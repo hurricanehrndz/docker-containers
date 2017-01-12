@@ -1,6 +1,6 @@
 FROM hurricane/base:x86_64
 ARG ARCH=latest
-ENV APP_NAME="sabnzbd" IMG_NAME="sabnzbd" TAG_NAME="latest" S6_LOGGING="0" PYTHONIOENCODING="UTF-8" UMASK=002 EDGE=0
+ENV APP_NAME="sabnzbd" IMG_NAME="sabnzbd" TAG_NAME="${ARCH}" S6_LOGGING="0" PYTHONIOENCODING="UTF-8" UMASK=002 EDGE=0
 
 RUN zypper --non-interactive ar -f -n repo-unrar http://download.opensuse.org/repositories/Archiving/openSUSE_Factory/ repo-unrar \
  && zypper --gpg-auto-import-keys ref \

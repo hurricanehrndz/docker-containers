@@ -46,9 +46,6 @@ armv7l aarch64:
 	@ if [[ -d "/proc/sys/fs/binfmt_misc/" ]]; then \
 		if [[ "enabled" != $(shell cat /proc/sys/fs/binfmt_misc/status) ]]; then \
 			docker run --rm --privileged emby/qemu-builder:register; \
-		else \
-			docker run --rm --privileged emby/qemu-builder:register -r; \
-			docker run --rm --privileged emby/qemu-builder:register; \
 		fi \
 	  else \
 			docker run --rm --privileged emby/qemu-builder:register; \
