@@ -44,11 +44,7 @@ armv7l aarch64:
 		rpm2cpio /var/tmp/$(IMG_NAME)_$(ARCH)/qemu-linux-user.rpm | cpio -D /var/tmp/$(IMG_NAME)_$(ARCH)/ -idmv "*qemu-aarch*"; \
 	  fi
 	sed -i '/ENV/,/RUN/ {s/^$$/COPY usr \/usr/}' /var/tmp/$(IMG_NAME)_$(ARCH)/Dockerfile
-	@ if [[ -d "/proc/sys/fs/binfmt_misc/" ]]; then \
-		if [[ "enabled" != $(shell cat /proc/sys/fs/binfmt_misc/status) ]]; then \
-			docker run --rm --privileged emby/qemu-builder:register; \
-		fi \
-	  else \
+	@ if [[ ! -f "/proc/sys/fs/binfmt_misc/arm"  || ! -f "/proc/sys/fs/binfmt_misc/aarch64" ]]; then \
 			docker run --rm --privileged emby/qemu-builder:register; \
 	  fi
 	cd /var/tmp/$(IMG_NAME)_$(ARCH)/ && \
