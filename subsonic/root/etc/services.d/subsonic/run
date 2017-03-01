@@ -16,7 +16,7 @@ SUBSONIC_HOME=/subsonic
 SUBSONIC_HOST=0.0.0.0
 SUBSONIC_PORT=${HTTP_PORT:-4040}
 SUBSONIC_HTTPS_PORT=${HTTPS_PORT:-0}
-SUBSONIC_CONTEXT_PATH=/
+SUBSONIC_CONTEXT_PATH=${CONTEXT_PATH:-"/"}
 SUBSONIC_MAX_MEMORY=${MAX_MEM:-150}
 SUBSONIC_DEFAULT_MUSIC_FOLDER=/music
 SUBSONIC_DEFAULT_PODCAST_FOLDER=/podcasts
@@ -25,8 +25,8 @@ SUBSONIC_DEFAULT_PLAYLIST_FOLDER=/playlists
 # Use JAVA_HOME if set, otherwise assume java is in the path.
 JAVA=java
 if [ -e "${JAVA_HOME}" ]
-    then
-    JAVA=${JAVA_HOME}/bin/java
+  then
+  JAVA=${JAVA_HOME}/bin/java
 fi
 
 # Use system install of ffmpeg for transcoding

@@ -233,16 +233,25 @@ can be override by the end user.
 
 ## Environment Variables:
 
-You may overwrite the default settings by passing the appropriate environment variable:
-* APP_USER   - name of user to create within container for purposes of running subsonic, UID, GID are more important.
-* APP_UID    - UID assigned to APP_USER upon creation.
-* APP_GID    - GID assigned to APP_USER upon creation.
-* APP_CONFIG - the directory that should house Subsonic  metadata and configuration.
-* HTTP_PORT  - port Subsonic listens to for HTTP requests. Default is 4040.
-* HTTPS_PORT - port Subsonic listens to for HTTPS requests. Default is null.
-* MAX_MEM    - maximum Java heap size in megabytes. Default value is 150.
-* KEEP_TRANSCODE - ensures transcode directory does not get wiped each time the
-  container is created.
+You can adjust some of the default settings set for container/application by
+passing any or all of the following environment variable:  
+
+| ENV VAR        | Definition                                                                     |
+| ------------   | ------------------------------------------------------------------------------ |
+| APP_USER       | Name of user the service will run as.\[4\]                                     |
+| APP_UID        | UID assigned to APP_USER upon creation, or will query APP_USER's ID.\[3\]      |
+| APP_GID        | GID assigned to APP_USER upon creation, or will query APP_USER's GID.\[3\]     |
+| APP_CONFIG     | Location where application will store settings and database on host.\[1\]      |
+| HTTP_PORT      | App's Web UI port used to configure and access the service.\[2\]               |
+| HTTPS_PORT     | App's Web UI SSL port used to configure and access the service.\[2\]           |
+| MAX_MEM        | maximum Java heap size in megabytes. Default value is 150.                     |
+| KEEP_TRANSCODE | make transcode directory persistent                                            |
+| CONTEXT_PATH   | prefix on path portion of the url where requests will be routed to             |
+
+\[1\]: Variable is applicable only during install.  
+\[2\]: Variable is applicable during install, when invoking installed wrapper script or systemd service.  
+\[3\]: Variable is applicable only when invoking docker run directly.  
+\[4\]: Variable is applicable in all scenarios.  
 
 If you set HTTPS_PORT to something else other than `0` all HTTP request will be
 redirected to HTTPS.
