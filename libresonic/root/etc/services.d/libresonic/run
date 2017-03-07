@@ -19,9 +19,9 @@ LIBRESONIC_DEFAULT_PLAYLIST_FOLDER=/playlists
 
 # Use JAVA_HOME if set, otherwise assume java is in the path.
 JAVA=java
-if [ -e "${JAVA_HOME}" ]
-    then
-    JAVA=${JAVA_HOME}/bin/java
+if [[ -e "${JAVA_HOME}" ]]
+  then
+  JAVA=${JAVA_HOME}/bin/java
 fi
 
 # Use system install of ffmpeg for transcoding
@@ -49,9 +49,15 @@ cd /opt/libresonic/
 echo "Starting Libresonic.."
 s6-applyuidgid -u $APP_UID -g $APP_GID ${JAVA} \
   -Xmx${LIBRESONIC_MAX_MEMORY}m \
+  -Dserver.host=${LIBRESONIC_HOST} \
+  -Dserver.port=${LIBRESONIC_PORT} \
+  -Dserver.contextPath=${LIBRESONIC_CONTEXT_PATH} \
   -Dlibresonic.home=${LIBRESONIC_HOME} \
+  -Dlibresonic.host=${LIBRESONIC_HOST} \
+  -Dlibresonic.port=${LIBRESONIC_PORT} \
+  -Dlibresonic.contextPath=${LIBRESONIC_CONTEXT_PATH} \
   -Dlibresonic.defaultMusicFolder=${LIBRESONIC_DEFAULT_MUSIC_FOLDER} \
   -Dlibresonic.defaultPodcastFolder=${LIBRESONIC_DEFAULT_PODCAST_FOLDER} \
   -Dlibresonic.defaultPlaylistFolder=${LIBRESONIC_DEFAULT_PLAYLIST_FOLDER} \
-  -verbose:gc \
-  -jar jetty-runner.jar --port $LIBRESONIC_PORT --host $LIBRESONIC_HOST --path $LIBRESONIC_CONTEXT_PATH libresonic.war
+  -Djava.awt.headless=true \
+  -jar libresonic.war
