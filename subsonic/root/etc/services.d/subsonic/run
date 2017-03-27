@@ -25,21 +25,21 @@ SUBSONIC_DEFAULT_PLAYLIST_FOLDER=/playlists
 
 # Use JAVA_HOME if set, otherwise assume java is in the path.
 JAVA=java
-if [ -e "${JAVA_HOME}" ]
+if [[ -e "${JAVA_HOME}" ]]
   then
   JAVA=${JAVA_HOME}/bin/java
 fi
 
 # Use system install of ffmpeg for transcoding
-if [ "$KEEP_TRANSCODE" == "false" ]; then
-  [ ! -d ${SUBSONIC_HOME}/transcode ] || rm -r ${SUBSONIC_HOME}/transcode
+if [[ "$KEEP_TRANSCODE" == "false" ]]; then
+  [[ ! -d ${SUBSONIC_HOME}/transcode ]] || rm -r ${SUBSONIC_HOME}/transcode
   mkdir -p ${SUBSONIC_HOME}/transcode
   ln -s "$(command -v ffmpeg)" ${SUBSONIC_HOME}/transcode/ffmpeg
 fi
 
-if [ -d "${SUBSONIC_HOME}/transcode" ]; then
+if [[ -d "${SUBSONIC_HOME}/transcode" ]]; then
   CURR_SID=$(stat -c"%u:%g" ${SUBSONIC_HOME}/transcode)
-  if [ "$CURR_SID" != "$APP_UID:$APP_GID" ] ; then
+  if [[ "$CURR_SID" != "$APP_UID:$APP_GID" ]] ; then
     chown -R $APP_UID:$APP_GID ${SUBSONIC_HOME}/transcode
   fi
 fi
@@ -54,7 +54,7 @@ s6-applyuidgid -u $APP_UID -g $APP_GID ${JAVA} \
   -Dsubsonic.port=${SUBSONIC_PORT} \
   -Dsubsonic.httpsPort=${SUBSONIC_HTTPS_PORT} \
   -Dsubsonic.contextPath=${SUBSONIC_CONTEXT_PATH} \
-  -Dsubsonic.db="${SUBSONIC_DB}" \
+  ${SUBSONIC_DB:+"-Dsubsonic.db=$SUBSONIC_DB"} \
   -Dsubsonic.defaultMusicFolder=${SUBSONIC_DEFAULT_MUSIC_FOLDER} \
   -Dsubsonic.defaultPodcastFolder=${SUBSONIC_DEFAULT_PODCAST_FOLDER} \
   -Dsubsonic.defaultPlaylistFolder=${SUBSONIC_DEFAULT_PLAYLIST_FOLDER} \
