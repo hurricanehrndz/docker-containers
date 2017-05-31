@@ -104,6 +104,7 @@ prepare_user_volume_parameters() {
       fi
     done < /dev/stdin
 
+    touch "${APP_CONFIG}/.${APP_NAME}.volumes"
     for user_volume in "${user_volumes[@]}"; do
       echo "${user_volume}" >> "${APP_CONFIG}/.${APP_NAME}.volumes"
     done

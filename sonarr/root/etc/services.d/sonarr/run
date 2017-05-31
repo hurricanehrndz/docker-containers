@@ -4,12 +4,12 @@
 with-contenv
 multisubstitute
 {
-  import -D   1000                 APP_UID
-  import -D   1000                 APP_GID
-  import -D   "appuser"            APP_USER
-  import -D   "/config"            APP_GCONFIG
-  import -D   "002"                UMASK
-  import APP_NAME
+  importas -D   1000        APP_UID        APP_UID
+  importas -D   1000        APP_GID        APP_GID
+  importas -D   "appuser"   APP_USER       APP_USER
+  importas -D   "/config"   APP_GCONFIG    APP_GCONFIG
+  importas -D   "002"       UMASK          UMASK
+  importas                  APP_NAME       APP_NAME
   define MONO_THREADS_PER_CPU 250
   define MONO_GC_PARAMS nursery-size=128m
 }

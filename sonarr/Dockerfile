@@ -1,16 +1,13 @@
 FROM hurricane/base:x86_64
-ARG ARCH=latest
+ARG ARCH
 ENV APP_NAME="sonarr" IMG_NAME="sonarr" TAG_NAME="${ARCH}" S6_LOGGING="0" UMASK=0 EDGE=0
 
 RUN zypper --non-interactive ar -f -n repo-mediainfo http://download.opensuse.org/repositories/home:/MediaArea_net:/snapshots/openSUSE_Tumbleweed repo-mediainfo \
  && zypper --gpg-auto-import-keys ref \
- && zypper --non-interactive up \
- && zypper --non-interactive in -f --no-recommends \
+ && zypper --non-interactive in --no-recommends \
 	ca-certificates{-cacert,-mozilla} \
 	curl \
 	gettext-runtime \
-	git-core \
-	glibc-locale \
 	libmediainfo0 \
 	libzen0 \
 	mediainfo \
