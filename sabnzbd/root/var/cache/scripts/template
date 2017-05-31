@@ -11,6 +11,7 @@ APP_GCONFIG=${APP_GCONFIG:-"/config"}
 APP_PORT=${APP_PORT:-8080}
 APP_SSL_PORT=${APP_SSL_PORT:-9090}
 EDGE=${EDGE:-0}
+STABLE=${STABLE:-1}
 UMASK=${UMASK:-002}
 RUN_MODE="-d"
 
@@ -103,16 +104,18 @@ prepare_user_volume_parameters() {
         user_volumes+=("$hostpath")
       fi
     done < /dev/stdin
-
+    touch "${APP_CONFIG}/.${APP_NAME}.volumes"
     for user_volume in "${user_volumes[@]}"; do
       echo "${user_volume}" >> "${APP_CONFIG}/.${APP_NAME}.volumes"
     done
   fi
 
-  # setup user volumes
-  while read user_volume; do
-    VOLUMES+=" --volume=${user_volume}:${user_volume}"
-  done < "${APP_CONFIG}/.${APP_NAME}.volumes"
+  if [[ -f "${APP_CONFIG}/.${APP_NAME}.volumes" ]]; then
+    # setup user volumes
+    while read user_volume; do
+      VOLUMES+=" --volume=${user_volume}:${user_volume}"
+    done < "${APP_CONFIG}/.${APP_NAME}.volumes"
+  fi
 }
 
 cleanup_stopped_instances

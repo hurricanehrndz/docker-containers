@@ -6,6 +6,6 @@ APP_PORT=${APP_PORT:-8080}
 APP_SSL_PORT=${APP_SSL_PORT:-9090}
 
 if [[ -f ${CONFIG_FILE} ]]; then
-  sed -i /"^\[misc\]$"/,/"^\[.*$"/s/"^\(port\s\?[=]\s\?\).*"/"\1${APP_PORT}"/ ${CONFIG_FILE}
-  sed -i /"^\[misc\]$"/,/"^\[.*$"/s/"^\(https_port\s\?[=]\s\?\).*"/"\1${APP_SSL_PORT}"/ ${CONFIG_FILE}
+  sed -i s/"^\[misc\]$"/,/"^\[.*$"/s/"^\(port\s\?[=]\s\?\).*"/"\1${APP_PORT}"/ ${CONFIG_FILE}
+  sed -i s/"^\[misc\]$"/,/"^\[.*$"/s/"^\(https_port\s\?[=]\s\?\).*"/"\1${APP_SSL_PORT}"/ ${CONFIG_FILE}
 fi

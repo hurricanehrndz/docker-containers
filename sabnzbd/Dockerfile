@@ -1,16 +1,14 @@
 FROM hurricane/base:x86_64
-ARG ARCH=latest
-ENV APP_NAME="sabnzbd" IMG_NAME="sabnzbd" TAG_NAME="${ARCH}" S6_LOGGING="0" PYTHONIOENCODING="UTF-8" UMASK=002 EDGE=0
+ARG ARCH
+ENV APP_NAME="sabnzbd" IMG_NAME="sabnzbd" TAG_NAME="${ARCH}" S6_LOGGING="0" PYTHONIOENCODING="UTF-8" UMASK=002 EDGE=0 STABLE=1
 
 RUN zypper --non-interactive ar -f -n repo-unrar http://download.opensuse.org/repositories/Archiving/openSUSE_Factory/ repo-unrar \
- && zypper --gpg-auto-import-keys ref \
- && zypper --non-interactive up \
- && zypper --non-interactive in -f --no-recommends \
+ && zypper --non-interactive --gpg-auto-import-keys ref \
+ && zypper --non-interactive in --no-recommends \
 	ca-certificates{-cacert,-mozilla} \
 	curl \
 	git-core \
 	gcc \
-	glibc-locale \
 	p7zip \
 	par \
 	python \
@@ -25,10 +23,10 @@ RUN zypper --non-interactive ar -f -n repo-unrar http://download.opensuse.org/re
 	unrar \
 	unzip \
   && pip install --upgrade pip \
-  && pip install http://www.golug.it/pub/yenc/yenc-0.4.0.tar.gz \
+  && pip install sabyenc \
   && zypper rm -y -u --force-resolution gcc python-devel python-pip \
   && mkdir -p /usr/lib/${APP_NAME} \
-  && TAG=$(curl -sSL https://github.com/sabnzbd/sabnzbd/tags.atom | sed -n -e '/releases\/tag/{s/.*tag\/\([^"]*\).*/\1/p}' | head -1) \
+  && TAG=$(curl -sSL https://github.com/sabnzbd/sabnzbd/tags.atom | sed -n -e '/releases\/tag/{s/.*tag\/\([^"]*\).*/\1/p}' | grep -iv beta | grep -iv rc | head -1) \
   && git clone -b "${TAG}" --single-branch --depth 1 https://github.com/sabnzbd/sabnzbd.git /usr/lib/${APP_NAME} \
   && pushd /usr/lib/${APP_NAME} \
   && COMMITSH=$(git rev-list ${TAG}) \

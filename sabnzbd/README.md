@@ -291,6 +291,7 @@ passing any or all of the following environment variable:
 | APP_SSL_PORT | App's Web UI SSL port used to configure and access the service.\[2\]           |
 | UMASK        | umask assigned to service, default set to 002.\[4\]                            |
 | EDGE         | Update the containerized service, default set to 0(Off).\[4\]                  |
+| STABLE       | Limit EDGE updates to stable branch, default set to 1(On).\[4\]                |
 
 \[1\]: Variable is applicable only during install.  
 \[2\]: Variable is applicable during install, when invoking installed wrapper script or systemd service.  
