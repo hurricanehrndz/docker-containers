@@ -1,0 +1,21 @@
+#!/usr/bin/with-contenv bash
+# vim:set ft=sh sw=2 sts=2 st=2 et:
+
+APP_UID=${APP_UID:-1000}
+APP_GID=${APP_GID:-1000}
+
+APP_USER=${APP_USER:-appuser}
+
+if [[ ${EDGE} -eq 1 ]]; then
+  rm -rf /tmp/${APP_NAME}
+  mkdir -p /tmp/${APP_NAME}
+  git clone --depth=1 https://github.com/rembo10/headphones.git /tmp/${APP_NAME}
+  if [[ $? -eq 0 ]]; then
+    chown -R ${APP_UID}:${APP_GID} /tmp/${APP_NAME}
+    rm -rf /usr/lib/${APP_NAME}
+    mv /tmp/${APP_NAME} /usr/lib/
+    echo "Update successful!"
+  else
+    echo "Update failed!"
+  fi
+fi
