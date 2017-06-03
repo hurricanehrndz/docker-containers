@@ -1,0 +1,3 @@
+#!/bin/bash
+
+ps -p $(pgrep python) -o etime=
