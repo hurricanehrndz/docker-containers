@@ -6,7 +6,6 @@ RUN zypper --non-interactive ar -f -n repo-unrar http://download.opensuse.org/re
  && zypper --non-interactive --gpg-auto-import-keys ref \
  && zypper --non-interactive in --no-recommends \
 	gcc \
-	libsqlite3-0 \
 	p7zip \
 	par \
 	python \
@@ -15,7 +14,6 @@ RUN zypper --non-interactive ar -f -n repo-unrar http://download.opensuse.org/re
 	python-lxml \
 	python-pip \
 	python-pyOpenSSL \
-	sqlite3-devel \
 	timezone \
 	unrar \
 	unzip \
