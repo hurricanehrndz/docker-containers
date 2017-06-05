@@ -1,17 +1,17 @@
 FROM hurricane/base:x86_64
-ARG ARCH=latest
+ARG ARCH
 ENV APP_NAME="couchpotato" IMG_NAME="couchpotato" TAG_NAME="${ARCH}" S6_LOGGING="0" PYTHONIOENCODING="UTF-8" UMASK=002 EDGE=0
 
 RUN zypper --gpg-auto-import-keys ref \
- && zypper --non-interactive up \
- && zypper --non-interactive in -f --no-recommends \
+ && zypper --non-interactive in --no-recommends \
 	ca-certificates{-cacert,-mozilla} \
 	curl \
 	git-core \
+	libcurl4 \
 	python \
 	python-lxml \
-	python-pysqlite \
 	python-pyOpenSSL \
+	python-pysqlite \
 	tar \
 	timezone \
   && mkdir -p /usr/lib/${APP_NAME} \
