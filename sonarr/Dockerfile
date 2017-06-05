@@ -5,17 +5,13 @@ ENV APP_NAME="sonarr" IMG_NAME="sonarr" TAG_NAME="${ARCH}" S6_LOGGING="0" UMASK=
 RUN zypper --non-interactive ar -f -n repo-mediainfo http://download.opensuse.org/repositories/home:/MediaArea_net:/snapshots/openSUSE_Tumbleweed repo-mediainfo \
  && zypper --gpg-auto-import-keys ref \
  && zypper --non-interactive in --no-recommends \
-	ca-certificates{-cacert,-mozilla} \
-	curl \
 	gettext-runtime \
 	libmediainfo0 \
 	libzen0 \
 	mediainfo \
 	mono-core \
 	mono-devel \
-	sqlite3 \
 	sudo \
-	tar \
 	timezone \
 	zip \
   && mkdir -p /opt/${APP_NAME} \
