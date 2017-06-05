@@ -4,16 +4,15 @@ ENV APP_NAME="couchpotato" IMG_NAME="couchpotato" TAG_NAME="${ARCH}" S6_LOGGING=
 
 RUN zypper --gpg-auto-import-keys ref \
  && zypper --non-interactive in --no-recommends \
-	ca-certificates{-cacert,-mozilla} \
-	curl \
-	git-core \
-	libcurl4 \
+	gcc \
 	python \
+	python-devel \
 	python-lxml \
+	python-pip \
 	python-pyOpenSSL \
-	python-pysqlite \
-	tar \
 	timezone \
+  && pip install pysqlite \
+  && zypper rm -y -u --force-resolution gcc python-devel python-pip \
   && mkdir -p /usr/lib/${APP_NAME} \
   && git clone --depth=1 https://github.com/CouchPotato/CouchPotatoServer.git /usr/lib/${APP_NAME} \
   && rpm -e --nodeps --allmatches --noscripts \

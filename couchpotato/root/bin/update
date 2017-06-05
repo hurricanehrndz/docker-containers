@@ -3,6 +3,6 @@
 
 EDGE=1
 echo "Updating ${APP_NAME}..."
-source /etc/cont-init.d/02-app_setup-onetime
+source /etc/cont-init.d/02-app_update-onetime
 echo "Re-starting ${APP_NAME}..."
 s6-svc -t /var/run/s6/services/${APP_NAME}/
