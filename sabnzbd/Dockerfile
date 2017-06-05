@@ -5,9 +5,6 @@ ENV APP_NAME="sabnzbd" IMG_NAME="sabnzbd" TAG_NAME="${ARCH}" S6_LOGGING="0" PYTH
 RUN zypper --non-interactive ar -f -n repo-unrar http://download.opensuse.org/repositories/Archiving/openSUSE_Factory/ repo-unrar \
  && zypper --non-interactive --gpg-auto-import-keys ref \
  && zypper --non-interactive in --no-recommends \
-	ca-certificates{-cacert,-mozilla} \
-	curl \
-	git-core \
 	gcc \
 	p7zip \
 	par \
@@ -18,7 +15,6 @@ RUN zypper --non-interactive ar -f -n repo-unrar http://download.opensuse.org/re
 	python-pip \
 	python-pyOpenSSL \
 	python-pysqlite \
-	tar \
 	timezone \
 	unrar \
 	unzip \
