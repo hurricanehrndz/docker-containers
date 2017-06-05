@@ -6,6 +6,7 @@ RUN zypper --non-interactive ar -f -n repo-unrar http://download.opensuse.org/re
  && zypper --non-interactive --gpg-auto-import-keys ref \
  && zypper --non-interactive in --no-recommends \
 	gcc \
+	libsqlite3-0 \
 	p7zip \
 	par \
 	python \
@@ -14,12 +15,13 @@ RUN zypper --non-interactive ar -f -n repo-unrar http://download.opensuse.org/re
 	python-lxml \
 	python-pip \
 	python-pyOpenSSL \
-	python-pysqlite \
+	sqlite3-devel \
 	timezone \
 	unrar \
 	unzip \
   && pip install --upgrade pip \
   && pip install sabyenc \
+  && pip install pysqlite \
   && zypper rm -y -u --force-resolution gcc python-devel python-pip \
   && mkdir -p /usr/lib/${APP_NAME} \
   && TAG=$(curl -sSL https://github.com/sabnzbd/sabnzbd/tags.atom | sed -n -e '/releases\/tag/{s/.*tag\/\([^"]*\).*/\1/p}' | grep -iv beta | grep -iv rc | head -1) \
