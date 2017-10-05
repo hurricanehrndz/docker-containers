@@ -5,6 +5,7 @@ ENV LANG="en_US.UTF-8" s6_overlay_version="1.18.1.5" APP_NAME="teamviewer" IMG_N
 RUN zypper --gpg-auto-import-keys ref \
  && zypper --non-interactive up \
  && zypper --non-interactive in --no-recommends \
+        fontconfig \
 	fontconfig-32bit \
 	libICE6-32bit \
 	libSM6-32bit \
