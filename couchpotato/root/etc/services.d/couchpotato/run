@@ -12,7 +12,7 @@ multisubstitute
   importas                APP_NAME       APP_NAME
 }
 
-define HOME "/home/${APP_USER}"
+export HOME "/home/${APP_USER}"
 define APP_DIR "/usr/lib/${APP_NAME}"
 
 cd ${APP_DIR}
