@@ -1,5 +1,5 @@
 FROM hurricane/base:x86_64
-ARG ARCH=latest
+ARG ARCH
 ENV APP_NAME="headphones" IMG_NAME="headphones" TAG_NAME="${ARCH}" S6_LOGGING="0" PYTHONIOENCODING="UTF-8" UMASK=002 EDGE=0
 
 RUN zypper --gpg-auto-import-keys ref \
