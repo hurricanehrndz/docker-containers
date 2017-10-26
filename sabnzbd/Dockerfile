@@ -22,7 +22,7 @@ RUN zypper --non-interactive ar -f -n repo-unrar http://download.opensuse.org/re
   && pip install pysqlite \
   && zypper rm -y -u --force-resolution gcc python-devel python-pip \
   && mkdir -p /usr/lib/${APP_NAME} \
-  && TAG=$(curl -sSL https://github.com/sabnzbd/sabnzbd/tags.atom | sed -n -e '/releases\/tag/{s/.*tag\/\([^"]*\).*/\1/p}' | grep -iv beta | grep -iv rc | head -1) \
+  && TAG=$(curl -sSL https://github.com/sabnzbd/sabnzbd/tags.atom | awk '/link rel="alternate".*tag/ { match($0,".*tag/([^A-z]*)\"", matches); if(length(matches) != 0) { print matches[1]; exit } }') \
   && git clone -b "${TAG}" --single-branch --depth 1 https://github.com/sabnzbd/sabnzbd.git /usr/lib/${APP_NAME} \
   && pushd /usr/lib/${APP_NAME} \
   && COMMITSH=$(git rev-list ${TAG}) \

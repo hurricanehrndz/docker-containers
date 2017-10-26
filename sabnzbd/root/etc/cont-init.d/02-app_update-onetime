@@ -10,9 +10,9 @@ if [[ ${EDGE} -eq 1 ]]; then
   rm -rf /tmp/${APP_NAME}
   mkdir -p /tmp/${APP_NAME}
   if [[ ${STABLE} -eq 1 ]]; then
-    TAG=$(curl -sSL https://github.com/sabnzbd/sabnzbd/tags.atom | sed -n -e '/releases\/tag/{s/.*tag\/\([^"]*\).*/\1/p}' | grep -iv beta | grep -iv rc | head -1)
+    TAG=$(curl -sSL https://github.com/sabnzbd/sabnzbd/tags.atom | awk '/link rel="alternate".*tag/ { match($0,".*tag/([^A-z]*)\"", matches); if(length(matches) != 0) { print matches[1]; exit } }')
   else
-    TAG=$(curl -sSL https://github.com/sabnzbd/sabnzbd/tags.atom | sed -n -e '/releases\/tag/{s/.*tag\/\([^"]*\).*/\1/p}' | head -1)
+    TAG=$(curl -sSL https://github.com/sabnzbd/sabnzbd/tags.atom | awk '/link rel="alternate".*tag/ { match($0,".*tag/([^\"]*)", matches); if(length(matches) != 0) { print matches[1]; exit } }')
   fi
   git clone -b "${TAG}" --single-branch --depth 1 https://github.com/sabnzbd/sabnzbd.git /tmp/${APP_NAME}
   if [[ $? -eq 0 ]]; then
