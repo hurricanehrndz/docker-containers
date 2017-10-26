@@ -11,7 +11,7 @@ if [[ "${CURR_SID}" != "${APP_UID}:${APP_GID}" ]] ; then
   chown -R ${APP_UID}:${APP_GID} ${APP_GCONFIG}
 fi
 
-if [[ ! -f "${APP_CONFIG}/nzbget.conf" ]]; then
+if [[ ! -f "${APP_GCONFIG}/nzbget.conf" ]]; then
   cp /usr/lib/${APP_NAME}/nzbget.conf ${APP_GCONFIG}/nzbget.conf
   chown ${APP_UID}:${APP_GID} ${APP_GCONFIG}/nzbget.conf
 fi

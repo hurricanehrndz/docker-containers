@@ -1,5 +1,5 @@
 FROM hurricane/base:x86_64
-ARG ARCH=latest
+ARG ARCH
 ENV APP_NAME="nzbget" IMG_NAME="nzbget" TAG_NAME="${ARCH}" S6_LOGGING="0" PYTHONIOENCODING="UTF-8" UMASK=002 EDGE=0
 
 RUN zypper --non-interactive ar -f -n repo-unrar http://download.opensuse.org/repositories/Archiving/openSUSE_Factory/ repo-unrar \

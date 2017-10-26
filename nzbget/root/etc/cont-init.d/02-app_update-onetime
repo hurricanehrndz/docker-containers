@@ -13,7 +13,7 @@ if [[ ${EDGE} -eq 1 ]]; then
   if [[ $? -eq 0 ]]; then
     rm -rf /usr/lib/${APP_NAME}
     mkdir -p /usr/lib/${APP_NAME}
-    sh /tmp/nzbget-linux.run --destdir /usr/lib/${APP_NAME} \
+    sh /tmp/nzbget-linux.run --destdir /usr/lib/${APP_NAME}
     chown -R ${APP_UID}:${APP_GID} /usr/lib/${APP_NAME}
     echo "Update successful!"
   else
