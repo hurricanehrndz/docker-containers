@@ -10,13 +10,16 @@ multisubstitute
   importas -D   "/config"   APP_GCONFIG    APP_GCONFIG
   importas -D   "002"       UMASK          UMASK
   importas                  APP_NAME       APP_NAME
-  define MONO_THREADS_PER_CPU 250
-  define MONO_GC_PARAMS nursery-size=128m
 }
 
-define HOME "/home/${APP_USER}"
 define APP_DIR "/opt/${APP_NAME}"
 define SONARR "/opt/${APP_NAME}/NzbDrone.exe"
+define MONO_TLS_PROVIDER legacy
+
+export HOME "/home/${APP_USER}"
+export MONO_TLS_PROVIDER legacy
+export MONO_THREADS_PER_CPU 250
+export MONO_GC_PARAMS "max-heap-size=96m,soft-heap-limit=64m,nursery-size=4m"
 
 cd $APP_DIR
 s6-applyuidgid -u ${APP_UID} -g ${APP_GID} umask ${UMASK} /usr/bin/mono-sgen ${SONARR} \

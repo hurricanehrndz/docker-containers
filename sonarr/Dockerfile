@@ -11,6 +11,7 @@ RUN zypper --non-interactive ar -f -n repo-mediainfo http://download.opensuse.or
 	mediainfo \
 	mono-core \
 	mono-devel \
+	mono-locale-extras \
 	sudo \
 	timezone \
 	zip \
