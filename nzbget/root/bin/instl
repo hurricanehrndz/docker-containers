@@ -41,7 +41,6 @@ install_app() {
   fi
 
   sed -i -e s%"=\"IMG_NAME\""%"=\"${IMG_NAME}\""%1 /target/${APP_NAME}
-  sed -i -e s%"=\"TAG_NAME\""%"=\"${TAG_NAME}\""%1 /target/${APP_NAME}
   sed -i -e s%"=\"APP_NAME\""%"=\"${APP_NAME}\""%1 /target/${APP_NAME}
 }
 

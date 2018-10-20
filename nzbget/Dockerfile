@@ -1,49 +1,31 @@
-FROM hurricane/base:x86_64
-ARG ARCH
-ENV APP_NAME="nzbget" IMG_NAME="nzbget" TAG_NAME="${ARCH}" S6_LOGGING="0" PYTHONIOENCODING="UTF-8" UMASK=002 EDGE=0
+FROM __BASEIMAGE_ARCH__/ubuntu:rolling
 
-RUN zypper --non-interactive ar -f -n repo-unrar http://download.opensuse.org/repositories/Archiving/openSUSE_Factory/ repo-unrar \
- && zypper --gpg-auto-import-keys ref \
- && zypper --non-interactive in --no-recommends \
-	ca-certificates{-cacert,-mozilla} \
+ARG DEBIAN_FRONTEND=noninteractive
+ENV LC_ALL="en_US.UTF-8" LANG="en_US.UTF-8" APP_NAME="nzbget" IMG_NAME="nzbget" S6_LOGGING="0" UMASK=002 EDGE=0
+
+__CROSS_COPY qemu-__QEMU_ARCH__-static /usr/bin
+
+RUN apt-get update \
+ && apt-get -qq install -y --no-install-recommends  $(apt-cache depends nzbget | awk '/Depends:/{printf "%s ",$2}') \
+ && apt-get -qq install -y --no-install-recommends  \
+	ca-certificates \
 	curl \
-	git-core \
-	glibc-locale \
-	p7zip \
+	locales \
+	par2 \
 	python \
-	tar \
-	timezone \
+	tzdata \
 	unrar \
-	unzip \
-  && mkdir -p /usr/lib/${APP_NAME} \
-  && curl -o /tmp/nzbget-linux.run -sSL $(curl -sSL http://nzbget.net/info/nzbget-version-linux.json | sed -n "s/^.*stable-download.*: \"\(.*\)\".*/\1/p") \
-  && sh /tmp/nzbget-linux.run --destdir /usr/lib/${APP_NAME} \
-  && rpm -e --nodeps --allmatches --noscripts \
-	`rpm -qa | grep aaa_base` \
-	`rpm -qa | grep acl | grep -v lib` \
-	`rpm -qa | grep branding-openSUSE` \
-	`rpm -qa | grep cpio` \
-	`rpm -qa | grep cryptsetup` \
-	`rpm -qa | grep dbus-1` \
-	`rpm -qa | grep dracut` \
-	`rpm -qa | grep fipscheck` \
-	`rpm -qa | grep kbd` \
-	`rpm -qa | grep kmod` \
-	`rpm -qa | grep mapper` \
-	`rpm -qa | grep ncurses-utils` \
-	`rpm -qa | grep openSUSE-release` \
-	`rpm -qa | grep perl` \
-	`rpm -qa | grep pigz` \
-	`rpm -qa | grep pinentry` \
-	`rpm -qa | grep pkg-config` \
-	`rpm -qa | grep qrencode` \
-	`rpm -qa | grep sg3_utils` \
-	`rpm -qa | grep systemd | grep -v lib` \
-  && zypper cc --all \
-  && rm -rf /usr/share/{man,doc,info,gnome/help} \
-  && rm -rf /var/cache/zypp* \
-  && rm -rf /tmp/* \
-  && rm -rf /var/log/*
+ && sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen \
+ && locale-gen --no-purge en_US.UTF-8 \
+ && dpkg-reconfigure --frontend=noninteractive locales \
+ && update-locale LANG=en_US.UTF-8 \
+ && mkdir -p /usr/lib/${APP_NAME} \
+ && curl -o /tmp/nzbget-linux.run -sSL $(curl -sSL http://nzbget.net/info/nzbget-version-linux.json | sed -n "s/^.*stable-download.*: \"\(.*\)\".*/\1/p") \
+ && sh /tmp/nzbget-linux.run --destdir /usr/lib/${APP_NAME} \
+ && apt-get clean -y \
+ && apt-get autoremove -y \
+ && rm -rf /tmp/* /var/tmp/* \
+ && rm -rf /var/lib/apt/lists/*
 
 COPY root /
 VOLUME [ "/config" ]

@@ -1,7 +1,6 @@
 #!/bin/bash
 
 PATH=/usr/sbin:/usr/bin:/sbin:/bin
-TAG_NAME="TAG_NAME"
 IMG_NAME="IMG_NAME"
 APP_NAME="APP_NAME"
 APP_USER=${APP_USER:-$USER}
@@ -40,7 +39,7 @@ cleanup_stopped_instances() {
   for c in $(${SUDO} docker ps -a -q)
   do
     image=$(${SUDO} docker inspect --format="{{.Config.Image}}" ${c})
-    if [[ ${image} == "${APP_REPO}/${IMG_NAME}:${TAG_NAME}" ]]; then
+    if [[ ${image} =~ ${APP_REPO}/${IMG_NAME} ]]; then
       running=$(${SUDO} docker inspect --format="{{.State.Running}}" ${c})
       if [[ ${running} != true ]]; then
         echo "Cleaning up stopped ${APP_NAME} instances..."
@@ -155,7 +154,7 @@ if [[ "${running}" != "true" ]]; then
     ${ENV_VARS} \
     ${VOLUMES} \
     --name=${APP_NAME} \
-    ${APP_REPO}/${IMG_NAME}:${TAG_NAME} ${prog} $@
+    ${APP_REPO}/${IMG_NAME} ${prog} $@
 else
   case "$1" in
     "update")
