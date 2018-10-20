@@ -1,48 +1,31 @@
-FROM hurricane/base:x86_64
-ARG ARCH
-ENV APP_NAME="sonarr" IMG_NAME="sonarr" TAG_NAME="${ARCH}" S6_LOGGING="0" UMASK=0 EDGE=0
+FROM __BASEIMAGE_ARCH__/ubuntu:rolling
 
-RUN zypper --non-interactive ar -f -n repo-mediainfo http://download.opensuse.org/repositories/home:/MediaArea_net:/snapshots/openSUSE_Tumbleweed repo-mediainfo \
- && zypper --gpg-auto-import-keys ref \
- && zypper --non-interactive in --no-recommends \
-	gettext-runtime \
-	libmediainfo0 \
-	libzen0 \
+ARG DEBIAN_FRONTEND=noninteractive
+ENV LC_ALL="en_US.UTF-8" LANG="en_US.UTF-8" APP_NAME="sonarr" IMG_NAME="sonarr" S6_LOGGING="0" UMASK=002 EDGE=0
+
+__CROSS_COPY qemu-__QEMU_ARCH__-static /usr/bin
+
+RUN apt-get update \
+ && apt-get -qq install -y \
+	ca-certificates \
+	curl \
+	libmono-cil-dev \
+	locales \
 	mediainfo \
-	mono-core \
-	mono-devel \
-	mono-locale-extras \
+	sqlite3 \
 	sudo \
-	timezone \
+	tzdata \
 	zip \
-  && mkdir -p /opt/${APP_NAME} \
-  && curl -sSL http://update.sonarr.tv/v2/master/mono/NzbDrone.master.tar.gz | tar -C /opt/${APP_NAME} -xzv --strip-components=1 \
-  && rpm -e --nodeps --allmatches --noscripts \
-	`rpm -qa | grep aaa_base` \
-	`rpm -qa | grep acl | grep -v lib` \
-	`rpm -qa | grep branding-openSUSE` \
-	`rpm -qa | grep cpio` \
-	`rpm -qa | grep cryptsetup` \
-	`rpm -qa | grep dbus-1` \
-	`rpm -qa | grep dracut` \
-	`rpm -qa | grep fipscheck` \
-	`rpm -qa | grep kbd` \
-	`rpm -qa | grep kmod` \
-	`rpm -qa | grep mapper` \
-	`rpm -qa | grep ncurses-utils` \
-	`rpm -qa | grep openSUSE-release` \
-	`rpm -qa | grep perl` \
-	`rpm -qa | grep pigz` \
-	`rpm -qa | grep pinentry` \
-	`rpm -qa | grep pkg-config` \
-	`rpm -qa | grep qrencode` \
-	`rpm -qa | grep sg3_utils` \
-	`rpm -qa | grep systemd | grep -v lib` \
-  && zypper cc --all \
-  && rm -rf /usr/share/{man,doc,info,gnome/help} \
-  && rm -rf /var/cache/zypp* \
-  && rm -rf /tmp/* \
-  && rm -rf /var/log/*
+ && sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen \
+ && locale-gen --no-purge en_US.UTF-8 \
+ && dpkg-reconfigure --frontend=noninteractive locales \
+ && update-locale LANG=en_US.UTF-8 \
+ && mkdir -p /opt/${APP_NAME} \
+ && curl -sSL http://update.sonarr.tv/v2/master/mono/NzbDrone.master.tar.gz | tar -C /opt/${APP_NAME} -xzv --strip-components=1 \
+ && apt-get clean -y \
+ && apt-get autoremove -y \
+ && rm -rf /tmp/* /var/tmp/* \
+ && rm -rf /var/lib/apt/lists/*
 
 COPY root /
 VOLUME [ "/config" ]
