@@ -1,9 +1,0 @@
-#!/usr/bin/with-contenv bash
-# vim:set ft=sh sw=2 sts=2 st=2 et:
-
-CONFIG_FILE="/config/config.ini"
-APP_PORT=${APP_PORT:-5050}
-
-if [[ -f ${CONFIG_FILE} ]]; then
-  sed -i /"^\[core\]$"/,/"^\[.*$"/s/"^\(port\s\?[=]\s\?\).*"/"\1${APP_PORT}"/ ${CONFIG_FILE}
-fi
