@@ -4,7 +4,7 @@ APP_USER=${APP_USER:-appuser}
 
 install_app() {
 echo "Installing ${APP_NAME}..."
-install -m 0755 /var/cache/scripts/template /target/${APP_NAME}
+install -m 0755 /var/cache/scripts/template "/target/${APP_NAME}"
 if [ -n "${APP_REPO}" ]; then
   echo "Updating image repo to ${APP_REPO}..."
   sed -i -e s%"-hurricane"%"-${APP_REPO}"%1 /target/${APP_NAME}
@@ -21,14 +21,12 @@ if [ -n "${APP_CONFIG}" ]; then
 fi
 
 sed -i -e s%"=\"IMG_NAME\""%"=\"${IMG_NAME}\""%1 /target/${APP_NAME}
-sed -i -e s%"=\"TAG_NAME\""%"=\"${TAG_NAME}\""%1 /target/${APP_NAME}
 sed -i -e s%"=\"APP_NAME\""%"=\"${APP_NAME}\""%1 /target/${APP_NAME}
 }
 
 install_service() {
   echo "Installing ${APP_NAME} Service..."
-  install -m 0755 /var/cache/systemd/template.service /target/${APP_NAME}.service
-  sed -i -e s%":TAG_NAME"%":${TAG_NAME}"%1 /target/${APP_NAME}.service
+  install -m 0755 /var/cache/systemd/template.service "/target/${APP_NAME}.service"
   sed -i -e s%"/IMG_NAME"%"/${IMG_NAME}"%1 /target/${APP_NAME}.service
   sed -i -e s%"APP_NAME"%"${APP_NAME}"%1 /target/${APP_NAME}.service
   sed -i -e s%"APP_REPO"%"${APP_REPO}"%1 /target/${APP_NAME}.service

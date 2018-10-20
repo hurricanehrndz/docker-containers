@@ -4,7 +4,7 @@ After=docker.service
 
 [Service]
 Type=forking
-ExecStartPre=/usr/bin/docker pull APP_REPO/IMG_NAME:TAG_NAME
+ExecStartPre=/usr/bin/docker pull APP_REPO/IMG_NAME
 ExecStart=/usr/local/bin/APP_NAME
 Restart=on-abort
 TimeoutSec=20
