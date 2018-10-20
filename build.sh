@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" > /dev/null && pwd )"
 
 docker_repo="hurricane"
@@ -79,17 +81,21 @@ prep_dockerfile() {
     sed -i "s/__CROSS_//g"  "$build_dir/Dockerfile"
   fi
   echo "$build_dir"
-  exit
 }
 
 sync_dirs() {
   src="$1"
   dst="$2"
+  if [[ -z "$src" || -z "$dst" ]]; then
+    exit 1
+  fi
   rsync -a "$src/" "$dst/"
 }
 
 register_qemu_user_static() {
-  docker run --rm --privileged multiarch/qemu-user-static:register
+  if [[ (! -e /proc/sys/fs/binfmt_misc/qemu-arm || ! -e /proc/sys/fs/binfmt_misc/qemu-aarch64) ]]; then \
+    docker run --rm --privileged multiarch/qemu-user-static:register > /dev/null
+  fi
 }
 
 build_docker_image() {
@@ -105,6 +111,35 @@ push_docker_image() {
   docker push "$docker_image_tag"
 }
 
+create_docker_manifest() {
+  manifests="$1"
+  container_name="$2"
+  manifest_list="${docker_repo}/${container_name}:latest"
+  docker-manifest manifest create $manifest_list $manifests
+  for manifest in $manifests; do
+    if [[ $manifest =~ amd64 ]]; then
+      continue
+    fi
+    if [[ $manifest =~ arm64v8 ]]; then
+      manifest_opts="--arch arm64 --variant armv8"
+    else
+      manifest_opts="--arch arm"
+    fi
+    docker-manifest manifest annotate --os linux $manifest_opts $manifest_list $manifest
+  done
+  docker-manifest manifest push --purge $manifest_list
+}
+
+clean() {
+  container_name="$1"
+  rm -rf "/var/tmp/${docker_repo}_*"
+  rm -rf "$qemu_user_static_tmpdir"
+  rm -rf "$s6_overlay_tmpdir"
+  docker images | awk -v image_name="$docker_repo/$container_name" '{ if ($1 ~ image_name) { system("docker rmi -f " $3) } }'
+  docker images | awk -v image_name="ubuntu" '{ if ($1 ~ image_name) { system("docker rmi -f " $3) } }'
+  docker images | awk -v image_name="multiarch" '{ if ($1 ~ image_name) { system("docker rmi -f " $3) } }'
+}
+
 build_docker_images() {
   container_name="$1"
   docker_image_tags=""
@@ -112,23 +147,23 @@ build_docker_images() {
     echo "Building $container_name for $arch"
     case $arch in
       amd64  ) qemu_arch="x86_64"  ; s6_arch="amd64"    ;;
-      arm64v8) qemu_arch="arm"     ; s6_arch="armhf"    ;;
-      arm32v7) qemu_arch="aarch64" ; s6_arch="aarch64"  ;;
+      arm32v7) qemu_arch="arm"     ; s6_arch="armhf"    ;;
+      arm64v8) qemu_arch="aarch64" ; s6_arch="aarch64"  ;;
     esac
     source_dir="${DIR}/${container_name}"
     build_dir="$(new_build_dir "$container_name" "$arch")"
     docker_image_tag="${docker_repo}/${container_name}:${arch}-latest"
     docker_image_tags="$docker_image_tags $docker_image_tag"
-    exit
     sync_dirs "$source_dir" "$build_dir"
     get_qemu_user_static "$qemu_arch" "$build_dir"
     get_s6_overlay "$s6_arch" "$build_dir"
     prep_dockerfile "$build_dir" "$arch" "$qemu_arch"
     register_qemu_user_static
-    build_docker_image "$build_dir" "$container_name" "$arch"
+    build_docker_image "$build_dir" "$docker_image_tag"
   done
+  create_docker_manifest "$docker_image_tags" "$container_name"
+  clean "$container_name"
 }
-
 
 
 qemu_ver=$(get_release_ver "$qemu_user_static_releases_url")
