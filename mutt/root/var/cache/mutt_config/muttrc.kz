@@ -1,9 +1,0 @@
-# Main options -----------------------------------
-set nm_default_uri = "notmuch:///home/$APP_USER/.mail"                # path to the maildir
-set nm_open_timeout = 3                                               # Faster!
-set virtual_spoolfile=yes                                             # enable virtual folders
-set nm_record = yes                                                   # apply notmuch to email in mutt's record
-set nm_record_tags = "+sent,-archive,-INBOX,-unread"                  # add tags to mutt's record
-
-# Index key bindings -----------------------------
-macro index \\\\ "<vfolder-from-query>"              # looks up a hand made query, press two \\ while in index view

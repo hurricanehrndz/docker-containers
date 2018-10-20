@@ -1,9 +1,0 @@
-#!/bin/bash
-
-APP_UID=${APP_UID:-1000}
-APP_GID=${APP_GID:-1000}
-APP_USER=${APP_USER:-appuser}
-HOME=/home/$APP_USER
-
-s6-applyuidgid -u $APP_UID -g $APP_GID gcalcli list --noauth_local_webserver
-s6-applyuidgid -u $APP_UID -g $APP_GID cp $HOME/.gcalcli_oauth $HOME/.mutt/addons/

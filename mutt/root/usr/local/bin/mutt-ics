@@ -1,8 +1,0 @@
-#!/bin/bash
-
-if [[ ! -d ~/.mutt/temp ]]; then
-  mkdir -p ~/.mutt/temp
-fi
-
-cp $1 ~/.mutt/temp/caldata
-/usr/bin/mutt-ics $1
