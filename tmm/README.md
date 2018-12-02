@@ -23,6 +23,7 @@
      - [Adjusting Variables](#adjusting-variables)
   - [Volumes](#volumes)
   - [Manual Run](#manual-run)
+  - [XMLRPC Interface](#xmlrpc-interface)
 - [License](#license)
 - [Donation](#donation)
 
@@ -338,6 +339,11 @@ docker run -d --net=host
 ```
 All the information mention previously regarding user UID and GID still applies
 when executing a docker run command.
+
+### XMLRPC Interface:
+
+First of all, the XMLRPC is not harden for internet use. A example script can
+be found in the examples directory within this project's folder.
 
 
 ## License
