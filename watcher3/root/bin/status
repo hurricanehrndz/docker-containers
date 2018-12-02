@@ -1,0 +1,6 @@
+#!/bin/bash
+
+APP_GUEST_CFG="${APP_GUEST_CFG:-/config}"
+PID_FILE="${APP_GUEST_CFG}/watcher.pid"
+
+ps -p $(cat "$PID_FILE") -o etime=

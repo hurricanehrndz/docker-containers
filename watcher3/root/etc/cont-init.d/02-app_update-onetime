@@ -1,0 +1,14 @@
+#!/usr/bin/with-contenv bash
+# vim:set ft=sh sw=2 sts=2 ts=2 et:
+
+APP_UID=${APP_UID:-1000}
+APP_GID=${APP_GID:-1000}
+
+APP_USER=${APP_USER:-appuser}
+APP_DIR="/opt/${APP_NAME}"
+
+if [[ ${EDGE} -eq 1 ]]; then
+  cd "$APP_DIR" || exit
+  git pull
+  echo "Update successful!"
+fi

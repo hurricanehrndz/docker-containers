@@ -1,0 +1,19 @@
+#!/usr/bin/execlineb -P
+# vim:set ft=sh sw=2 ts=2 sts=2 et:
+
+with-contenv
+multisubstitute
+{
+  importas -D   1000       APP_UID         APP_UID
+  importas -D   1000       APP_GID         APP_GID
+  importas -D   9090       APP_PORT        APP_PORT
+  importas -D   "appuser"  APP_USER        APP_USER
+  importas -D   "/config"  APP_GUEST_CFG   APP_GUEST_CFG
+  importas -D   "002"      UMASK           UMASK
+  importas                 APP_NAME        APP_NAME
+}
+
+export HOME "/home/${APP_USER}"
+define APP_DIR "/opt/${APP_NAME}"
+
+s6-applyuidgid -u "${APP_UID}" -g "${APP_GID}" umask "${UMASK}" python3 "${APP_DIR}/watcher.py" --conf "${APP_GUEST_CFG}/watcher.cfg" --db "${APP_GUEST_CFG}/db/database.sqlite" --log "${APP_GUEST_CFG}/logs/" --plugins "${APP_GUEST_CFG}/plugins/" --port "${APP_PORT}" --pid "${APP_GUEST_CFG}/watcher.pid"
