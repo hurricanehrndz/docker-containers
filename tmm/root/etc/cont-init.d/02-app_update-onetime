@@ -1,0 +1,19 @@
+#!/usr/bin/with-contenv bash
+# vim:set ft=sh sw=2 sts=2 ts=2 et:
+
+APP_UID=${APP_UID:-1000}
+APP_GID=${APP_GID:-1000}
+APP_USER=${APP_USER:-appuser}
+
+if [[ ${EDGE} -eq 1 ]]; then
+  rel_url="http://release.tinymediamanager.org/download.php"
+  rel=$(curl -L "$rel_url" | awk /linux.tar/'{gsub("<a href=\"",""); gsub("\".*$",""); print}' || exit 1)
+  download_url="http://release.tinymediamanager.org/$rel" || exit 1
+  tmm_file="/tmp/tmm.tgz"
+  curl -o "$tmm_file" -L "$download_url" || exit 1
+  find . -path "./cache" -prune -o -path "./data" -prune -o -path "./backup" -prune -o -path "./logs" -prune -o -name "launcher.log" -prune -o -print0 | xargs -0 -I{} rm -rf {}
+  tar -xvf "$tmm_file" -C "/opt/${APP_NAME}" || exit 1
+  chown -R "${APP_UID}:${APP_GID}" "/opt/${APP_NAME}"
+  rm -rf "$tmm_file"
+  echo "Update successful!"
+fi

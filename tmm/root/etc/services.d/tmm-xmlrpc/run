@@ -1,0 +1,14 @@
+#!/usr/bin/execlineb -P
+# vim:set ft=sh sw=2 sts=2 ts=2 et:
+
+with-contenv
+multisubstitute
+{
+  importas -D   1000       APP_UID         APP_UID
+  importas -D   1000       APP_GID         APP_GID
+  importas -D   "appuser"  APP_USER        APP_USER
+  importas -D   "002"      UMASK           UMASK
+  importas -D   "tmm"      APP_NAME        APP_NAME
+}
+
+s6-applyuidgid -u "${APP_UID}" -g "${APP_GID}" umask "${UMASK}" tmm-xmlrpc -p "/opt/${APP_NAME}/tinyMediaManagerCMD.sh"
