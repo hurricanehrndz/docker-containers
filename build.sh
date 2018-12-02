@@ -5,6 +5,7 @@ set -e
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" > /dev/null && pwd )"
 
 docker_repo="hurricane"
+#arches=(amd64)
 arches=(amd64 arm64v8 arm32v7)
 qemu_user_static_tmpdir="/var/tmp/qemu-static"
 qemu_user_static_releases_url="https://github.com/multiarch/qemu-user-static/releases.atom"
@@ -108,6 +109,7 @@ build_docker_image() {
 
 push_docker_image() {
   docker_image_tag="$1"
+  sync
   docker push "$docker_image_tag"
 }
 
@@ -115,7 +117,8 @@ create_docker_manifest() {
   manifests="$1"
   container_name="$2"
   manifest_list="${docker_repo}/${container_name}:latest"
-  docker-manifest manifest create $manifest_list $manifests
+  docker manifest create $manifest_list $manifests
+  sleep 30
   for manifest in $manifests; do
     if [[ $manifest =~ amd64 ]]; then
       continue
@@ -123,11 +126,13 @@ create_docker_manifest() {
     if [[ $manifest =~ arm64v8 ]]; then
       manifest_opts="--arch arm64 --variant armv8"
     else
-      manifest_opts="--arch arm"
+      manifest_opts="--arch arm --variant armv7"
     fi
-    docker-manifest manifest annotate --os linux $manifest_opts $manifest_list $manifest
+    docker manifest annotate --os linux $manifest_opts $manifest_list $manifest
   done
-  docker-manifest manifest push --purge $manifest_list
+  sync
+  sleep 30
+  docker manifest push --purge $manifest_list
 }
 
 clean() {
@@ -136,7 +141,7 @@ clean() {
   rm -rf "$qemu_user_static_tmpdir"
   rm -rf "$s6_overlay_tmpdir"
   docker images | awk -v image_name="$docker_repo/$container_name" '{ if ($1 ~ image_name) { system("docker rmi -f " $3) } }'
-  docker images | awk -v image_name="ubuntu" '{ if ($1 ~ image_name) { system("docker rmi -f " $3) } }'
+  docker images | awk -v image_name="debian" '{ if ($1 ~ image_name) { system("docker rmi -f " $3) } }'
   docker images | awk -v image_name="multiarch" '{ if ($1 ~ image_name) { system("docker rmi -f " $3) } }'
 }
 
@@ -173,7 +178,7 @@ if [[ ! "${qemu_ver}" =~ v.* ]]; then
   exit 1
 fi
 
-container_names="$*"
+container_names=("$@")
 
 mkdir -p "$qemu_user_static_tmpdir"
 mkdir -p "$s6_overlay_tmpdir"
