@@ -2,7 +2,7 @@
 
 - [Quick Start](#quick-start)
 - [Description](#description)
-- [What is in this image?](#what-is-in-this-image-?)
+- [What is in this image?](#what-is-in-this-image)
 - [Supported Architectures](#supported-architectures)
 - [Contributing](#contributing)
 - [Issues](#issues)
@@ -54,7 +54,7 @@ This image is built from the official tinyMediaManager release. Additionally,
 it includes an xmlrpc server. The xmlrpc server includes a subset of the
 commands provided by tinyMediaManagerCMD.
 
-## Supported Architecutres:
+## Supported Architectures:
 
 amd64, x86_64, arm32v7, arm64v8
 
