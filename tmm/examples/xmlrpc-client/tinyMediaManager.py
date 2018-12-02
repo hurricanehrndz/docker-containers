@@ -24,11 +24,14 @@ POSTPROCESS_ERROR = 94
 POSTPROCESS_NONE = 95
 
 tmm_address = os.environ['NZBPO_HOST']
-url = u'{}/RPC2'.format(tmm_address)
+url = u'{}'.format(tmm_address)
 
 tinyMediaManager = xmlrpc.client.ServerProxy(tmm_address)
 
-tinyMediaManager.update() or sys.exit(POSTPROCESS_ERROR)
-tinyMediaManager.scrape_unscraped() or sys.exit(POSTPROCESS_ERROR)
-tinyMediaManager.rename() or sys.exit(POSTPROCESS_ERROR)
+if not tinyMediaManager.update():
+    sys.exit(POSTPROCESS_ERROR)
+if not tinyMediaManager.scrape_unscraped():
+    sys.exit(POSTPROCESS_ERROR)
+if not tinyMediaManager.rename():
+    sys.exit(POSTPROCESS_ERROR)
 sys.exit(POSTPROCESS_SUCCESS)
