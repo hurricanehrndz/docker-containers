@@ -116,7 +116,7 @@ docker run -it --rm -v /etc/systemd/system:/target  \
 
 To enable the systemd service for `tmm` execute the following:
 ```sh
-sudo systemctl enable tmm@${USER}
+sudo systemctl enable tmm@$USER
 ```
 
 #### Install as another user:
@@ -202,7 +202,6 @@ tmm --gui
 ```
 
 ### Automatic Upgrades:
-
 If you wish the docker container to automatically update upon creation, set the
 environment variable `EDGE` to `1`. Please read the `Technical Details` section
 for the various ways this can be achieved.
@@ -253,7 +252,7 @@ tmm --status
 
 By default the containerized application has been set to run with UID and GID
 `1000`. If using the automatic install method from Docker, the container is set
-to run with the UID and GID of of the user executing the `tmm` wrapper
+to run with the UID and GID of the user executing the `tmm` wrapper
 script.  Additionally, the wrapper script saves tmm's configuration and
 settings in a hidden sub folder in the executing user's home directory. Most
 default settings can be adjusted by passing the appropriate environment
@@ -272,7 +271,7 @@ passing any or all of the following environment variable:
 | APP_GID        | GID assigned to APP_USER upon creation, or will query APP_USER's GID.\[3\]     |
 | APP_CONFIG     | Location where application will store settings and database on host.\[1\]      |
 | APP_GUEST_CFG  | Location where application will store settings and database within guest.\[4\] |
-| APP_PORT       | App's Web UI port used to configure and access the xmlrpc service.\[2\]        |
+| APP_PORT       | App's Web UI port used to access the xmlrpc service.\[2\]                      |
 | UMASK          | umask assigned to service, default set to 002.\[4\]                            |
 | EDGE           | Update the containerized service, default set to 0(Off).\[4\]                  |
 
@@ -282,7 +281,6 @@ passing any or all of the following environment variable:
 \[4\]: Variable is applicable in all scenarios.  
 
 #### Adjusting Variables:
-
 In order to pass any of the applicable variables during install or when
 invoking `docker run` directly  please read Docker's documentation on
 [environment
@@ -329,7 +327,7 @@ Of course you can always run the docker image manually. Please be aware that if
 you wish your data to remain persistent you need to provide a location for the
 for all the exposed volumes. For example,
 ```
-docker run -d --net=host
+docker run -d --net=host \
     -v /*your_config_location*:/opt/tmm/data \
     -v /*your_cache_location*:/opt/tmm/cache \
     -v /*your_backup_location*:/opt/tmm/backup \
