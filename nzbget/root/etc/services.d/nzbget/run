@@ -1,5 +1,5 @@
 #!/usr/bin/execlineb -P
-# vim:set ft=sh sw=2 sts=2 st=2 et:
+# vim:set ft=sh sw=2 sts=2 ts=2 et:
 
 with-contenv
 multisubstitute
@@ -7,7 +7,7 @@ multisubstitute
   importas -D   1000       APP_UID         APP_UID
   importas -D   1000       APP_GID         APP_GID
   importas -D   "appuser"  APP_USER        APP_USER
-  importas -D   "/config"  APP_GCONFIG     APP_GCONFIG
+  importas -D   "/config"  APP_GUEST_CFG   APP_GUEST_CFG
   importas -D   "002"      UMASK           UMASK
   importas                 APP_NAME        APP_NAME
 }
@@ -15,5 +15,5 @@ multisubstitute
 export HOME "/home/${APP_USER}"
 define APP_DIR "/usr/lib/${APP_NAME}"
 
-cd ${APP_DIR}
-s6-applyuidgid -u ${APP_UID} -g ${APP_GID} umask ${UMASK} ${APP_DIR}/${APP_NAME} -s -o OutputMode=log -c ${APP_GCONFIG}/${APP_NAME}.conf
+cd "${APP_DIR}"
+s6-applyuidgid -u "${APP_UID}" -g "${APP_GID}" umask "${UMASK}" "${APP_DIR}/${APP_NAME}" -s -o OutputMode=log -c "${APP_GUEST_CFG}/${APP_NAME}.conf"

@@ -1,12 +1,13 @@
 #!/bin/bash
 
 PATH=/usr/sbin:/usr/bin:/sbin:/bin
+PROGRAM=$(basename "$0")
 IMG_NAME="IMG_NAME"
 APP_NAME="APP_NAME"
 APP_USER=${APP_USER:-$USER}
 APP_REPO=${APP_REPO:-hurricane}
-APP_CONFIG=${APP_CONFIG:-"/home/${APP_USER}/.${APP_NAME}"}
-APP_GCONFIG=${APP_GCONFIG:-"/config"}
+APP_CONFIG=${APP_CONFIG:-"/home/${APP_USER}/.config/${APP_NAME}"}
+APP_GUEST_CFG=${APP_GUEST_CFG:-"/config"}
 APP_PORT=${APP_PORT:-6789}
 EDGE=${EDGE:-0}
 UMASK=${UMASK:-002}
@@ -15,8 +16,8 @@ RUN_MODE="-d"
 ( id -Gn | grep -q docker ) || [[ $EUID == 0 ]] || SUDO=sudo
 
 if [[ "${APP_USER}" != "appuser" ]]; then
-  APP_UID=$(getent passwd $APP_USER | awk -F":" '{print $3}')
-  APP_GID=$(getent passwd $APP_USER | awk -F":" '{print $4}')
+  APP_UID=$(getent passwd "$APP_USER" | awk -F":" '{print $3}')
+  APP_GID=$(getent passwd "$APP_USER" | awk -F":" '{print $4}')
 else
   APP_UID=$(id -u)
   APP_GID=$(id -g)
@@ -26,28 +27,40 @@ if [[ ${APP_USER} == "nobody" ]]; then
   APP_USER="appuser"
 fi
 
-list_options() {
-  echo ""
-  echo "Launch ${APP_NAME} using:"
-  echo "  ${APP_NAME}                          - Launch ${APP_NAME}"
-  echo "  ${APP_NAME} bash                     - Launch bash shell in ${APP_NAME} container"
-  echo ""
-  exit 1
+show_help() {
+  # shellcheck disable=SC2086
+  cat <<_EOF_
+Usage: ${PROGRAM} [OPTION]
+Launch ${APP_NAME} containerized
+
+      --console     Launch bash console. If running, option will drop user into
+                    bash session within running container. Otherwise, option
+                    will interupt normal startup and start bash session
+                    instead of any services.
+  -l, --logs        Print container log
+  -f, --service     Launch ${APP_NAME} docker container in foreground
+  -s, --status      Print running processes within container
+  -x, --stop        Stop continaer
+  -u, --update      Update ${APP_NAME} within docker container,
+                    container must be running
+  -h, --help        Display this help and exit
+
+Report bugs to https://github.com/hurricanehrndz/docker-containers
+_EOF_
+  exit
 }
 
 cleanup_stopped_instances() {
   for c in $(${SUDO} docker ps -a -q)
   do
-    image=$(${SUDO} docker inspect --format="{{.Config.Image}}" ${c})
+    image=$(${SUDO} docker inspect --format="{{.Config.Image}}" "${c}")
     if [[ ${image} =~ ${APP_REPO}/${IMG_NAME} ]]; then
-      running=$(${SUDO} docker inspect --format="{{.State.Running}}" ${c})
+      running=$(${SUDO} docker inspect --format="{{.State.Running}}" "${c}")
       if [[ ${running} != true ]]; then
-        echo "Cleaning up stopped ${APP_NAME} instances..."
-        ${SUDO} docker rm -v "${c}" >/dev/null
+        ${SUDO} docker rm -v "${c}" > /dev/null 2>&1
       fi
     fi
   done
-  running=$(${SUDO} docker inspect --format="{{.State.Running}}" ${APP_NAME} 2> /dev/null)
 }
 
 prepare_docker_env_parameters() {
@@ -65,17 +78,21 @@ prepare_docker_env_parameters() {
 }
 
 prepare_docker_volume_parameters() {
-  if [[ ! -d "${APP_CONFIG}" ]]; then
-    mkdir -p ${APP_CONFIG}
-  fi
+  volume_maps=(
+    "${APP_CONFIG}","${APP_GUEST_CFG}"
+  )
 
-  CURR_SID=$(stat -c"%u:%g" ${APP_CONFIG})
-  if [ "$CURR_SID" != "$APP_UID:$APP_GID" ] ; then
-    chown -R $APP_UID:$APP_GID ${APP_CONFIG}
-  fi
-
-  # prepare local filesystems
-  VOLUMES+=" --volume=${APP_CONFIG}:${APP_GCONFIG}"
+  for volume_map in "${volume_maps[@]}"; do
+    IFS=',' read -r system_path container_path <<< "${volume_map}"
+    if [[ ! -d "$system_path" ]]; then
+      mkdir -p "$system_path"
+    fi
+    CURR_SID=$(stat -c"%u:%g" "$system_path")
+    if [ "$CURR_SID" != "$APP_UID:$APP_GID" ] ; then
+      chown -R "$APP_UID":"$APP_GID" "$system_path"
+    fi
+    VOLUMES+=" --volume=${system_path}:${container_path}"
+  done
 }
 
 prepare_user_volume_parameters() {
@@ -91,7 +108,7 @@ prepare_user_volume_parameters() {
     echo "Pleae enter full paths you want accessible from within the container"
     echo "Enter one entry per line."
     echo "Enter \"done\" or "Ctrl+D" when finished"
-    while read hostpath; do
+    while read -r hostpath; do
       if [[ "$hostpath" == "done" ]]; then
         break
       fi
@@ -109,73 +126,217 @@ prepare_user_volume_parameters() {
   fi
 
   # setup user volumes
-  while read user_volume; do
-    VOLUMES+=" --volume=${user_volume}:${user_volume}"
+  while read -r user_volume; do
+    if [[ "$user_volume" =~ : ]]; then
+      host_path=$(echo "$user_volume"| awk -F: '{print $1}')
+      container_path=$(echo "$user_volume"| awk -F: '{print $2}')
+      VOLUMES+=" --volume=${host_path}:${container_path}"
+    else
+      VOLUMES+=" --volume=${user_volume}:${user_volume}"
+    fi
   done < "${APP_CONFIG}/.${APP_NAME}.volumes"
 }
 
-cleanup_stopped_instances
-prepare_docker_env_parameters
-prepare_docker_volume_parameters
-prepare_user_volume_parameters
+prepare_docker_xsocket() {
+  if [[ -n "${XAUTHORITY}" ]]; then
+    if [[ ! -e "${XAUTH}" ]]; then
+      touch "${XAUTH}"
+      xauth nlist :0 | sed -e 's/^..../ffff/' | xauth -f "${XAUTH}" nmerge -
+    fi
 
-if [[ "${running}" != "true" ]]; then
-  case "$1" in
-    "")
-      ;;
-    "bash")
-      RUN_MODE="-it" && prog="bash" && shift
-      ;;
-    "service")
-      RUN_MODE="" && shift
-      ;;
-    "help")
-      list_options && exit 1
-      ;;
-    *)
-      echo "${APP_NAME} not started yet."
-      echo "Ignoring all arguments!"
-      set --
-      ;;
-  esac
-
-  if [[ -z "${prog}" ]]; then
-    msg="Starting $APP_NAME"
-  else
-    msg="Starting ${prog} in ${APP_NAME} docker"
+    VOLUMES+=" --volume=${XSOCK}:${XSOCK}"
+    VOLUMES+=" --volume=${XAUTH}:${XAUTH}"
+    ENV_VARS+=" --env=DISPLAY"
+    ENV_VARS+=" --env=XAUTHORITY=${XAUTH}"
   fi
+}
 
-  echo "${msg}..."
+stop_container() {
+  docker stop $APP_NAME > /dev/null 2>&1
+}
+
+show_logs() {
+  docker logs $APP_NAME
+}
+
+start_console_in_running_container() {
+  docker exec -it $APP_NAME bash
+}
+
+start_update() {
+  docker exec -it $APP_NAME update
+}
+
+show_processes() {
+  docker top $APP_NAME
+}
+
+
+###############################################################################
+#                               Start Container                               #
+###############################################################################
+prep_start() {
+  cleanup_stopped_instances
+  prepare_docker_env_parameters
+  prepare_docker_volume_parameters
+  prepare_user_volume_parameters
+  prepare_docker_xsocket
+}
+
+run_container() {
+  prep_start
+  # shellcheck disable=SC2086
   ${SUDO} docker run \
-    -p ${APP_PORT}:${APP_PORT} \
+    --name=${APP_NAME} \
+    -p "${APP_PORT}:${APP_PORT}" \
     --log-opt max-size=2m \
     --log-opt max-file=2 \
     ${RUN_MODE} \
     ${ENV_VARS} \
     ${VOLUMES} \
-    --name=${APP_NAME} \
-    ${APP_REPO}/${IMG_NAME} ${prog} $@
-else
-  case "$1" in
-    "update")
-      docker exec -it ${APP_NAME} update
+    ${OTHER_DOCKER_OPTS} \
+    "${APP_REPO}/${IMG_NAME}"
+}
+
+start_container() {
+  if [[ -n "$SHOW_LOGS"  || -n "$SHOW_PROCESSES"  || -n "$UPDATE_PROG" ]]; then
+    echo "Container not running."
+    exit 1
+  fi
+
+  if [[ -n "$RUN_IN_FOREGROUND" ]]; then
+    RUN_MODE=""
+  fi
+
+  if [[ -n "$RUN_CONSOLE" ]]; then
+    RUN_MODE="-it"
+    OTHER_DOCKER_OPTS="--entrypoint bash"
+  fi
+
+  run_container
+}
+
+
+###############################################################################
+#                          Execute within Container                           #
+###############################################################################
+run_command_in_running_container() {
+  if [[ -n "$RUN_IN_FOREGROUND" ]]; then
+    cat <<_EOF_
+Container already running.
+Please stop and restart container.
+_EOF_
+    exit 1
+  fi
+
+  if [[ -n "$STOP_CONTAINER" ]]; then
+    stop_container
+    cleanup_stopped_instances
+    exit
+  fi
+
+  if [[ -n "$SHOW_LOGS" ]]; then
+    show_logs
+    exit
+  fi
+
+  if [[ -n "$RUN_GUI" ]]; then
+    if [[ -z "$XAUTHORITY" ]]; then
+      echo "Display Server not detected."
+      exit 1
+    fi
+    start_gui_in_running_container
+    exit
+  fi
+
+  if [[ -n "$RUN_CONSOLE" ]]; then
+    start_console_in_running_container
+    exit
+  fi
+
+  if [[ -n "$UPDATE_PROG" ]]; then
+    start_update
+    exit
+  fi
+
+  if [[ -n "$SHOW_PROCESSES" ]]; then
+    show_processes
+    exit
+  fi
+  echo "Container already running."
+}
+
+
+###############################################################################
+#                                Main Program                                 #
+###############################################################################
+while getopts "flsquh-:" opt; do
+  case $opt in
+    f)
+      RUN_IN_FOREGROUND=true
       ;;
-    "stop")
-      docker stop ${APP_NAME}
+    l)
+      SHOW_LOGS=true
       ;;
-    "status")
-      echo "${APP_NAME} is running."
-      echo "UpTime: $(docker exec -it ${APP_NAME} status)"
+    s)
+      SHOW_PROCESSES=true
       ;;
-    "logs")
-      docker logs ${APP_NAME}
+    q)
+      STOP_CONTAINER=true
       ;;
-    "console")
-      docker exec -it ${APP_NAME} bash
+    u)
+      UPDATE_PROG=true
       ;;
-    *)
-      echo "Already running."
+    h)
+      show_help >&2
+      exit
+      ;;
+    - )
+      case $OPTARG in
+        console)
+          RUN_CONSOLE=true
+          ;;
+        logs)
+          SHOW_LOGS=true
+          ;;
+        service)
+          RUN_IN_FOREGROUND=true
+          ;;
+        status)
+          SHOW_PROCESSES=true
+          ;;
+        stop)
+          STOP_CONTAINER=true
+          ;;
+        update)
+          UPDATE_PROG=true
+          ;;
+        help)
+          show_help >&2
+          exit
+          ;;
+        *)
+          echo "Invalid option: --$OPTARG" >&2
+          exit 2
+          ;;
+      esac
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      exit 2
       ;;
   esac
-  exit 0
+done
+
+shift $((OPTIND-1))
+if [[ $# -ge 1 ]]; then
+  show_help
+  exit 1
+fi
+
+running=$(${SUDO} docker inspect --format="{{.State.Running}}" ${APP_NAME} 2> /dev/null)
+if [[ "${running}" != "true" ]]; then
+  start_container
+else
+  run_command_in_running_container
 fi

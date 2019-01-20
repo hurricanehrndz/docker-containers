@@ -5,7 +5,7 @@ After=docker.service
 [Service]
 Type=simple
 User=%i
-ExecStart=/usr/local/bin/APP_NAME service
+ExecStart=/usr/local/bin/APP_NAME --service
 ExecStop=/usr/bin/docker stop -t 2 APP_NAME
 ExecStopPost=/usr/bin/docker rm -f APP_NAME
 Restart=on-abort

@@ -9,12 +9,12 @@ APP_USER=${APP_USER:-appuser}
 if [[ ${EDGE} -eq 1 ]]; then
   rm -rf /tmp/nzbget-linux.run
   STABLE_URL="$(curl -sSL http://nzbget.net/info/nzbget-version-linux.json | sed -n "s/^.*stable-download.*: \"\(.*\)\".*/\1/p")"
-  curl -o /tmp/nzbget-linux.run -sSL $STABLE_URL
+  curl -o /tmp/nzbget-linux.run -sSL "$STABLE_URL"
   if [[ $? -eq 0 ]]; then
-    rm -rf /usr/lib/${APP_NAME}
-    mkdir -p /usr/lib/${APP_NAME}
-    sh /tmp/nzbget-linux.run --destdir /usr/lib/${APP_NAME}
-    chown -R ${APP_UID}:${APP_GID} /usr/lib/${APP_NAME}
+    rm -rf "/usr/lib/${APP_NAME}"
+    mkdir -p "/usr/lib/${APP_NAME}"
+    sh /tmp/nzbget-linux.run --destdir "/usr/lib/${APP_NAME}"
+    chown -R "${APP_UID}:${APP_GID}" "/usr/lib/${APP_NAME}"
     echo "Update successful!"
   else
     echo "Update failed!"
