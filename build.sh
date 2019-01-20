@@ -138,11 +138,19 @@ create_docker_manifest() {
 clean() {
   container_name="$1"
   rm -rf "/var/tmp/${docker_repo}_*"
-  rm -rf "$qemu_user_static_tmpdir"
-  rm -rf "$s6_overlay_tmpdir"
-  docker images | awk -v image_name="$docker_repo/$container_name" '{ if ($1 ~ image_name) { system("docker rmi -f " $3) } }'
-  docker images | awk -v image_name="debian" '{ if ($1 ~ image_name) { system("docker rmi -f " $3) } }'
-  docker images | awk -v image_name="multiarch" '{ if ($1 ~ image_name) { system("docker rmi -f " $3) } }'
+  docker image prune -f
+  docker container prune -f
+}
+
+prep_for_builds() {
+  docker image prune -f
+  rm -rf "$qemu_user_static_tmpdir" "$s6_overlay_tmpdir"
+  docker pull multiarch/qemu-user-static:register
+  for arch in "${arches[@]}"; do
+    docker pull "$arch/debian:stable"
+  done
+  mkdir -p "$qemu_user_static_tmpdir"
+  mkdir -p "$s6_overlay_tmpdir"
 }
 
 build_docker_images() {
@@ -178,11 +186,11 @@ if [[ ! "${qemu_ver}" =~ v.* ]]; then
   exit 1
 fi
 
+prep_for_builds
 container_names=("$@")
-
-mkdir -p "$qemu_user_static_tmpdir"
-mkdir -p "$s6_overlay_tmpdir"
 for container_name in "${container_names[@]}"; do
+  echo "Building $container_name"
   build_docker_images "$container_name"
+  sync
 done
 
