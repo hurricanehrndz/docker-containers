@@ -1,4 +1,4 @@
-FROM __BASEIMAGE_ARCH__/ubuntu:rolling
+FROM __BASEIMAGE_ARCH__/debian:stable
 
 ARG DEBIAN_FRONTEND=noninteractive
 ENV LC_ALL="en_US.UTF-8" LANG="en_US.UTF-8" APP_NAME="sonarr" IMG_NAME="sonarr" S6_LOGGING="0" UMASK=002 EDGE=0
@@ -6,6 +6,7 @@ ENV LC_ALL="en_US.UTF-8" LANG="en_US.UTF-8" APP_NAME="sonarr" IMG_NAME="sonarr" 
 __CROSS_COPY qemu-__QEMU_ARCH__-static /usr/bin
 
 RUN apt-get update \
+ && apt-get -y upgrade \
  && apt-get -qq install -y \
 	ca-certificates \
 	curl \
