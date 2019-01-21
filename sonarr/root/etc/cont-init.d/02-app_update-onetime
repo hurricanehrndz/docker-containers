@@ -1,19 +1,19 @@
 #!/usr/bin/with-contenv bash
-# vim:set ft=sh sw=2 sts=2 st=2 et:
+# vim:set ft=sh sw=2 sts=2 ts=2 et:
 
 APP_UID=${APP_UID:-1000}
 APP_GID=${APP_GID:-1000}
-APP_GCONFIG=${APP_GCONFIG:-/config}
+APP_GUEST_CFG=${APP_GUEST_CFG:-/config}
 APP_USER=${APP_USER:-appuser}
 
 if [[ ${EDGE} -eq 1 ]]; then
-  rm -rf /tmp/${APP_NAME}
-  mkdir -p /tmp/${APP_NAME}
-  curl -sSL http://update.sonarr.tv/v2/master/mono/NzbDrone.master.tar.gz | tar -C /tmp/${APP_NAME} -xz --strip-components=1
+  rm -rf "/tmp/${APP_NAME}"
+  mkdir -p "/tmp/${APP_NAME}"
+  curl -sSL http://update.sonarr.tv/v2/master/mono/NzbDrone.master.tar.gz | tar -C "/tmp/${APP_NAME}" -xz --strip-components=1
   if [[ $? -eq 0 ]]; then
-    rm -rf /opt/${APP_NAME}
-    mv /tmp/${APP_NAME} /opt
-    chown -R ${APP_UID}:${APP_GID} /opt/${APP_NAME}
+    rm -rf "/opt/${APP_NAME}"
+    mv "/tmp/${APP_NAME}" /opt
+    chown -R "${APP_UID}:${APP_GID}" "/opt/${APP_NAME}"
     echo "Update successful!"
   else
     echo "Update failed!"
