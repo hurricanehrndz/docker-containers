@@ -159,6 +159,10 @@ show_logs() {
   docker logs $APP_NAME
 }
 
+start_gui_in_running_container() {
+  docker exec -d $APP_NAME $APP_NAME
+}
+
 start_console_in_running_container() {
   docker exec -it $APP_NAME bash
 }
@@ -212,6 +216,14 @@ start_container() {
     OTHER_DOCKER_OPTS="--entrypoint bash"
   fi
 
+  if [[ -n "$RUN_GUI" ]]; then
+    if [[ -z "$XAUTHORITY" ]]; then
+      echo "Display Server not detected."
+      exit 1
+    fi
+    RUN_MODE="-d"
+    OTHER_DOCKER_OPTS="--entrypoint ${APP_NAME}"
+  fi
   run_container
 }
 
