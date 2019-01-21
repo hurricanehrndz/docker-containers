@@ -180,7 +180,6 @@ prep_start() {
   prepare_docker_env_parameters
   prepare_docker_volume_parameters
   prepare_user_volume_parameters
-  prepare_docker_xsocket
 }
 
 run_container() {
