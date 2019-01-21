@@ -7,7 +7,7 @@ multisubstitute
   importas -D   1000        APP_UID        APP_UID
   importas -D   1000        APP_GID        APP_GID
   importas -D   "appuser"   APP_USER       APP_USER
-  importas -D   "/config"   APP_GCONFIG    APP_GCONFIG
+  importas -D   "/config"   APP_GUEST_CFG    APP_GUEST_CFG
   importas -D   "002"       UMASK          UMASK
   importas                  APP_NAME       APP_NAME
 }
@@ -24,4 +24,4 @@ export MONO_GC_PARAMS "max-heap-size=96m,soft-heap-limit=64m,nursery-size=4m"
 cd $APP_DIR
 s6-applyuidgid -u ${APP_UID} -g ${APP_GID} umask ${UMASK} /usr/bin/mono-sgen ${SONARR} \
   -nobrowser \
-  -data=${APP_GCONFIG}
+  -data=${APP_GUEST_CFG}
