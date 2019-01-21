@@ -240,7 +240,7 @@ nzbget --console
 or
 ```sh
 docker exec -it nzbget bash
-``
+```
 
 ### Logs:
 ```sh
