@@ -96,7 +96,7 @@ a container named `sonarr`. Additionally, the script will ensure that this
 container gets setup with the appropriate environment variables and volumes
 each time it is executed.
 
-#### Installation as current user:
+### Installation as current user:
 Start the installation by issuing the following command from within a terminal:
 ```sh
 docker run -it --rm -v /usr/local/bin:/target \
@@ -116,7 +116,7 @@ To enable the systemd service for `sonarr` execute the following:
 sudo systemctl enable sonarr@$USER
 ```
 
-#### Install as another user:
+### Install as another user:
 In the following instructions adjust each command replacing `username` with the
 name of the user you wish the container to run as.
 
