@@ -9,7 +9,7 @@
 - [Issues](#issues)
 - [Installation](#installation)
     - [Install as current user](#install-as-current-user)
-    - [Install as other user](#install-as-other-user)
+    - [Install as another user](#install-as-another-user)
     - [Install from GitHub](#install-from-github)
     - [Initial Configuration](#initial-configuration)
     - [Adding more Volumes](#adding-more-volumes)
@@ -96,7 +96,7 @@ a container named `sonarr`. Additionally, the script will ensure that this
 container gets setup with the appropriate environment variables and volumes
 each time it is executed.
 
-### Installation as current user:
+### Install as current user:
 Start the installation by issuing the following command from within a terminal:
 ```sh
 docker run -it --rm -v /usr/local/bin:/target \
@@ -164,7 +164,7 @@ sonarr
 On the first run, the script will prompt for system paths that you wish made
 accessible from within the container. Enter one path per line.
 
-#### Adding more volumes:
+### Adding more volumes:
 Volumes which should be mounted within the container at runtime are kept in the
 volume configuration file found under the `APP_CONFIG` folder on the host. The
 location will vary depending on the type of installation.
