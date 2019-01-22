@@ -1,48 +1,59 @@
 # Sonarr
 ![Alt text](https://cdn.rawgit.com/Sonarr/Sonarr/develop/Logo/256.png "")
-- [Introduction](#introduction)
-  - [Supported Tags](#supported-tags)
-  - [Contributing](#contributing)
-  - [Issues](#issues)
-- [Getting started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-    - [Docker Hub](#docker-hub)
-        - [Installation as current user](#installation-as-current-user)
-        - [Installation as other user](#installation-as-other-user)
-    - [GitHub](#github)
+
+- [Quick Start](#quick-start)
+- [Description](#description)
+- [What is in this image?](#what-is-in-this-image)
+- [Supported Architectures](#supported-architectures)
+- [Contributing](#contributing)
+- [Issues](#issues)
+- [Installation](#installation)
+    - [Install as current user](#install-as-current-user)
+    - [Install as other user](#install-as-other-user)
+    - [Install from GitHub](#install-from-github)
     - [Initial Configuration](#initial-configuration)
+    - [Adding more Volumes](#adding-more-volumes)
 - [Maintenance](#maintenance)
-  - [Upgrading](#upgrading)
-  - [Automatic Upgrades](#automatic-upgrades)
-  - [Removal](#removal)
-  - [Shell Access](#shell-access)
-- [unRAID](#unraid)
-  - [Installation](#unraid-installation)
-  - [Automatic Upgrades](#unraid-automatic-upgrades)
+    - [Upgrading](#upgrading)
+    - [Automatic Upgrades](#automatic-upgrades)
+    - [Removal](#removal)
+    - [Shell Access](#shell-access)
+    - [Logs](#logs)
+    - [List Running processes](#list-running-processes)
 - [Technical Information](#technical-information)
-  - [Environment Variables](#environment-variables)
-     - [Adjusting Variables](#adjusting-variables)
-  - [Volumes](#volumes)
-- [Manual Run and Installation](#manual-run-and-installation)
+    - [Environment Variables](#environment-variables)
+        - [Adjusting Variables](#adjusting-variables)
+    - [Volumes](#volumes)
+    - [Manual Run](#manual-run)
 - [License](#license)
 - [Donation](#donation)
 
+## Quick Start:
+![demo](img/preview/sonarr-demo.gif)
+```
+docker run -v /usr/local/bin:/target --entrypoint instl hurricane/sonarr
+sonarr
+```
 
-# Introduction
+## Description:
 
 Sonarr is a PVR for Usenet and BitTorrent users. It can monitor multiple RSS
 feeds for new episodes of your favorite shows and will grab, sort and rename
 them. It can also be configured to automatically upgrade the quality of files
 already downloaded when a better quality format becomes available.
 
-This subfolder contains all necessary files to build a [Docker](https://www.docker.com/) image for [sonarr](https://github.com/sonarr/sonarr).
+This subfolder contains all necessary files to build
+a [Docker](https://www.docker.com/) image for
+[sonarr](https://github.com/sonarr/sonarr).
 
-## Supported Tags:
+## What is in this image:
 
-* latest - latest tagged release for x86_64  
-* armv7l - latest tagged release for armv7 or armhf  
-* aarch64 - latest tagged release for armv8 or aarch64  
+This image is built from the official sonarr release and includes all
+prescribed prerequisites.
+
+## Supported Architectures:
+
+amd64, x86_64, arm32v7, arm64v8
 
 ## Contributing
 
@@ -55,63 +66,67 @@ This subfolder contains all necessary files to build a [Docker](https://www.dock
 ## Issues
 
 Before reporting your issue please try updating Docker to the latest version
-and check if it resolves the issue. Refer to the Docker [installation guide](https://docs.docker.com/installation) for instructions.
+and check if it resolves the issue. Refer to the Docker [installation
+guide](https://docs.docker.com/installation) for instructions.
 
-SELinux users should try disabling SELinux using the command `setenforce 0` to see if it resolves the issue.
+SELinux users should try disabling SELinux using the command `setenforce 0` to
+see if it resolves the issue.
 
-If the above recommendations do not help then [report your issue](../../issues/new) along with the following information:
+If the above recommendations do not help then [report your
+issue](../../issues/new) along with the following information:
 
 - Output of the `docker version` and `docker info` commands
-- The `docker run` command or `docker-compose.yml` used to start the image. Mask out the sensitive bits.
-- Please state if you are using [Boot2Docker](http://www.boot2docker.io), [VirtualBox](https://www.virtualbox.org), etc.
-
-
-# Getting started
+- The `docker run` command or `docker-compose.yml` used to start the image.
+  Mask out the sensitive bits.
+- Please state if you are using [Boot2Docker](http://www.boot2docker.io),
+  [VirtualBox](https://www.virtualbox.org), etc.
 
 ## Installation:
-
-### [Docker Hub](https://hub.docker.com/r/hurricane/sonarr/):
-It is recommended you install directly from the [Docker Hub](https://hub.docker.com/r/hurricane/sonarr/).
+For the best experience install directly from [Docker
+Hub](https://hub.docker.com/r/hurricane/nzbget/).
 
 The installation process and scripts are very versatile and can be adjusted by
 passing the right combination of variables and arguments to each of the
 commands.
 
-The following examples should cover most scenarios, in each, a wrapper script
-will be installed on the host that should ease creation and management of the
-containerized application. When executing the script it will create a container
-named `sonarr`. Additionally, the script will ensure that this container gets
-setup with the appropriate environment variables and volumes each time it is
-executed.
+The following examples should cover most scenarios. In each scenario, a wrapper
+script will be installed on the host that should ease creation and management
+of the containerized application. When executing the script it will create
+a container named `sonarr`. Additionally, the script will ensure that this
+container gets setup with the appropriate environment variables and volumes
+each time it is executed.
 
-### Installation as current user:
+#### Installation as current user:
 Start the installation by issuing the following command from within a terminal:
 ```sh
 docker run -it --rm -v /usr/local/bin:/target \
-    hurricane/sonarr instl
+    --entrypoint instl
+    hurricane/sonarr
 ```
 
-Optionally, you can also install a systemd service file by executing:
+Optionally, you can install a systemd service file by executing:
 ```sh
 docker run -it --rm -v /etc/systemd/system:/target  \
-    hurricane/sonarr instl service
+    --entrypoint instl
+    hurricane/sonarr service
 ```
 
 To enable the systemd service for `sonarr` execute the following:
 ```sh
-sudo systemctl enable sonarr@${USERNAME}
+sudo systemctl enable sonarr@$USER
 ```
 
-### Installation as other user:
+#### Install as another user:
 In the following instructions adjust each command replacing `username` with the
-name of the user you wish to install and run the container as.
+name of the user you wish the container to run as.
 
 To install the application execute and, again, adjust the command replacing
 `username` accordingly.
 ```sh
 docker run -it --rm -v /usr/local/bin:/target \
     -e "APP_USER=username" \
-    hurricane/sonarr instl
+    --entrypoint instl
+    hurricane/sonarr
 ```
 
 Note, if the user is a system account, the command will need further
@@ -122,59 +137,47 @@ This can be overridden by passing the appropriate environment variable
 ```sh
 docker run -it --rm -v /usr/local/bin:/target \
     -e "APP_USER=username" \
-    -e "APP_CONFIG=/var/lib/sonarr" \
-    hurricane/sonarr instl
+    -e "APP_CONFIG=/var/lib/nzbget" \
+    --entrypoint instl
+    hurricane/sonarr
 ```
 
-Optionally, proceed to installing the systemd service:
-```sh
-docker run -it --rm -v /etc/systemd/system:/target \
-   hurricane/sonarr instl service
-```
-
-Additionally, you can enable the service on boot by executing:
-```sh
-sudo systemctl enable sonarr@username.service
-```
-
-### [GitHub](https://github.com/hurricane/docker-containers/sonarr):
+### [Install from GitHub](https://github.com/hurricane/docker-containers/sonarr):
 Installation from GitHub is recommended only for the purposes of
 troubleshooting and development. To install from GitHub execute the
-following to build the image:
+following:
 ```sh
 git clone https://github.com/hurricane/docker-containers
-cd docker-containers/sonarr
-make
+cd docker-containers
+./build.sh sonarr
 ```
 
 Then proceed by following any of the docker run commands described in the
-docker hub installation instructions.
+installation instructions above.
 
 ### Initial Configuration:
-
-Once the sonarr wrapper script for docker has been installed you just need to
-execute the wrapper script from within a terminal:
+Once the wrapper script for the sonarr docker has been installed you just need
+to execute the wrapper script from within a terminal:
 ```sh
 sonarr
 ```
-On the first run the wrapper script will prompt for system paths that
-you wish made accessible from within the container. Enter one path per line.
+On the first run, the script will prompt for system paths that you wish made
+accessible from within the container. Enter one path per line.
 
-#### Adding more volumes after first run:
+#### Adding more volumes:
 Volumes which should be mounted within the container at runtime are kept in the
 volume configuration file found under the `APP_CONFIG` folder on the host. The
 location will vary depending on the type of installation.
 
 If the wrapper script was installed as the executing user the volume
 configuration file can be found at:
-`${HOME}/.sonarr/.sonarr.volumes`
+`${HOME}/.config/sonarr/.sonarr.volumes`
 Otherwise at:
 `${APP_CONFIG}/.sonarr.volumes`
 
-# Maintenance
+## Maintenance
 
-## Upgrading:
-
+### Upgrading:
 You can upgrade the version of sonarr found within the container by executing
 one of the following commands:
 ```sh
@@ -193,74 +196,52 @@ docker stop sonarr
 sonarr
 ```
 
+### Automatic Upgrades:
 If you wish the docker container to automatically update upon creation, set the
 environment variable `EDGE` to `1`. Please read the `Technical Details` section
 for the various ways this can be achieved.
 
-## Automatic Upgrades:
-
-In order to have the container periodically check and upgrade the sonarr binary
-one needs to add  a [`crontab`](https://en.wikipedia.org/wiki/Cron) entry. Like
-so:
-```
+In order to have the container periodically check and upgrade sonarr one needs
+to add a [`crontab`](https://en.wikipedia.org/wiki/Cron) entry. Like so:
+```sh
 echo "0 2 * * * docker exec sonarr update" | sudo tee -a /var/spool/cron/crontabs/root
 ```
 or
-```
+```sh
 echo "0 2 * * * sonarr update" | sudo tee -a /var/spool/cron/crontabs/root
 ```
-## Removal:
-
+### Removal:
 ```sh
 docker run -it --rm \
   --volume /usr/local/bin:/target \
-  hurricane/sonarr uninstl
+  --entrypoint uninstl
+  hurricane/sonarr
 ```
 
-## Shell Access
-
-For debugging and maintenance purposes you may want access the containers
+### Shell Access
+For debugging and maintenance purposes you may want to access the container's
 shell. If you are using Docker version `1.3.0` or higher you can access
-a running containers shell by starting `bash` using `docker exec`:
+a running container's shell by starting `bash` using `docker exec`:
 
 ```sh
-sonarr console
+sonarr --console
 ```
-
-## Logs
+or
 ```sh
-sonarr logs
+docker exec -it sonarr bash
 ```
 
-## Status of service within container
+### Logs
 ```sh
-sonarr status
+sonarr --logs
 ```
 
-
-# unRAID:
-
-You can find the template for this container on GitHub. Located [here](https://github.com/hurricanehrndz/container-templates/tree/master/hurricane).
-
-## unRAID Installation:
-
-Please navigate to the Docker settings page on unRAID's Web-UI and under repositories add:
-```
-https://github.com/hurricanehrndz/container-templates/tree/master/hurricane
-```
-For more information on adding templates to unRAID please visit the [unRAID forums](https://lime-technology.com/forum/).
-
-## unRAID Automatic Upgrades:
-
-On unRAID, execute the following to have the container periodically update
-itself. Additionally, add the same line of code to your `go` file to make the
-change persistent.
+### List running processes:
 ```sh
-echo "0 2 * * * docker exec sonarr update" | sudo tee -a /var/spool/cron/crontabs/root
+sonarr --status
 ```
 
-
-# Technical information:
+## Technical information:
 
 By default the containerized application has been set to run with UID and GID
 `1000`. If using the automatic install method from Docker, the container is set
@@ -271,45 +252,45 @@ default settings can be adjusted by passing the appropriate environment
 variable. Here is a list of any and all applicable environment variables that
 can be override by the end user.
 
-## Environment Variables:
-
+### Environment Variables:
 You can adjust some of the default settings set for container/application by
-passing any or all of the following environment variable:  
+passing any or all of the following environment variable:
 
-| ENV VAR      | Definition                                                                     |
-| ------------ | ------------------------------------------------------------------------------ |
-| APP_USER     | Name of user the service will run as.\[4\]                                     |
-| APP_UID      | UID assigned to APP_USER upon creation, or will query APP_USER's ID.\[3\]      |
-| APP_GID      | GID assigned to APP_USER upon creation, or will query APP_USER's GID.\[3\]     |
-| APP_CONFIG   | Location where application will store settings and database on host.\[1\]      |
-| APP_GCONFIG  | Location where application will store settings and database within guest.\[4\] |
-| APP_PORT     | App's Web UI port used to configure and access the service.\[2\]               |
-| APP_SSL_PORT | App's Web UI SSL port used to configure and access the service.\[2\]           |
-| UMASK        | umask assigned to service, default set to 002.\[4\]                            |
-| EDGE         | Update the containerized service, default set to 0(Off).\[4\]                  |
+| ENV VAR        | Definition                                                                     |
+| -------------- | ------------------------------------------------------------------------------ |
+| APP_USER       | Name of user the service will run as.\[4\]                                     |
+| APP_UID        | UID assigned to APP_USER upon creation, or will query APP_USER's ID.\[3\]      |
+| APP_GID        | GID assigned to APP_USER upon creation, or will query APP_USER's GID.\[3\]     |
+| APP_CONFIG     | Location where application will store settings and database on host.\[1\]      |
+| APP_GUEST_CFG  | Location where application will store settings and database within guest.\[4\] |
+| APP_PORT       | App's Web UI port used to configure and access the service.\[2\]               |
+| APP_SSL_PORT   | App's Web UI SSL port used to configure and access the service.\[2\]           |
+| UMASK          | umask assigned to service, default set to 002.\[4\]                            |
+| EDGE           | Update the containerized service, default set to 0(Off).\[4\]                  |
 
 \[1\]: Variable is applicable only during install.  
 \[2\]: Variable is applicable during install, when invoking installed wrapper script or systemd service.  
 \[3\]: Variable is applicable only when invoking docker run directly.  
 \[4\]: Variable is applicable in all scenarios.  
 
-### Adjusting Variables:
+#### Adjusting Variables:
+If you are unfamiliar with passing environment variables when invoking `docker
+run` please refer to Docker's documentation on [environment
+variables](https://docs.docker.com/engine/reference/run/#env-environment-variables)
+for clarification. Otherwise, the following examples should be pretty clear.
 
-In order to pass any of the applicable variables during install or when
-invoking `docker run` directly  please read Docker's documentation on [environment variables](https://docs.docker.com/engine/reference/run/#env-environment-variables) for clarification if the following examples are not clear.
-
-In the following examples will use the environment variable `EDGE`. `EDGE` has
+The following examples will use the environment variable `EDGE`. `EDGE` has
 been chosen since it is applicable during all scenarios.
 
-To pass the `EDGE` variable will invoking `docker run` append the following
+To pass the `EDGE` variable when invoking `docker run` append the following
 prior to the image name. Any and all other applicable variables can be done in
 the same manner.
 ```sh
 --env=EDGE=1
 ```
 
-To pass the environment variable during the other scenarios do so like in one
-of the examples below:
+To pass the environment variable during other scenarios do so like in one of
+the examples below:
 
 From the commandline when calling the wrapper script:
 ```
@@ -324,20 +305,19 @@ Environment=EDGE=1
 ...
 ```
 
-## Volumes:
-
+### Volumes:
 * `/config`  - Folder for configuration and settings.
 
 
-# Manual Run and Installation:
-
+### Manual Run:
 Of course you can always run the docker image manually. Please be aware that if
 you wish your data to remain persistent you need to provide a location for the
 `/config` volume. For example,
 ```
-docker run -d --net=host -v /*your_config_location*:/config \
-                         -e TZ=America/Edmonton
-                         --name=sonarr hurricane/sonarr
+docker run -d --net=host \
+    -v /*your_config_location*:/config \
+    -e TZ=America/Edmonton
+    --name=sonarr hurricane/sonarr
 ```
 All the information mention previously regarding user UID and GID still applies
 when executing a docker run command.
