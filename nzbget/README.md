@@ -8,21 +8,22 @@
 - [Issues](#issues)
 - [Installation](#installation)
     - [Install as current user](#install-as-current-user)
-    - [Install as other user](#install-as-other-user)
+    - [Install as another user](#install-as-another-user)
     - [Install from GitHub](#install-from-github)
     - [Initial Configuration](#initial-configuration)
     - [Adding more Volumes](#adding-more-volumes)
 - [Maintenance](#maintenance)
-  - [Upgrading](#upgrading)
-  - [Automatic Upgrades](#automatic-upgrades)
-  - [Removal](#removal)
-  - [Shell Access](#shell-access)
-  - [List Running processes](#list-running-processes)
+    - [Upgrading](#upgrading)
+    - [Automatic Upgrades](#automatic-upgrades)
+    - [Removal](#removal)
+    - [Shell Access](#shell-access)
+    - [Logs](#logs)
+    - [List Running processes](#list-running-processes)
 - [Technical Information](#technical-information)
-  - [Environment Variables](#environment-variables)
-     - [Adjusting Variables](#adjusting-variables)
-  - [Volumes](#volumes)
-  - [Manual Run](#manual-run)
+    - [Environment Variables](#environment-variables)
+        - [Adjusting Variables](#adjusting-variables)
+    - [Volumes](#volumes)
+    - [Manual Run](#manual-run)
 - [License](#license)
 - [Donation](#donation)
 
@@ -102,7 +103,7 @@ a container named `nzbget`. Additionally, the script will ensure that this
 container gets setup with the appropriate environment variables and volumes
 each time it is executed.
 
-#### Installation as current user:
+### Install as current user:
 Start the installation by issuing the following command from within a terminal:
 ```sh
 docker run -it --rm -v /usr/local/bin:/target \
@@ -110,7 +111,7 @@ docker run -it --rm -v /usr/local/bin:/target \
     hurricane/nzbget
 ```
 
-Optionally, you can also install a systemd service file by executing:
+Optionally, you can install a systemd service file by executing:
 ```sh
 docker run -it --rm -v /etc/systemd/system:/target  \
     --entrypoint instl
@@ -122,9 +123,9 @@ To enable the systemd service for `nzbget` execute the following:
 sudo systemctl enable nzbget@$USER
 ```
 
-#### Install as another user:
+### Install as another user:
 In the following instructions adjust each command replacing `username` with the
-name of the user you wish to install and run the container as.
+name of the user you wish the container to run as.
 
 To install the application execute and, again, adjust the command replacing
 `username` accordingly.
@@ -162,16 +163,15 @@ Then proceed by following any of the docker run commands described in the
 installation instructions above.
 
 ### Initial Configuration:
-
-Once the nzbget wrapper script for docker has been installed you just need to
-execute the wrapper script from within a terminal:
+Once the wrapper script for the sonarr docker has been installed you just need
+to execute the wrapper script from within a terminal:
 ```sh
 nzbget
 ```
-On the first run the wrapper script will prompt for system paths that
-you wish made accessible from within the container. Enter one path per line.
+On the first run, the script will prompt for system paths that you wish made
+accessible from within the container. Enter one path per line.
 
-#### Adding more volumes:
+### Adding more volumes:
 Volumes which should be mounted within the container at runtime are kept in the
 volume configuration file found under the `APP_CONFIG` folder on the host. The
 location will vary depending on the type of installation.
@@ -185,7 +185,6 @@ Otherwise at:
 ## Maintenance
 
 ### Upgrading:
-
 You can upgrade the version of nzbget found within the container by executing
 one of the following commands:
 ```sh
@@ -209,28 +208,25 @@ If you wish the docker container to automatically update upon creation, set the
 environment variable `EDGE` to `1`. Please read the `Technical Details` section
 for the various ways this can be achieved.
 
-In order to have the container periodically check and upgrade the nzbget binary
-one needs to add  a [`crontab`](https://en.wikipedia.org/wiki/Cron) entry. Like
-so:
-```
+In order to have the container periodically check and upgrade nzbget one needs
+to add a [`crontab`](https://en.wikipedia.org/wiki/Cron) entry. Like so:
+```sh
 echo "0 2 * * * docker exec nzbget update" | sudo tee -a /var/spool/cron/crontabs/root
 ```
 or
-```
+```sh
 echo "0 2 * * * nzbget --update" | sudo tee -a /var/spool/cron/crontabs/root
 ```
 ### Removal:
-
-```bash
+```sh
 docker run -it --rm \
   --volume /usr/local/bin:/target \
   --entrypoint uninstl
   hurricane/nzbget
 ```
 
-## Shell Access
-
-For debugging and maintenance purposes you may want access the container's
+### Shell Access
+For debugging and maintenance purposes you may want to access the container's
 shell. If you are using Docker version `1.3.0` or higher you can access
 a running container's shell by starting `bash` using `docker exec`:
 
@@ -252,7 +248,7 @@ nzbget --logs
 nzbget --status
 ```
 
-# Technical information:
+## Technical information:
 
 By default the containerized application has been set to run with UID and GID
 `1000`. If using the automatic install method from Docker, the container is set
@@ -264,7 +260,6 @@ variable. Here is a list of any and all applicable environment variables that
 can be override by the end user.
 
 ### Environment Variables:
-
 You can adjust some of the default settings set for container/application by
 passing any or all of the following environment variable:
 
@@ -285,24 +280,23 @@ passing any or all of the following environment variable:
 \[4\]: Variable is applicable in all scenarios.  
 
 #### Adjusting Variables:
-In order to pass any of the applicable variables during install or when
-invoking `docker run` directly  please read Docker's documentation on
-[environment
+If you are unfamiliar with passing environment variables when invoking `docker
+run` please refer to Docker's documentation on [environment
 variables](https://docs.docker.com/engine/reference/run/#env-environment-variables)
 for clarification. Otherwise, the following examples should be pretty clear.
 
 The following examples will use the environment variable `EDGE`. `EDGE` has
 been chosen since it is applicable during all scenarios.
 
-To pass the `EDGE` variable while invoking `docker run` append the following
+To pass the `EDGE` variable when invoking `docker run` append the following
 prior to the image name. Any and all other applicable variables can be done in
 the same manner.
 ```sh
 --env=EDGE=1
 ```
 
-To pass the environment variable during the other scenarios do so like in one
-of the examples below:
+To pass the environment variable during other scenarios do so like in one of
+the examples below:
 
 From the commandline when calling the wrapper script:
 ```
@@ -317,13 +311,11 @@ Environment=EDGE=1
 ...
 ```
 
-## Volumes:
-
+### Volumes:
 * `/config`  - Folder for configuration and settings.
 
 
 ### Manual Run:
-
 Of course you can always run the docker image manually. Please be aware that if
 you wish your data to remain persistent you need to provide a location for the
 `/config` volume. For example,
